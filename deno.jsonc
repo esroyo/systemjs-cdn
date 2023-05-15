@@ -1,6 +1,7 @@
 {
   "importMap": "./importmap.json", 
   "tasks": {
+    "deploy": "deployctl deploy --project=esroyo-systemjs-sh src/main.ts",
     "dev": "deno run --watch src/main.ts",
     "test": "deno test --allow-env --allow-read"
   }

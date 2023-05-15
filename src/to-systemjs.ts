@@ -1,5 +1,4 @@
 import { ModuleFormat, rollup } from 'rollup';
-//import terser from '@rollup/plugin-terser';
 import virtual from '@rollup/plugin-virtual';
 
 export const toSystemjs = async (esmCode: string): Promise<string>  => {
@@ -9,7 +8,6 @@ export const toSystemjs = async (esmCode: string): Promise<string>  => {
     input: 'esmCode',
     plugins: [
       virtual({ esmCode }),
-      //terser(),
     ],
     treeshake: false,
   };

@@ -4,6 +4,9 @@ const ESM_SERVICE_HOST = 'esm.sh';
 
 export async function esmProxyRequestHandler(req: Request): Promise<Response | never> {
   const modifiedUrl = new URL(req.url);
+  if (modifiedUrl.pathname === '/') {
+    return Response.redirect(`https://${ESM_SERVICE_HOST}`, 308);
+  }
   const selfHost = modifiedUrl.host;
   modifiedUrl.host = ESM_SERVICE_HOST;
   const esmCode = await fetch(modifiedUrl.toString(), { headers: req.headers }).then((res) => res.text());

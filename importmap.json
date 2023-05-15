@@ -1,6 +1,5 @@
 {
   "imports": {
-    "@rollup/plugin-terser": "https://esm.sh/@rollup/plugin-terser",
     "@rollup/plugin-virtual": "https://esm.sh/@rollup/plugin-virtual",
     "rollup": "https://esm.sh/rollup",
     "testing/asserts": "https://deno.land/std/testing/asserts.ts",
