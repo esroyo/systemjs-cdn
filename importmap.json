@@ -1,0 +1,9 @@
+{
+  "imports": {
+    "@rollup/plugin-virtual": "https://esm.sh/@rollup/plugin-virtual",
+    "rollup": "https://esm.sh/rollup",
+    "testing/asserts": "https://deno.land/std/testing/asserts.ts",
+    "testing/mock": "https://deno.land/std/testing/mock.ts",
+    "http": "https://deno.land/std/http/mod.ts"
+  }
+}

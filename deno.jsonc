@@ -1,0 +1,7 @@
+{
+  "importMap": "./importmap.json", 
+  "tasks": {
+    "dev": "deno run --watch src/main.ts",
+    "test": "deno test --allow-env --allow-read"
+  }
+}
