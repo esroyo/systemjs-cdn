@@ -1,6 +1,6 @@
 import { ModuleFormat, rollup } from 'rollup';
+//import terser from '@rollup/plugin-terser';
 import virtual from '@rollup/plugin-virtual';
-//import { minify } from 'npm:rollup-plugin-esbuild';
 
 export const toSystemjs = async (esmCode: string): Promise<string>  => {
 
@@ -9,7 +9,7 @@ export const toSystemjs = async (esmCode: string): Promise<string>  => {
     input: 'esmCode',
     plugins: [
       virtual({ esmCode }),
-      //minify(),
+      //terser(),
     ],
     treeshake: false,
   };
@@ -23,5 +23,5 @@ export const toSystemjs = async (esmCode: string): Promise<string>  => {
   const bundle = await rollup(inputOptions);
   const { output } = await bundle.generate(outputOptions);
   await bundle.close();
-  return output[0].code.replace(/https:\/\/esm\.sh\//g, 'https://systemjs.sh/');
+  return output[0].code;
 }
