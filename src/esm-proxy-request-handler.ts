@@ -3,11 +3,12 @@ import { toSystemjs } from './to-systemjs.ts';
 const ESM_SERVICE_HOST = 'esm.sh';
 
 export async function esmProxyRequestHandler(req: Request): Promise<Response | never> {
-  const modifiedUrl = new URL(req.url);
-  if (modifiedUrl.pathname === '/') {
+  const url = new URL(req.url);
+  if (url.pathname === '/') {
     return Response.redirect(`https://${ESM_SERVICE_HOST}`, 308);
   }
-  const selfHost = modifiedUrl.host;
+  const selfHost = url.host;
+  const modifiedUrl = new URL(url);
   modifiedUrl.host = ESM_SERVICE_HOST;
   const esmResponse = await fetch(modifiedUrl.toString(), { headers: req.headers });
   const esmCode = await esmResponse.text();

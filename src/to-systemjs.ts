@@ -1,7 +1,7 @@
 import virtual from '@rollup/plugin-virtual';
 import { InputOptions, ModuleFormat, OutputOptions, rollup } from 'rollup';
 
-export const toSystemjs = async (esmCode: string): Promise<string>  => {
+export const toSystemjs = async (esmCode: string): Promise<string> => {
 
   const inputOptions: InputOptions = {
     external: () => true,
