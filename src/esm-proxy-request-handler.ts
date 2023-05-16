@@ -9,9 +9,11 @@ export async function esmProxyRequestHandler(req: Request): Promise<Response | n
   }
   const selfHost = modifiedUrl.host;
   modifiedUrl.host = ESM_SERVICE_HOST;
-  const esmCode = await fetch(modifiedUrl.toString(), { headers: req.headers }).then((res) => res.text());
+  const esmResponse = await fetch(modifiedUrl.toString(), { headers: req.headers });
+  const esmCode = await esmResponse.text();
   const systemjsCode = await toSystemjs(esmCode);
   return new Response(
-    systemjsCode.replace(new RegExp(`//${ESM_SERVICE_HOST}/`, 'ig'), `//${selfHost}/`)
+    systemjsCode.replace(new RegExp(`//${ESM_SERVICE_HOST}/`, 'ig'), `//${selfHost}/`),
+    { headers: esmResponse.headers },
   );
 }
