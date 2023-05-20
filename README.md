@@ -5,7 +5,9 @@ A fast, smart, &amp; global content delivery network (CDN) for modern(es2015+) w
 
 Under the hood It is a simple proxy layer on top of the excellent [esm.sh](https://esm.sh) CDN service, powered by [esbuild](https://esbuild.github.io/), [rollup](https://rollupjs.org/), [Deno](https://deno.com) and [Cloudflare](https://cloudflare.com).
 
-The main use case for this service is to off-load bundling budget while targeting SystemJS. Although (for demostration) It's possible to use it directly on HTML:
+The main use case for this service is to off-load bundling budget while targeting SystemJS, specially when providing a third-party service.
+
+Imagine a webiste on domain `foo.com`:
 
 ```html
 <!DOCTYPE html>
@@ -13,37 +15,38 @@ The main use case for this service is to off-load bundling budget while targetin
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>SystemJS CDN Example</title>
+  <title>Welcome to foo.com</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script type="systemjs-importmap">
-    {
-      "imports": {
-        "react": "https://systemjs.sh/react",
-        "react-dom": "https://systemjs.sh/react-dom"
-      }
-    }
-  </script>
+  <!--
+    My thir-party service just needs to load SystemJS.
+    The only global variable defined will be `System`.
+  -->
   <script src="https://unpkg.com/systemjs/dist/s.min.js"></script>
+  <!--
+    Once `System` is loaded we can add an importmap with maps that are
+    scoped/limited to our third-party domain (for example: esroyo.github.io).
+    We are not interferring with other consumers of `System`, if they exist.
+  -->
+  <script>
+  System.addImportMap({
+    "scopes": {
+      "https://esroyo.github.io/systemjs.sh-examples/": {
+        // vue will be loaded from the systemjs.sh CDN
+        "vue": "https://systemjs.sh/vue",
+      }
+    },
+  });
+  </script>
+  <!--
+    Finally, we introduce our thir-party service script.
+    It will use `System` and the scoped importmap.
+    It will not pollute or collision in any possible way with foo.com
+    Our third-party service format is SystemJS with externals (for example "vue").
+  -->
+  <script src="https://esroyo.github.io/systemjs.sh-examples/dist/assets/index.js"></script>
 </head>
 <body>
-  <div id="react-root"></div>
-  <script>
-System.register(["react", "react-dom"], function (_export, _context) {
-  "use strict";
-
-  var React, ReactDOM;
-  return {
-    setters: [function (_react) {
-      React = _react.default;
-    }, function (_reactDom) {
-      ReactDOM = _reactDom.default;
-    }],
-    execute: function () {
-      ReactDOM.render(React.createElement("button", null, "A button created by React"), document.getElementById('react-root'));
-    }
-  };
-});
-  </script>
+  <div id="app"></div>
 </body>
 </html>
 ```
