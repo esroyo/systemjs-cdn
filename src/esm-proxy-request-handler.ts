@@ -1,22 +1,19 @@
-import { getEsmOrigin } from './get-esm-origin.ts';
+import { resolveConfig } from './resolve-config.ts';
 import { toSystemjs } from './to-systemjs.ts';
 
-const ESM_ORIGIN = getEsmOrigin();
-const ESM_HOST = new URL(ESM_ORIGIN).host;
 
 export async function esmProxyRequestHandler(req: Request): Promise<Response | never> {
-  const url = new URL(req.url);
-  if (url.pathname === '/') {
-    return Response.redirect(ESM_ORIGIN, 308);
+  const { esmOrigin } = await resolveConfig();
+  const selfUrl = new URL(req.url);
+  if (selfUrl.pathname === '/') {
+    return Response.redirect(esmOrigin, 308);
   }
-  const selfHost = url.host;
-  const modifiedUrl = new URL(url);
-  modifiedUrl.host = ESM_HOST;
-  const esmResponse = await fetch(modifiedUrl.toString(), { headers: req.headers });
+  const esmUrl = new URL(req.url.replace(selfUrl.origin, ''), esmOrigin);
+  const esmResponse = await fetch(esmUrl.toString(), { headers: req.headers });
   const esmCode = await esmResponse.text();
   const systemjsCode = await toSystemjs(esmCode);
   return new Response(
-    systemjsCode.replace(new RegExp(`${ESM_ORIGIN}/`, 'ig'), `https://${selfHost}/`),
+    systemjsCode.replace(new RegExp(esmOrigin, 'ig'), selfUrl.origin),
     { headers: esmResponse.headers },
   );
 }

@@ -1,7 +1,7 @@
 {
   "imports": {
-    "@rollup/plugin-virtual": "https://esm.sh/@rollup/plugin-virtual",
-    "dotenv": "https://deno.land/std/dotenv/load.ts",
+    "@rollup/plugin-virtual": "https://cdn.skypack.dev/@rollup/plugin-virtual",
+    "dotenv": "https://deno.land/std/dotenv/mod.ts",
     "http": "https://deno.land/std/http/mod.ts",
     "rollup": "https://esm.sh/rollup",
     "testing/asserts": "https://deno.land/std/testing/asserts.ts",

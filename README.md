@@ -7,7 +7,9 @@ Under the hood It is a simple proxy layer on top of the excellent [esm.sh](https
 
 The main use case for this service is to off-load bundling budget while targeting SystemJS, specially when providing a third-party service.
 
-Imagine a webiste on domain `foo.com`:
+## Example case
+
+This is an example case of code distributed by a third-party domain `esroyo.github.io`, and executed on a first-party domain `foo.com`. The code imports modules from the systemjs.sh CDN without any pollution nor creation of global variables (aside from `System` itself):
 
 ```html
 <!DOCTYPE html>
@@ -30,7 +32,7 @@ Imagine a webiste on domain `foo.com`:
   <script>
   System.addImportMap({
     "scopes": {
-      "https://esroyo.github.io/systemjs.sh-examples/": {
+      "https://esroyo.github.io/": {
         // vue will be loaded from the systemjs.sh CDN
         "vue": "https://systemjs.sh/vue",
       }
@@ -49,4 +51,14 @@ Imagine a webiste on domain `foo.com`:
   <div id="app"></div>
 </body>
 </html>
+```
+
+## Local environment
+
+```sh
+# build a docker image of this service
+docker build -t systemjs.sh .
+
+# run the service on localhost:8000
+docker run -p 8000:8000 systemjs.sh
 ```
