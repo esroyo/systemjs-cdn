@@ -1,27 +1,36 @@
-const DEFAULT_ESM_ORIGIN = 'https://esm.sh';
+import { dotenvLoad } from '../deps.ts';
+
+type Config = Record<'ESM_ORIGIN' | 'BASE_PATH', string>;
+const DEFAULTS: Config = {
+  ESM_ORIGIN: 'https://esm.sh',
+  BASE_PATH: '',
+} as const;
 const __dirname = new URL('.', import.meta.url).pathname;
 
 export const loadEnv = async (): Promise<void> => {
-  const { load } = await import('dotenv');
-  await load({
+  await dotenvLoad({
+    allowEmptyValues: true,
     envPath: `${__dirname}../.env`,
     export: true,
   });
 };
 
-export const getEsmOrigin = async () => {
-  const EXISTING_ESM_ORIGIN = Deno.env.get('ESM_ORIGIN');
-  if (EXISTING_ESM_ORIGIN) {
-    return EXISTING_ESM_ORIGIN;
+export const getEnvVar = async <T extends keyof typeof DEFAULTS>(key: T): Promise<Config[T]> => {
+  const EXISTING_VALUE = Deno.env.get(key);
+  if (typeof EXISTING_VALUE !== 'undefined') {
+    return EXISTING_VALUE as Config[T];
   }
   await loadEnv();
-  const ONFILE_ESM_ORIGIN = Deno.env.get('ESM_ORIGIN');
-  if (ONFILE_ESM_ORIGIN) {
-    return ONFILE_ESM_ORIGIN;
+  const ONFILE_VALUE = Deno.env.get(key);
+  if (typeof ONFILE_VALUE !== 'undefined') {
+    return ONFILE_VALUE as Config[T];
   }
-  return DEFAULT_ESM_ORIGIN;
+  return DEFAULTS[key];
 };
 
-export const resolveConfig = async () => ({
-  esmOrigin: await getEsmOrigin(),
-});
+export const resolveConfig = async (): Promise<Config> => {
+  const KEYS = Object.keys(DEFAULTS) as Array<keyof typeof DEFAULTS>
+  const values = await Promise.all(KEYS.map((key) => getEnvVar(key)));
+  const config = Object.fromEntries(values.map((value, idx) => [KEYS[idx], value])) as Config;
+  return config;
+};

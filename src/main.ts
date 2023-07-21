@@ -1,5 +1,4 @@
-import 'dotenv';
-import { serve } from 'http';
+import { serve } from '../deps.ts';
 
 import { esmProxyRequestHandler } from './esm-proxy-request-handler.ts';
 

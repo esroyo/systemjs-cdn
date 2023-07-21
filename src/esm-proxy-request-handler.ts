@@ -1,19 +1,60 @@
+import { _internals } from './utils.ts';
 import { resolveConfig } from './resolve-config.ts';
 import { toSystemjs } from './to-systemjs.ts';
 
-
-export async function esmProxyRequestHandler(req: Request): Promise<Response | never> {
-  const { esmOrigin } = await resolveConfig();
+export async function esmProxyRequestHandler(req: Request, ): Promise<Response | never> {
+  const {
+    BASE_PATH,
+    ESM_ORIGIN,
+  } = await resolveConfig();
   const selfUrl = new URL(req.url);
-  if (selfUrl.pathname === '/') {
+  const basePath = `/${BASE_PATH}/`.replace(/\/+/g, '/');
+  const esmOrigin = `${ESM_ORIGIN}/`.replace(/\/+$/, '/');
+  if (selfUrl.pathname === `${basePath}`) {
     return Response.redirect(esmOrigin, 308);
   }
-  const esmUrl = new URL(req.url.replace(selfUrl.origin, ''), esmOrigin);
-  const esmResponse = await fetch(esmUrl.toString(), { headers: req.headers });
+  const selfOrigin = `${selfUrl.origin}${basePath}`;
+  const esmUrl = new URL(req.url.replace(selfOrigin, ''), esmOrigin);
+  const replaceOrigin = (() => {
+    const esmOriginRegExp = new RegExp(esmOrigin, 'ig');
+    return (str: string) => str.replace(esmOriginRegExp, selfOrigin);
+  })();
+  let esmResponse = await _internals.fetch(esmUrl.toString(), {
+    headers: req.headers,
+    redirect: 'manual',
+  });
+  let avoidCache = false;
+  if (!esmResponse.ok ) {
+      try {
+        const { statusCode, headers = [] } = await _internals.curl(['-I', esmUrl.toString()]);
+        const isRedirect = statusCode >= 300 && statusCode < 400;
+        if (!isRedirect) {
+          return esmResponse;
+        }
+        return new Response('', {
+          status: statusCode,
+          headers: Object.fromEntries(
+            Object.values(headers)
+              .map(({ name, value }) => (value ? [name, replaceOrigin(value)] : [name]))
+          ),
+        });
+      } catch (_error) {
+        avoidCache = true;
+        esmResponse = await _internals.fetch(esmUrl.toString(), {
+          headers: req.headers,
+        });
+      }
+  }
   const esmCode = await esmResponse.text();
   const systemjsCode = await toSystemjs(esmCode);
+  let headers = esmResponse.headers;
+  if (avoidCache) {
+    headers = new Headers(esmResponse.headers);
+    headers.delete('Cahche-Control');
+    headers.set('Cache-Control', 'public, max-age=600');
+  }
   return new Response(
-    systemjsCode.replace(new RegExp(esmOrigin, 'ig'), selfUrl.origin),
-    { headers: esmResponse.headers },
+    replaceOrigin(systemjsCode),
+    { headers },
   );
 }

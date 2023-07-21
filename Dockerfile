@@ -1,5 +1,8 @@
 FROM denoland/deno:alpine-1.35.1
 
+# Install system deps
+RUN apk add curl
+
 # The port that your application listens to.
 EXPOSE 8000
 
@@ -18,4 +21,4 @@ RUN deno cache src/main.ts
 # Prefer not to run as root.
 USER deno
 
-CMD ["run", "--allow-net", "--allow-read", "--allow-env", "src/main.ts"]
+CMD ["run", "--allow-net", "--allow-read", "--allow-env", "--allow-run", "src/main.ts"]

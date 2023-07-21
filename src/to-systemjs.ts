@@ -1,5 +1,10 @@
-import virtual from '@rollup/plugin-virtual';
-import { InputOptions, ModuleFormat, OutputOptions, rollup } from 'rollup';
+import {
+    InputOptions,
+    ModuleFormat,
+    OutputOptions,
+    rollup,
+    rollupPluginVirtual
+} from '../deps.ts';
 
 export const toSystemjs = async (esmCode: string): Promise<string> => {
 
@@ -8,7 +13,7 @@ export const toSystemjs = async (esmCode: string): Promise<string> => {
     input: 'esmCode',
     plugins: [
       // @ts-ignore
-      virtual({ esmCode }),
+      rollupPluginVirtual({ esmCode }),
     ],
     treeshake: false,
   };
