@@ -26,16 +26,18 @@ export async function esmProxyRequestHandler(req: Request, ): Promise<Response |
   let avoidCache = false;
   if (!esmResponse.ok ) {
       try {
-        const { statusCode, headers = [] } = await _internals.curl(['-I', esmUrl.toString()]);
+        const { statusCode, statusMessage, headers = [] } = await _internals.curl(['-I', esmUrl.toString()]);
+        //const { statusCode, statusMessage, headers = [] } = await _internals.head(esmUrl.toString(), req.headers); 
+                    
         const isRedirect = statusCode >= 300 && statusCode < 400;
         if (!isRedirect) {
           return esmResponse;
         }
         return new Response('', {
           status: statusCode,
+          statusText: statusMessage,
           headers: Object.fromEntries(
-            Object.values(headers)
-              .map(({ name, value }) => (value ? [name, replaceOrigin(value)] : [name]))
+            Object.values(headers).map(({ name, value }) => (value ? [name, replaceOrigin(value)] : [name]))
           ),
         });
       } catch (_error) {
