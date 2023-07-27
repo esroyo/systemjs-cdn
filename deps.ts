@@ -3,7 +3,6 @@ export { default as rollupPluginVirtual } from 'https://cdn.skypack.dev/@rollup/
 export type { InputOptions, ModuleFormat, OutputOptions } from 'https://esm.sh/rollup';
 export { rollup } from 'https://esm.sh/rollup';
 export { load as dotenvLoad } from 'https://deno.land/std/dotenv/mod.ts';
-export type { HttpZResponseModel } from 'https://esm.sh/http-z';
-export { default as httpz } from 'https://esm.sh/http-z';
+export { default as httpz } from 'https://cdn.skypack.dev/http-z@6.1.2';
 export { serve } from 'https://deno.land/std/http/mod.ts';
-export { default as request } from 'https://esm.sh/request@2.88.2';
+//export { default as request } from 'https://esm.sh/request@2.88.2';
