@@ -6,12 +6,13 @@ export async function esmProxyRequestHandler(req: Request, ): Promise<Response |
   const {
     BASE_PATH,
     ESM_ORIGIN,
+    HOMEPAGE,
   } = await resolveConfig();
   const selfUrl = new URL(req.url);
   const basePath = `/${BASE_PATH}/`.replace(/\/+/g, '/');
   const esmOrigin = `${ESM_ORIGIN}/`.replace(/\/+$/, '/');
   if (selfUrl.pathname === `${basePath}`) {
-    return Response.redirect(esmOrigin, 308);
+    return Response.redirect(HOMEPAGE || esmOrigin, 302);
   }
   const selfOrigin = `${selfUrl.origin}${basePath}`;
   const esmUrl = new URL(req.url.replace(selfOrigin, ''), esmOrigin);

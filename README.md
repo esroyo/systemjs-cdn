@@ -13,14 +13,14 @@ This is an example case of code distributed by a third-party domain `esroyo.gith
 
 ```html
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Welcome to foo.com</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!--
-    My thir-party service just needs to load SystemJS.
+    My third-party service just needs to load SystemJS.
     The only global variable defined will be `System`.
   -->
   <script src="https://unpkg.com/systemjs/dist/s.min.js"></script>
@@ -40,7 +40,7 @@ This is an example case of code distributed by a third-party domain `esroyo.gith
   });
   </script>
   <!--
-    Finally, we introduce our thir-party service script.
+    Finally, we introduce our third-party service script.
     It will use `System` and the scoped importmap.
     It will not pollute or collision in any possible way with foo.com
     Our third-party service format is SystemJS with externals (for example "vue").
