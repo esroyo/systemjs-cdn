@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "deploy": "deployctl deploy --project=esroyo-systemjs-sh src/main.ts",
+    "deploy": "deployctl deploy --project=systemjs-sh src/main.ts",
     "dev": "deno run --watch --allow-env --allow-read --allow-run --allow-net src/main.ts",
     "test": "deno test --allow-env --allow-read --allow-run"
   }
