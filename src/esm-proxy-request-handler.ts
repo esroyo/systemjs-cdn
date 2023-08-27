@@ -53,7 +53,7 @@ export async function esmProxyRequestHandler(req: Request, ): Promise<Response |
   let headers = esmResponse.headers;
   if (avoidCache) {
     headers = new Headers(esmResponse.headers);
-    headers.delete('Cahche-Control');
+    headers.delete('Cache-Control');
     headers.set('Cache-Control', 'public, max-age=600');
   }
   return new Response(
