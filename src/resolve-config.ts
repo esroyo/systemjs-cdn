@@ -16,6 +16,7 @@ export const loadEnv = async (): Promise<void> => {
     await dotenvLoad({
         allowEmptyValues: true,
         envPath: `${__dirname}../.env`,
+        examplePath: '',
         export: true,
     });
 };
