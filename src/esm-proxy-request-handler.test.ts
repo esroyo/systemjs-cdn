@@ -126,6 +126,30 @@ Deno.test('esmProxyRequestHandler', async (t) => {
     });
 
     await t.step(
+        'should replace the $esmOrigin by the X-Real-Origin host if exists',
+        async () => {
+            const fetchStub = stub(
+                _internals,
+                'fetch',
+                returnsNext([fetchReturn()]),
+            );
+            const realOrigin = 'https://public.proxy.com';
+            const req = new Request(`${SELF_ORIGIN}/vue`, {
+                headers: { 'X-Real-Origin': realOrigin },
+            });
+            const res = await esmProxyRequestHandler(req);
+            const systemjsCode = await res.text();
+            assertEquals(
+                !!systemjsCode.match(
+                    new RegExp(`${realOrigin}/stable/vue@3.3.2/es2022/vue.mjs`),
+                ),
+                true,
+            );
+            fetchStub.restore();
+        },
+    );
+
+    await t.step(
         'should replace the $esmOrigin by the self host including $basePath',
         async () => {
             Deno.env.set('BASE_PATH', '/sub-dir/234');
@@ -141,6 +165,34 @@ Deno.test('esmProxyRequestHandler', async (t) => {
                 !!systemjsCode.match(
                     new RegExp(
                         `${SELF_ORIGIN}/sub-dir/234/stable/vue@3.3.2/es2022/vue.mjs`,
+                    ),
+                ),
+                true,
+            );
+            fetchStub.restore();
+            Deno.env.set('BASE_PATH', '');
+        },
+    );
+
+    await t.step(
+        'should replace the $esmOrigin by the X-Real-Origin host if exists including $basePath',
+        async () => {
+            Deno.env.set('BASE_PATH', '/sub-dir/234');
+            const fetchStub = stub(
+                _internals,
+                'fetch',
+                returnsNext([fetchReturn()]),
+            );
+            const realOrigin = 'https://public.proxy.com';
+            const req = new Request(`${SELF_ORIGIN}/vue`, {
+                headers: { 'X-Real-Origin': realOrigin },
+            });
+            const res = await esmProxyRequestHandler(req);
+            const systemjsCode = await res.text();
+            assertEquals(
+                !!systemjsCode.match(
+                    new RegExp(
+                        `${realOrigin}/sub-dir/234/stable/vue@3.3.2/es2022/vue.mjs`,
                     ),
                 ),
                 true,

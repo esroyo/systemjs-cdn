@@ -12,12 +12,13 @@ export async function esmProxyRequestHandler(
         OUTPUT_BANNER,
     } = await resolveConfig();
     const selfUrl = new URL(req.url);
+    const realUrl = new URL(req.headers.get('X-Real-Origin') ?? selfUrl);
     const basePath = `/${BASE_PATH}/`.replace(/\/+/g, '/');
     const esmOrigin = `${ESM_ORIGIN}/`.replace(/\/+$/, '/');
     if (selfUrl.pathname === `${basePath}`) {
         return Response.redirect(HOMEPAGE || esmOrigin, 302);
     }
-    const selfOrigin = `${selfUrl.origin}${basePath}`;
+    const selfOrigin = `${realUrl.origin}${basePath}`;
     const esmUrl = new URL(req.url.replace(selfOrigin, ''), esmOrigin);
     const replaceOrigin = (() => {
         const esmOriginRegExp = new RegExp(esmOrigin, 'ig');
