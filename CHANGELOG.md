@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.2.0](https://github.com/esroyo/systemjs.sh/compare/v1.1.1...v1.2.0) (2023-11-14)
+
+
+### Features
+
+* request may use `X-Real-Origin` header as origin ([0940f91](https://github.com/esroyo/systemjs.sh/commit/0940f910f2b1cc5d6046b163dc1eb544a3264b70))
+
 ## [1.1.1](https://github.com/esroyo/systemjs.sh/compare/v1.1.0...v1.1.1) (2023-11-14)
 
 ## 1.1.0 (2023-11-14)
