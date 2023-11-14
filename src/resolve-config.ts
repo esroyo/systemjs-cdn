@@ -1,10 +1,11 @@
 import { dotenvLoad } from '../deps.ts';
 
-type Config = Record<'BASE_PATH' | 'ESM_ORIGIN' | 'HOMEPAGE' , string>;
+type Config = Record<'BASE_PATH' | 'ESM_ORIGIN' | 'HOMEPAGE' | 'OUTPUT_BANNER' , string>;
 const DEFAULTS: Config = {
   ESM_ORIGIN: 'https://esm.sh',
   BASE_PATH: '',
   HOMEPAGE: '',
+  OUTPUT_BANNER: '',
 } as const;
 const __dirname = new URL('.', import.meta.url).pathname;
 

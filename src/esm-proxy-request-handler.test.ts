@@ -16,7 +16,7 @@ Deno.test('esmProxyRequestHandler', async (t) => {
   await t.step('should redirect to $esmOrigin on request empty', async () => {
     const req = new Request(SELF_ORIGIN);
     const res = await esmProxyRequestHandler(req);
-    assertEquals(res.status, 308);
+    assertEquals(res.status, 302);
     assertEquals(res.headers.get('location'), `${ESM_ORIGIN}/`);
   });
 

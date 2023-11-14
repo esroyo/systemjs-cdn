@@ -7,6 +7,7 @@ export async function esmProxyRequestHandler(req: Request, ): Promise<Response |
     BASE_PATH,
     ESM_ORIGIN,
     HOMEPAGE,
+    OUTPUT_BANNER,
   } = await resolveConfig();
   const selfUrl = new URL(req.url);
   const basePath = `/${BASE_PATH}/`.replace(/\/+/g, '/');
@@ -49,7 +50,7 @@ export async function esmProxyRequestHandler(req: Request, ): Promise<Response |
       }
   }
   const esmCode = await esmResponse.text();
-  const systemjsCode = await toSystemjs(esmCode);
+  const systemjsCode = await toSystemjs(esmCode, { banner: OUTPUT_BANNER });
   let headers = esmResponse.headers;
   if (avoidCache) {
     headers = new Headers(esmResponse.headers);

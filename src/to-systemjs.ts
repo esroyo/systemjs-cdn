@@ -6,7 +6,7 @@ import {
     rollupPluginVirtual
 } from '../deps.ts';
 
-export const toSystemjs = async (esmCode: string): Promise<string> => {
+export const toSystemjs = async (esmCode: string, rollupOutputOptions: OutputOptions = {}): Promise<string> => {
 
   const inputOptions: InputOptions = {
     external: () => true,
@@ -25,7 +25,7 @@ export const toSystemjs = async (esmCode: string): Promise<string> => {
   };
 
   const bundle = await rollup(inputOptions);
-  const { output } = await bundle.generate(outputOptions);
+  const { output } = await bundle.generate({ ...outputOptions, ...rollupOutputOptions });
   await bundle.close();
   return output[0].code;
 }
