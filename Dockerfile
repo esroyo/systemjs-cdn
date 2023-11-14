@@ -1,4 +1,4 @@
-FROM denoland/deno:alpine-1.35.1
+FROM denoland/deno:alpine-1.38.1
 
 # Install system deps
 RUN apk add curl
