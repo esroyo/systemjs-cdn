@@ -1,15 +1,27 @@
-# [systemjs.sh](https://systemjs.sh) 
-A fast, smart, &amp; global content delivery network (CDN) for modern(es2015+) web development.
+# [systemjs.sh](https://systemjs.sh)
 
-[systemjs.sh](https://systemjs.sh) provides a fast, global CDN served using the [SystemJS module format](https://github.com/systemjs/systemjs/blob/main/docs/system-register.md).
+[![codecov](https://codecov.io/gh/esroyo/systemjs.sh/graph/badge.svg?token=MRNXPM2JNH)](https://codecov.io/gh/esroyo/systemjs.sh)
 
-Under the hood It is a simple proxy layer on top of the excellent [esm.sh](https://esm.sh) CDN service, powered by [esbuild](https://esbuild.github.io/), [rollup](https://rollupjs.org/), [Deno](https://deno.com) and [Cloudflare](https://cloudflare.com).
+A fast, smart, &amp; global content delivery network (CDN) for modern(es2015+)
+web development.
 
-The main use case for this service is to off-load bundling budget while targeting SystemJS, specially when providing a third-party service.
+[systemjs.sh](https://systemjs.sh) provides a fast, global CDN served using the
+[SystemJS module format](https://github.com/systemjs/systemjs/blob/main/docs/system-register.md).
+
+Under the hood It is a simple proxy layer on top of the excellent
+[esm.sh](https://esm.sh) CDN service, powered by
+[esbuild](https://esbuild.github.io/), [rollup](https://rollupjs.org/),
+[Deno](https://deno.com) and [Cloudflare](https://cloudflare.com).
+
+The main use case for this service is to off-load bundling budget while
+targeting SystemJS, specially when providing a third-party service.
 
 ## Example case
 
-This is an example case of code distributed by a third-party domain `esroyo.github.io`, and executed on a first-party domain `foo.com`. The code imports modules from the systemjs.sh CDN without any pollution nor creation of global variables (aside from `System` itself):
+This is an example case of code distributed by a third-party domain
+`esroyo.github.io`, and executed on a first-party domain `foo.com`. The code
+imports modules from the systemjs.sh CDN without any pollution nor creation of
+global variables (aside from `System` itself):
 
 ```html
 <!DOCTYPE html>
