@@ -3,11 +3,14 @@ import { httpz } from '../deps.ts';
 
 import type { HttpZResponseModel } from './types.ts';
 
-type PartialHttpResponse = Pick<HttpZResponseModel, 'statusCode' | 'statusMessage' | 'headers'>;
+type PartialHttpResponse = Pick<
+    HttpZResponseModel,
+    'statusCode' | 'statusMessage' | 'headers'
+>;
 
 export const curl = async (args: string[]): Promise<PartialHttpResponse> => {
-  const { stdout } = await new Deno.Command('curl', { args }).output();
-  return httpz.parse(new TextDecoder().decode(stdout)) as HttpZResponseModel;
+    const { stdout } = await new Deno.Command('curl', { args }).output();
+    return httpz.parse(new TextDecoder().decode(stdout)) as HttpZResponseModel;
 };
 
 /*
@@ -41,7 +44,7 @@ export const head = async (url: string, headers: Headers): Promise<PartialHttpRe
 export const fetch = globalThis.fetch;
 
 export const _internals = {
-  curl,
-  fetch,
-  // head,
+    curl,
+    fetch,
+    // head,
 };

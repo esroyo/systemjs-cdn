@@ -1,8 +1,12 @@
 {
-  "tasks": {
-    "coverage": "rm -rf coverage && deno task test --reporter=dot --coverage=coverage && deno coverage --lcov --output=coverage.lcov coverage && genhtml -o coverage/report coverage.lcov",
-    "deploy": "deployctl deploy --project=systemjs-sh src/main.ts --exclude=.env",
-    "dev": "deno run --watch --allow-env --allow-read --allow-run --allow-net src/main.ts",
-    "test": "deno test --allow-env --allow-read --allow-run"
-  }
+    "tasks": {
+        "coverage": "rm -rf coverage && deno task test --reporter=dot --coverage=coverage && deno coverage --lcov --output=coverage.lcov coverage && genhtml -o coverage/report coverage.lcov",
+        "deploy": "deployctl deploy --project=systemjs-sh src/main.ts --exclude=.env",
+        "dev": "deno run --watch --allow-env --allow-read --allow-run --allow-net src/main.ts",
+        "test": "deno test --allow-env --allow-read --allow-run"
+    },
+    "fmt": {
+        "indentWidth": 4,
+        "singleQuote": true
+    }
 }
