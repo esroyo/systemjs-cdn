@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.3.0](https://github.com/esroyo/systemjs.sh/compare/v1.2.0...v1.3.0) (2023-11-15)
+
+
+### Features
+
+* enable option to detect redirections (curl, node, none) ([cae206b](https://github.com/esroyo/systemjs.sh/commit/cae206be0814ed163af49a841e0ed34d9ef49507))
+
 ## [1.2.0](https://github.com/esroyo/systemjs.sh/compare/v1.1.1...v1.2.0) (2023-11-14)
 
 
