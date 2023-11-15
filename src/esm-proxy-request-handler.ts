@@ -10,6 +10,8 @@ export async function esmProxyRequestHandler(
         ESM_ORIGIN,
         HOMEPAGE,
         OUTPUT_BANNER,
+        REDIRECT_DETECT,
+        REDIRECT_FAILURE_CACHE,
     } = await resolveConfig();
     const selfUrl = new URL(req.url);
     const realUrl = new URL(req.headers.get('X-Real-Origin') ?? selfUrl);
@@ -28,42 +30,52 @@ export async function esmProxyRequestHandler(
         headers: req.headers,
         redirect: 'manual',
     });
-    let avoidCache = false;
+    let redirectFailure = false;
     if (!esmResponse.ok) {
-        try {
-            const { statusCode, statusMessage, headers = [] } = await _internals
-                .curl(
-                    ['-I', esmUrl.toString()],
-                );
-            //const { statusCode, statusMessage, headers = [] } = await _internals.head(esmUrl.toString(), req.headers);
-
-            const isRedirect = statusCode >= 300 && statusCode < 400;
-            if (!isRedirect) {
-                return esmResponse;
-            }
-            return new Response('', {
-                status: statusCode,
-                statusText: statusMessage,
-                headers: Object.fromEntries(
-                    Object.values(headers).map((
-                        { name, value },
-                    ) => (value ? [name, replaceOrigin(value)] : [name])),
-                ),
-            });
-        } catch (_error) {
-            avoidCache = true;
+        const redirectDetectNoneOrFailure = async () => {
+            redirectFailure = true;
             esmResponse = await _internals.fetch(esmUrl.toString(), {
                 headers: req.headers,
             });
+        };
+        if (REDIRECT_DETECT === 'none') {
+            await redirectDetectNoneOrFailure();
+        } else {
+            try {
+                const redirectPromise = REDIRECT_DETECT === 'curl'
+                    ? _internals.curl(['-I', esmUrl.toString()])
+                    : _internals.node(esmUrl.toString(), req.headers);
+                const { statusCode, statusMessage, headers = [] } =
+                    await redirectPromise;
+                const isRedirect = statusCode >= 300 && statusCode < 400;
+                if (!isRedirect) {
+                    return esmResponse;
+                }
+                return new Response('', {
+                    status: statusCode,
+                    statusText: statusMessage,
+                    headers: Object.fromEntries(
+                        Object.values(headers).map((
+                            { name, value },
+                        ) => (value ? [name, replaceOrigin(value)] : [name])),
+                    ),
+                });
+            } catch (_error) {
+                console.warn(_error);
+                await redirectDetectNoneOrFailure();
+            }
         }
     }
     const esmCode = await esmResponse.text();
     const systemjsCode = await toSystemjs(esmCode, { banner: OUTPUT_BANNER });
     let headers = esmResponse.headers;
-    if (avoidCache) {
+    if (redirectFailure) {
         headers = new Headers(esmResponse.headers);
         headers.delete('Cache-Control');
-        headers.set('Cache-Control', 'public, max-age=600');
+        headers.set(
+            'Cache-Control',
+            `public, max-age=${REDIRECT_FAILURE_CACHE}`,
+        );
     }
     return new Response(
         replaceOrigin(systemjsCode),

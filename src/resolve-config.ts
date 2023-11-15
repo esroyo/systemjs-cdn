@@ -1,14 +1,22 @@
 import { dotenvLoad } from '../deps.ts';
 
-type Config = Record<
-    'BASE_PATH' | 'ESM_ORIGIN' | 'HOMEPAGE' | 'OUTPUT_BANNER',
-    string
->;
+type Config =
+    & Record<
+        | 'BASE_PATH'
+        | 'ESM_ORIGIN'
+        | 'HOMEPAGE'
+        | 'OUTPUT_BANNER'
+        | 'REDIRECT_FAILURE_CACHE',
+        string
+    >
+    & { REDIRECT_DETECT: 'curl' | 'node' | 'none' };
 const DEFAULTS: Config = {
     ESM_ORIGIN: 'https://esm.sh',
     BASE_PATH: '',
     HOMEPAGE: '',
     OUTPUT_BANNER: '',
+    REDIRECT_DETECT: 'curl',
+    REDIRECT_FAILURE_CACHE: '600',
 } as const;
 const __dirname = new URL('.', import.meta.url).pathname;
 

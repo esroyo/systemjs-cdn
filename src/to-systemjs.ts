@@ -14,7 +14,7 @@ export const toSystemjs = async (
         external: () => true,
         input: 'esmCode',
         plugins: [
-            // @ts-ignore
+            // @ts-ignore untyped
             rollupPluginVirtual({ esmCode }),
         ],
         treeshake: false,
