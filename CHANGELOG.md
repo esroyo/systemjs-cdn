@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.4.0](https://github.com/esroyo/systemjs.sh/compare/v1.3.1...v1.4.0) (2023-11-16)
+
+
+### Features
+
+* add repsonse `X-Real-Origin` debug header ([3db9860](https://github.com/esroyo/systemjs.sh/commit/3db9860f25ccaa456aa68e19ef5d0d25ba9f9920))
+
 ## [1.3.1](https://github.com/esroyo/systemjs.sh/compare/v1.3.0...v1.3.1) (2023-11-16)
 
 
