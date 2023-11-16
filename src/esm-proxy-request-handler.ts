@@ -77,6 +77,7 @@ export async function esmProxyRequestHandler(
             `public, max-age=${REDIRECT_FAILURE_CACHE}`,
         );
     }
+    headers.set('X-Real-Origin', realUrl.origin);
     return new Response(
         replaceOrigin(systemjsCode),
         { headers },
