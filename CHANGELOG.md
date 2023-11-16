@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.5.0](https://github.com/esroyo/systemjs.sh/compare/v1.4.0...v1.5.0) (2023-11-16)
+
+
+### Features
+
+* add response `X-Debug-Performance` info ([00586fe](https://github.com/esroyo/systemjs.sh/commit/00586feb58a93b4a0a20fa4c67d5c82c554e461c))
+
 ## [1.4.0](https://github.com/esroyo/systemjs.sh/compare/v1.3.1...v1.4.0) (2023-11-16)
 
 
