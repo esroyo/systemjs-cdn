@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.3.1](https://github.com/esroyo/systemjs.sh/compare/v1.3.0...v1.3.1) (2023-11-16)
+
+
+### Bug Fixes
+
+* use X-Real-Origin after homepage redirect discard ([15d26e6](https://github.com/esroyo/systemjs.sh/commit/15d26e62a7e6c9561b8a853eb22a831e2b9dff7e))
+
 ## [1.3.0](https://github.com/esroyo/systemjs.sh/compare/v1.2.0...v1.3.0) (2023-11-15)
 
 
