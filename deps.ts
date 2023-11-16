@@ -1,4 +1,5 @@
 import 'https://deno.land/std/dotenv/mod.ts';
+export { createHash } from 'https://deno.land/std@0.80.0/hash/mod.ts';
 export { default as rollupPluginVirtual } from 'npm:@rollup/plugin-virtual@3.0.2';
 export type {
     InputOptions,

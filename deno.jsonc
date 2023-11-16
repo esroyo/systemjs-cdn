@@ -1,7 +1,7 @@
 {
     "tasks": {
         "coverage": "rm -rf coverage && deno task test --reporter=dot --coverage=coverage && deno coverage --lcov --output=coverage.lcov coverage && genhtml -o coverage/report coverage.lcov",
-        "deploy": "deployctl deploy --project=systemjs-sh src/main.ts --exclude=.env",
+        "deploy": "deployctl deploy --prod --project=systemjs-sh src/main.ts --exclude=.env --exclude=coverage",
         "dev": "deno run --watch --allow-env --allow-read --allow-run --allow-net src/main.ts",
         "tag-version": "npx commit-and-tag-version && git push --follow-tags origin main",
         "test": "deno test --allow-env --allow-read --allow-run"

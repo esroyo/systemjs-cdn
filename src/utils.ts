@@ -1,6 +1,6 @@
 import { httpz, request } from '../deps.ts';
 
-import type { HttpZResponseModel } from './types.ts';
+import type { HttpZResponseModel, HttpZHeader } from './types.ts';
 
 type PartialHttpResponse = Pick<
     HttpZResponseModel,
@@ -51,6 +51,15 @@ export const node = async (
 };
 
 export const fetch = globalThis.fetch;
+
+export const cloneHeaders = (headers: IterableIterator<[string, string]> | HttpZHeader[], iteratee = (value: string) => value): Headers => (new Headers(
+    Object.fromEntries(
+        [...headers].map((item) => {
+            const [name, value] = Array.isArray(item) ? item : [item.name, item.value];
+            return value ? [name, iteratee(value)] : [name]
+        }),
+    )
+));
 
 export const _internals = {
     curl,
