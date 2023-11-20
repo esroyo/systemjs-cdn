@@ -1,14 +1,14 @@
 import { cloneHeaders, _internals } from './utils.ts';
 import { resolveConfig } from './resolve-config.ts';
 import { toSystemjs } from './to-systemjs.ts';
-import { createHash } from '../deps.ts';
+import { ulid } from '../deps.ts';
 
 const markNames = ['body', 'fetch1', 'fetch2', 'curl', 'node', 'tosystemjs', 'total'] as const;
 
 export async function esmProxyRequestHandler(
     req: Request,
 ): Promise<Response | never> {
-    const reqHash = createHash('md5').update(req.url).toString();
+    const reqHash = ulid();
     const prefix = (name: string) => `${reqHash}-${name}`;
     markNames.forEach(name => {
         const prefixedName = prefix(name);
@@ -52,6 +52,23 @@ export async function esmProxyRequestHandler(
         const esmOriginRegExp = new RegExp(esmOrigin, 'ig');
         return (str: string) => str.replace(esmOriginRegExp, selfOrigin);
     })();
+    if (!!req.headers.get('X-Debug')) {
+        return Response.json({
+          BASE_PATH,
+          ESM_ORIGIN,
+          HOMEPAGE,
+          OUTPUT_BANNER,
+          REDIRECT_DETECT,
+          REDIRECT_FAILURE_CACHE,
+          selfUrl,
+          basePath,
+          esmOrigin,
+          realUrl,
+          selfOrigin,
+          esmUrl,
+          xRealOrigin: req.headers.get('X-Real-Origin'),
+        });
+    }
     mark('fetch1');
     let esmResponse = await _internals.fetch(esmUrl.toString(), {
         headers: req.headers,
