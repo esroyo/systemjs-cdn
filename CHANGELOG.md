@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.6.0](https://github.com/esroyo/systemjs.sh/compare/v1.5.0...v1.6.0) (2023-11-20)
+
+
+### Features
+
+* allow to return debug info using `X-Debug` header ([972ac79](https://github.com/esroyo/systemjs.sh/commit/972ac790364dee2824773210c27c6c0c97b4aab5))
+
 ## [1.5.0](https://github.com/esroyo/systemjs.sh/compare/v1.4.0...v1.5.0) (2023-11-16)
 
 
