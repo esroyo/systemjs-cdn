@@ -1,23 +1,42 @@
-import { cloneHeaders, _internals } from './utils.ts';
+import { _internals, cloneHeaders } from './utils.ts';
 import { resolveConfig } from './resolve-config.ts';
 import { toSystemjs } from './to-systemjs.ts';
 import { ulid } from '../deps.ts';
 
-const markNames = ['body', 'fetch1', 'fetch2', 'curl', 'node', 'tosystemjs', 'total'] as const;
+const markNames = [
+    'body',
+    'fetch1',
+    'fetch2',
+    'curl',
+    'node',
+    'tosystemjs',
+    'total',
+] as const;
 
 export async function esmProxyRequestHandler(
     req: Request,
 ): Promise<Response | never> {
     const reqHash = ulid();
     const prefix = (name: string) => `${reqHash}-${name}`;
-    markNames.forEach(name => {
+    markNames.forEach((name) => {
         const prefixedName = prefix(name);
         performance.clearMarks(prefixedName);
         performance.clearMeasures(prefixedName);
     });
-    const mark = (name: typeof markNames[number]) => performance.mark(prefix(name));
-    const measure = (name: typeof markNames[number]) => performance.measure(prefix(name), prefix(name));
-    const buildDebugPerformance = () => JSON.stringify([...performance.getEntriesByType('measure').filter((entry) => entry.name.startsWith(reqHash)).map(({ name, duration, startTime }) => ({ name: name.replace(`${reqHash}-`, ''), duration, startTime }))])
+    const mark = (name: typeof markNames[number]) =>
+        performance.mark(prefix(name));
+    const measure = (name: typeof markNames[number]) =>
+        performance.measure(prefix(name), prefix(name));
+    const buildDebugPerformance = () =>
+        JSON.stringify([
+            ...performance.getEntriesByType('measure').filter((entry) =>
+                entry.name.startsWith(reqHash)
+            ).map(({ name, duration, startTime }) => ({
+                name: name.replace(`${reqHash}-`, ''),
+                duration,
+                startTime,
+            })),
+        ]);
     mark('total');
     const {
         BASE_PATH,
@@ -33,8 +52,8 @@ export async function esmProxyRequestHandler(
     if ([`${basePath}`, '/', ''].includes(selfUrl.pathname)) {
         return Response.redirect(HOMEPAGE || esmOrigin, 302);
     }
-    const realUrl = new URL(req.headers.get('X-Real-Origin') ?? selfUrl);
-    const finalizeHeaders = (headers: Headers, lowCache = false): void => { 
+    const finalUrl = new URL(req.headers.get('X-Real-Origin') ?? selfUrl);
+    const finalizeHeaders = (headers: Headers, lowCache = false): void => {
         if (lowCache) {
             headers.delete('Cache-Control');
             headers.set(
@@ -43,30 +62,31 @@ export async function esmProxyRequestHandler(
             );
         }
         headers.delete('X-Typescript-Types');
-        headers.set('X-Real-Origin', realUrl.origin);
+        headers.set('X-Real-Origin', finalUrl.origin);
         headers.set('X-Debug-Performance', buildDebugPerformance());
-    }
-    const selfOrigin = `${realUrl.origin}${basePath}`;
-    const esmUrl = new URL(req.url.replace(selfOrigin, ''), esmOrigin);
+    };
+    const selfOriginActual = `${selfUrl.origin}${basePath}`;
+    const selfOriginFinal = `${finalUrl.origin}${basePath}`;
+    const esmUrl = new URL(req.url.replace(selfOriginActual, ''), esmOrigin);
     const replaceOrigin = (() => {
         const esmOriginRegExp = new RegExp(esmOrigin, 'ig');
-        return (str: string) => str.replace(esmOriginRegExp, selfOrigin);
+        return (str: string) => str.replace(esmOriginRegExp, selfOriginFinal);
     })();
     if (!!req.headers.get('X-Debug')) {
         return Response.json({
-          BASE_PATH,
-          ESM_ORIGIN,
-          HOMEPAGE,
-          OUTPUT_BANNER,
-          REDIRECT_DETECT,
-          REDIRECT_FAILURE_CACHE,
-          selfUrl,
-          basePath,
-          esmOrigin,
-          realUrl,
-          selfOrigin,
-          esmUrl,
-          xRealOrigin: req.headers.get('X-Real-Origin'),
+            BASE_PATH,
+            ESM_ORIGIN,
+            HOMEPAGE,
+            OUTPUT_BANNER,
+            REDIRECT_DETECT,
+            REDIRECT_FAILURE_CACHE,
+            selfUrl,
+            basePath,
+            esmOrigin,
+            finalUrl,
+            selfOriginFinal,
+            esmUrl,
+            xRealOrigin: req.headers.get('X-Real-Origin'),
         });
     }
     mark('fetch1');
@@ -117,7 +137,7 @@ export async function esmProxyRequestHandler(
     mark('body');
     const esmCode = await esmResponse.text();
     measure('body');
-    mark('tosystemjs')
+    mark('tosystemjs');
     const systemjsCode = await toSystemjs(esmCode, { banner: OUTPUT_BANNER });
     measure('tosystemjs');
     const headers = cloneHeaders(esmResponse.headers.entries(), replaceOrigin);

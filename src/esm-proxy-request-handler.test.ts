@@ -82,6 +82,25 @@ Deno.test('esmProxyRequestHandler', async (t) => {
     );
 
     await t.step(
+        'should forward the request to $esmOrigin taking into account that `X-Real-Origin` and the current request URL may differ in origin',
+        async () => {
+            Deno.env.set('BASE_PATH', '/sub-dir');
+            const fetchStub = stub(
+                _internals,
+                'fetch',
+                returnsNext([fetchReturn()]),
+            );
+            const req = new Request(`${SELF_ORIGIN}/sub-dir/foo?bundle`, {
+                headers: { 'X-Real-Origin': 'https://systemjs.sh/' },
+            });
+            await esmProxyRequestHandler(req);
+            assertSpyCallArg(fetchStub, 0, 0, `${ESM_ORIGIN}/foo?bundle`);
+            fetchStub.restore();
+            Deno.env.set('BASE_PATH', '');
+        },
+    );
+
+    await t.step(
         'should forward the ESM_SEVICE_HOST response headers back to the client',
         async () => {
             const fetchStub = stub(
