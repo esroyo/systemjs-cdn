@@ -62,7 +62,6 @@ export async function esmProxyRequestHandler(
             );
         }
         headers.delete('X-Typescript-Types');
-        headers.set('X-Real-Origin', finalUrl.origin);
         headers.set('X-Debug-Performance', buildDebugPerformance());
     };
     const selfOriginActual = `${selfUrl.origin}${basePath}`;
@@ -89,9 +88,12 @@ export async function esmProxyRequestHandler(
             xRealOrigin: req.headers.get('X-Real-Origin'),
         });
     }
+    const reqHeaders = cloneHeaders(req.headers.entries());
+    reqHeaders.delete('X-Real-Origin');
+    reqHeaders.delete('X-Debug');
     mark('fetch1');
     let esmResponse = await _internals.fetch(esmUrl.toString(), {
-        headers: req.headers,
+        headers: reqHeaders,
         redirect: 'manual',
     });
     measure('fetch1');
@@ -101,7 +103,7 @@ export async function esmProxyRequestHandler(
             redirectFailure = true;
             mark('fetch2');
             esmResponse = await _internals.fetch(esmUrl.toString(), {
-                headers: req.headers,
+                headers: reqHeaders,
             });
             measure('fetch2');
         };
@@ -112,7 +114,7 @@ export async function esmProxyRequestHandler(
                 mark(REDIRECT_DETECT);
                 const redirectPromise = REDIRECT_DETECT === 'curl'
                     ? _internals.curl(['-I', esmUrl.toString()])
-                    : _internals.node(esmUrl.toString(), req.headers);
+                    : _internals.node(esmUrl.toString(), reqHeaders);
                 const { statusCode, statusMessage, headers = [] } =
                     await redirectPromise;
                 measure(REDIRECT_DETECT);
