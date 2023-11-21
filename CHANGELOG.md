@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.6.1](https://github.com/esroyo/systemjs.sh/compare/v1.6.0...v1.6.1) (2023-11-21)
+
+
+### Bug Fixes
+
+* handles different hosts on actual request and X-Real-Origin ([3dfc18b](https://github.com/esroyo/systemjs.sh/commit/3dfc18b87a7d9cb50a3fc2083eb780cc737c3936))
+
 ## [1.6.0](https://github.com/esroyo/systemjs.sh/compare/v1.5.0...v1.6.0) (2023-11-20)
 
 
