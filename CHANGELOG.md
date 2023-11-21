@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.7.1](https://github.com/esroyo/systemjs.sh/compare/v1.7.0...v1.7.1) (2023-11-21)
+
+
+### Bug Fixes
+
+* ensure custom `X-` headers are not passed to ESM upstream ([da75efd](https://github.com/esroyo/systemjs.sh/commit/da75efdb367d9a015b08122804cbdd08c92d0a68))
+
 ## [1.7.0](https://github.com/esroyo/systemjs.sh/compare/v1.6.1...v1.7.0) (2023-11-21)
 
 
