@@ -72,7 +72,7 @@ export async function esmProxyRequestHandler(
         const esmOriginRegExp = new RegExp(esmOrigin, 'ig');
         return (str: string) => str.replace(esmOriginRegExp, selfOriginFinal);
     })();
-    if (!!req.headers.get('X-Debug')) {
+    if (req.headers.get('X-Debug') === '1') {
         return Response.json({
             BASE_PATH,
             ESM_ORIGIN,
@@ -143,8 +143,25 @@ export async function esmProxyRequestHandler(
     const headers = cloneHeaders(esmResponse.headers.entries(), replaceOrigin);
     measure('total');
     finalizeHeaders(headers, redirectFailure);
-    return new Response(
-        replaceOrigin(systemjsCode),
-        { headers },
-    );
+    const finalSystemjsCode = replaceOrigin(systemjsCode);
+    if (req.headers.get('X-Debug') === '2') {
+        return Response.json({
+            BASE_PATH,
+            ESM_ORIGIN,
+            HOMEPAGE,
+            OUTPUT_BANNER,
+            REDIRECT_DETECT,
+            REDIRECT_FAILURE_CACHE,
+            selfUrl,
+            basePath,
+            esmOrigin,
+            finalUrl,
+            finalSystemjsCode,
+            selfOriginFinal,
+            systemjsCode,
+            esmUrl,
+            xRealOrigin: req.headers.get('X-Real-Origin'),
+        });
+    }
+    return new Response(finalSystemjsCode, { headers });
 }
