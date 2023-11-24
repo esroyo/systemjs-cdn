@@ -1,43 +1,23 @@
 import { _internals, cloneHeaders } from './utils.ts';
 import { resolveConfig } from './resolve-config.ts';
 import { toSystemjs } from './to-systemjs.ts';
-import { ulid } from '../deps.ts';
-
-const markNames = [
-    'body',
-    'fetch1',
-    'fetch2',
-    'curl',
-    'node',
-    'tosystemjs',
-    'total',
-] as const;
+import { ScopedPerformance } from '../deps.ts';
 
 export async function esmProxyRequestHandler(
     req: Request,
 ): Promise<Response | never> {
-    const reqHash = ulid();
-    const prefix = (name: string) => `${reqHash}-${name}`;
-    markNames.forEach((name) => {
-        const prefixedName = prefix(name);
-        performance.clearMarks(prefixedName);
-        performance.clearMeasures(prefixedName);
-    });
-    const mark = (name: typeof markNames[number]) =>
-        performance.mark(prefix(name));
-    const measure = (name: typeof markNames[number]) =>
-        performance.measure(prefix(name), prefix(name));
-    const buildDebugPerformance = () =>
-        JSON.stringify([
-            ...performance.getEntriesByType('measure').filter((entry) =>
-                entry.name.startsWith(reqHash)
-            ).map(({ name, duration, startTime }) => ({
-                name: name.replace(`${reqHash}-`, ''),
+    const scoped = new ScopedPerformance();
+    const buildDebugPerformance = () => {
+        const prefix = `${scoped.randomId}${scoped.glue}`;
+        console.log(performance.getEntries());
+        return JSON.stringify([
+            ...scoped.getEntriesByType('measure').map(({ name, duration }) => ({
+                name: name.replace(prefix, ''),
                 duration,
-                startTime,
             })),
         ]);
-    mark('total');
+    };
+    scoped.mark('total');
     const {
         BASE_PATH,
         ESM_ORIGIN,
@@ -91,39 +71,39 @@ export async function esmProxyRequestHandler(
     const reqHeaders = cloneHeaders(req.headers.entries());
     reqHeaders.delete('X-Real-Origin');
     reqHeaders.delete('X-Debug');
-    mark('fetch1');
+    scoped.mark('fetch1');
     let esmResponse = await _internals.fetch(esmUrl.toString(), {
         headers: reqHeaders,
         redirect: 'manual',
     });
-    measure('fetch1');
+    scoped.measure('fetch1', 'fetch1');
     let redirectFailure = false;
     if (!esmResponse.ok) {
         const redirectDetectNoneOrFailure = async () => {
             redirectFailure = true;
-            mark('fetch2');
+            scoped.mark('fetch2');
             esmResponse = await _internals.fetch(esmUrl.toString(), {
                 headers: reqHeaders,
             });
-            measure('fetch2');
+            scoped.measure('fetch2', 'fetch2');
         };
         if (REDIRECT_DETECT === 'none') {
             await redirectDetectNoneOrFailure();
         } else {
             try {
-                mark(REDIRECT_DETECT);
+                scoped.mark(REDIRECT_DETECT);
                 const redirectPromise = REDIRECT_DETECT === 'curl'
                     ? _internals.curl(['-I', esmUrl.toString()])
                     : _internals.node(esmUrl.toString(), reqHeaders);
                 const { statusCode, statusMessage, headers = [] } =
                     await redirectPromise;
-                measure(REDIRECT_DETECT);
+                scoped.measure(REDIRECT_DETECT, REDIRECT_DETECT);
                 const isRedirect = statusCode >= 300 && statusCode < 400;
                 if (!isRedirect) {
                     return esmResponse;
                 }
                 const responseHeaders = cloneHeaders(headers, replaceOrigin);
-                measure('total');
+                scoped.measure('total', 'total');
                 finalizeHeaders(responseHeaders, redirectFailure);
                 return new Response('', {
                     status: statusCode,
@@ -136,14 +116,14 @@ export async function esmProxyRequestHandler(
             }
         }
     }
-    mark('body');
+    scoped.mark('body');
     const esmCode = await esmResponse.text();
-    measure('body');
-    mark('tosystemjs');
+    scoped.measure('body', 'body');
+    scoped.mark('tosystemjs');
     const systemjsCode = await toSystemjs(esmCode, { banner: OUTPUT_BANNER });
-    measure('tosystemjs');
+    scoped.measure('tosystemjs', 'tosystemjs');
     const headers = cloneHeaders(esmResponse.headers.entries(), replaceOrigin);
-    measure('total');
+    scoped.measure('total', 'total');
     finalizeHeaders(headers, redirectFailure);
     const finalSystemjsCode = replaceOrigin(systemjsCode);
     if (req.headers.get('X-Debug') === '2') {
