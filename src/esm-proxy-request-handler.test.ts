@@ -12,8 +12,6 @@ import { resolveConfig } from './resolve-config.ts';
 
 const {
     ESM_ORIGIN,
-    REDIRECT_DETECT,
-    REDIRECT_FAILURE_CACHE,
 } = await resolveConfig();
 const SELF_ORIGIN = 'https://systemjs.test';
 
@@ -227,26 +225,18 @@ Deno.test('esmProxyRequestHandler', async (t) => {
     );
 
     await t.step(
-        'should use curl (default) to get the "Location:" header if ESM_SEVICE_HOST response is not ok and redirect',
+        'should return a redirect reponse with the replaced "Location:" header when ESM_SERVICE_HOST responds with >= 300 < 400 status',
         async () => {
             const fetchStub = stub(
                 _internals,
                 'fetch',
                 returnsNext([
-                    Promise.resolve(new Response('', { status: 302 })),
-                ]),
-            );
-            const curlStub = stub(
-                _internals,
-                'curl',
-                returnsNext([
-                    Promise.resolve({
-                        statusCode: 302,
-                        headers: [{
-                            name: 'location',
-                            value: `${ESM_ORIGIN}/stable/vue@3.3.2`,
-                        }],
-                    }),
+                    Promise.resolve(new Response('', {
+                        status: 302,
+                        headers: {
+                            'Location': `${ESM_ORIGIN}/stable/vue@3.3.2`,
+                        },
+                    })),
                 ]),
             );
             const req = new Request(`${SELF_ORIGIN}/vue`);
@@ -257,14 +247,12 @@ Deno.test('esmProxyRequestHandler', async (t) => {
                 `${SELF_ORIGIN}/stable/vue@3.3.2`,
             );
             assertSpyCalls(fetchStub, 1);
-            assertSpyCalls(curlStub, 1);
             fetchStub.restore();
-            curlStub.restore();
         },
     );
 
     await t.step(
-        'should use curl (default) to get the "Location:" header if ESM_SEVICE_HOST response is not ok and pass-through if not redirecting',
+        'should return the original reponse "as-is" when ESM_SERVICE_HOST responds with a !ok status other than >= 300 < 400',
         async () => {
             const fetchStub = stub(
                 _internals,
@@ -273,156 +261,11 @@ Deno.test('esmProxyRequestHandler', async (t) => {
                     Promise.resolve(new Response('', { status: 404 })),
                 ]),
             );
-            const curlStub = stub(
-                _internals,
-                'curl',
-                returnsNext([
-                    Promise.resolve({ statusCode: 500 }),
-                ]),
-            );
             const req = new Request(`${SELF_ORIGIN}/vue`);
             const res = await esmProxyRequestHandler(req);
             assertEquals(res.status, 404);
             assertSpyCalls(fetchStub, 1);
-            assertSpyCalls(curlStub, 1);
             fetchStub.restore();
-            curlStub.restore();
-        },
-    );
-
-    await t.step(
-        'should use curl (default) to get the "Location:" header if ESM_SEVICE_HOST response is not ok, and fallback to the redirected fetch with low cache if curl fails',
-        async () => {
-            const fetchStub = stub(
-                _internals,
-                'fetch',
-                returnsNext([
-                    Promise.resolve(new Response('', { status: 302 })),
-                    fetchReturn(),
-                ]),
-            );
-            const curlStub = stub(
-                _internals,
-                'curl',
-                returnsNext([
-                    Promise.reject(
-                        new Error(
-                            'Spawning subprocesses is not allowed in Deno Deploy',
-                        ),
-                    ),
-                ]),
-            );
-            const req = new Request(`${SELF_ORIGIN}/vue`);
-            const res = await esmProxyRequestHandler(req);
-            const systemjsCode = await res.text();
-            assertEquals(systemjsCode.startsWith('System.register('), true);
-            assertEquals(
-                res?.headers?.get('Cache-Control')?.includes(
-                    `max-age=${REDIRECT_FAILURE_CACHE}`,
-                ),
-                true,
-            );
-            assertSpyCalls(fetchStub, 2);
-            assertSpyCalls(curlStub, 1);
-            fetchStub.restore();
-            curlStub.restore();
-        },
-    );
-
-    await t.step(
-        'should be possible to use "node:request" (via config) to get the "Location:" header instead of "curl"',
-        async () => {
-            Deno.env.set('REDIRECT_DETECT', 'node');
-            const fetchStub = stub(
-                _internals,
-                'fetch',
-                returnsNext([
-                    Promise.resolve(new Response('', { status: 302 })),
-                ]),
-            );
-            const nodeStub = stub(
-                _internals,
-                'node',
-                returnsNext([
-                    Promise.resolve({
-                        statusCode: 302,
-                        headers: [{
-                            name: 'location',
-                            value: `${ESM_ORIGIN}/stable/vue@3.3.2`,
-                        }],
-                    }),
-                ]),
-            );
-            const req = new Request(`${SELF_ORIGIN}/vue`);
-            const res = await esmProxyRequestHandler(req);
-            assertEquals(res.status, 302);
-            assertEquals(
-                res.headers.get('location'),
-                `${SELF_ORIGIN}/stable/vue@3.3.2`,
-            );
-            assertSpyCalls(fetchStub, 1);
-            assertSpyCalls(nodeStub, 1);
-            fetchStub.restore();
-            nodeStub.restore();
-            Deno.env.set('REDIRECT_DETECT', REDIRECT_DETECT);
-        },
-    );
-
-    await t.step(
-        'should be possible not use neither node nor curl (via config) to get the "Location:" header',
-        async () => {
-            Deno.env.set('REDIRECT_DETECT', 'none');
-            const fetchStub = stub(
-                _internals,
-                'fetch',
-                returnsNext([
-                    Promise.resolve(new Response('', { status: 302 })),
-                    fetchReturn(),
-                ]),
-            );
-            const nodeStub = stub(
-                _internals,
-                'node',
-                returnsNext([
-                    Promise.resolve({
-                        statusCode: 302,
-                        headers: [{
-                            name: 'location',
-                            value: `${ESM_ORIGIN}/stable/vue@3.3.2`,
-                        }],
-                    }),
-                ]),
-            );
-            const curlStub = stub(
-                _internals,
-                'curl',
-                returnsNext([
-                    Promise.resolve({
-                        statusCode: 302,
-                        headers: [{
-                            name: 'location',
-                            value: `${ESM_ORIGIN}/stable/vue@3.3.2`,
-                        }],
-                    }),
-                ]),
-            );
-            const req = new Request(`${SELF_ORIGIN}/vue`);
-            const res = await esmProxyRequestHandler(req);
-            const systemjsCode = await res.text();
-            assertEquals(systemjsCode.startsWith('System.register('), true);
-            assertEquals(
-                res?.headers?.get('Cache-Control')?.includes(
-                    `max-age=${REDIRECT_FAILURE_CACHE}`,
-                ),
-                true,
-            );
-            assertSpyCalls(fetchStub, 2);
-            assertSpyCalls(curlStub, 0);
-            assertSpyCalls(nodeStub, 0);
-            fetchStub.restore();
-            curlStub.restore();
-            nodeStub.restore();
-            Deno.env.set('REDIRECT_DETECT', REDIRECT_DETECT);
         },
     );
 });

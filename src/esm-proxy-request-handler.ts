@@ -5,14 +5,12 @@ import { ScopedPerformance } from '../deps.ts';
 
 export async function esmProxyRequestHandler(
     req: Request,
-): Promise<Response | never> {
+): Promise<Response> {
     const scoped = new ScopedPerformance();
     const buildDebugPerformance = () => {
-        const prefix = `${scoped.randomId}${scoped.glue}`;
-        console.log(performance.getEntries());
         return JSON.stringify([
             ...scoped.getEntriesByType('measure').map(({ name, duration }) => ({
-                name: name.replace(prefix, ''),
+                name,
                 duration,
             })),
         ]);
@@ -23,8 +21,6 @@ export async function esmProxyRequestHandler(
         ESM_ORIGIN,
         HOMEPAGE,
         OUTPUT_BANNER,
-        REDIRECT_DETECT,
-        REDIRECT_FAILURE_CACHE,
     } = await resolveConfig();
     const selfUrl = new URL(req.url);
     const basePath = `/${BASE_PATH}/`.replace(/\/+/g, '/');
@@ -33,14 +29,7 @@ export async function esmProxyRequestHandler(
         return Response.redirect(HOMEPAGE || esmOrigin, 302);
     }
     const finalUrl = new URL(req.headers.get('X-Real-Origin') ?? selfUrl);
-    const finalizeHeaders = (headers: Headers, lowCache = false): void => {
-        if (lowCache) {
-            headers.delete('Cache-Control');
-            headers.set(
-                'Cache-Control',
-                `public, max-age=${REDIRECT_FAILURE_CACHE}`,
-            );
-        }
+    const finalizeHeaders = (headers: Headers): void => {
         headers.delete('X-Typescript-Types');
         headers.set('X-Debug-Performance', buildDebugPerformance());
     };
@@ -57,8 +46,6 @@ export async function esmProxyRequestHandler(
             ESM_ORIGIN,
             HOMEPAGE,
             OUTPUT_BANNER,
-            REDIRECT_DETECT,
-            REDIRECT_FAILURE_CACHE,
             selfUrl,
             basePath,
             esmOrigin,
@@ -68,53 +55,28 @@ export async function esmProxyRequestHandler(
             xRealOrigin: req.headers.get('X-Real-Origin'),
         });
     }
-    const reqHeaders = cloneHeaders(req.headers.entries());
+    const reqHeaders = cloneHeaders(req.headers);
     reqHeaders.delete('X-Real-Origin');
     reqHeaders.delete('X-Debug');
-    scoped.mark('fetch1');
+    scoped.mark('fetch');
     let esmResponse = await _internals.fetch(esmUrl.toString(), {
         headers: reqHeaders,
         redirect: 'manual',
     });
-    scoped.measure('fetch1', 'fetch1');
-    let redirectFailure = false;
+    scoped.measure('fetch', 'fetch');
     if (!esmResponse.ok) {
-        const redirectDetectNoneOrFailure = async () => {
-            redirectFailure = true;
-            scoped.mark('fetch2');
-            esmResponse = await _internals.fetch(esmUrl.toString(), {
-                headers: reqHeaders,
-            });
-            scoped.measure('fetch2', 'fetch2');
-        };
-        if (REDIRECT_DETECT === 'none') {
-            await redirectDetectNoneOrFailure();
-        } else {
-            try {
-                scoped.mark(REDIRECT_DETECT);
-                const redirectPromise = REDIRECT_DETECT === 'curl'
-                    ? _internals.curl(['-I', esmUrl.toString()])
-                    : _internals.node(esmUrl.toString(), reqHeaders);
-                const { statusCode, statusMessage, headers = [] } =
-                    await redirectPromise;
-                scoped.measure(REDIRECT_DETECT, REDIRECT_DETECT);
-                const isRedirect = statusCode >= 300 && statusCode < 400;
-                if (!isRedirect) {
-                    return esmResponse;
-                }
-                const responseHeaders = cloneHeaders(headers, replaceOrigin);
-                scoped.measure('total', 'total');
-                finalizeHeaders(responseHeaders, redirectFailure);
-                return new Response('', {
-                    status: statusCode,
-                    statusText: statusMessage,
-                    headers: responseHeaders,
-                });
-            } catch (_error) {
-                console.warn(_error);
-                await redirectDetectNoneOrFailure();
-            }
+        const isRedirect = esmResponse.status >= 300 && esmResponse.status < 400;
+        if (!isRedirect) {
+            return esmResponse;
         }
+        const responseHeaders = cloneHeaders(esmResponse.headers, replaceOrigin);
+        scoped.measure('total', 'total');
+        finalizeHeaders(responseHeaders);
+        return new Response('', {
+            status: esmResponse.status,
+            statusText: esmResponse.statusText,
+            headers: responseHeaders,
+        });
     }
     scoped.mark('body');
     const esmCode = await esmResponse.text();
@@ -122,9 +84,9 @@ export async function esmProxyRequestHandler(
     scoped.mark('tosystemjs');
     const systemjsCode = await toSystemjs(esmCode, { banner: OUTPUT_BANNER });
     scoped.measure('tosystemjs', 'tosystemjs');
-    const headers = cloneHeaders(esmResponse.headers.entries(), replaceOrigin);
+    const headers = cloneHeaders(esmResponse.headers, replaceOrigin);
     scoped.measure('total', 'total');
-    finalizeHeaders(headers, redirectFailure);
+    finalizeHeaders(headers);
     const finalSystemjsCode = replaceOrigin(systemjsCode);
     if (req.headers.get('X-Debug') === '2') {
         return Response.json({
@@ -132,8 +94,6 @@ export async function esmProxyRequestHandler(
             ESM_ORIGIN,
             HOMEPAGE,
             OUTPUT_BANNER,
-            REDIRECT_DETECT,
-            REDIRECT_FAILURE_CACHE,
             selfUrl,
             basePath,
             esmOrigin,

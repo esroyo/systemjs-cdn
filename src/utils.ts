@@ -1,73 +1,52 @@
-import { httpz, request } from '../deps.ts';
+import { request } from '../deps.ts';
 
-import type { HttpZHeader, HttpZResponseModel } from './types.ts';
+import type { HttpZResponseModel } from './types.ts';
 
-type PartialHttpResponse = Pick<
-    HttpZResponseModel,
-    'statusCode' | 'statusMessage' | 'headers'
->;
-
-export const curl = async (args: string[]): Promise<PartialHttpResponse> => {
-    const { stdout } = await new Deno.Command('curl', { args }).output();
-    return httpz.parse(new TextDecoder().decode(stdout)) as HttpZResponseModel;
-};
-
-export const node = async (
+export const nodeRequest = async (
     url: string,
-    headers: Headers,
-): Promise<PartialHttpResponse> => {
-    const { statusCode, statusMessage, headers: resHeaders } =
-        await new Promise<Record<string, unknown>>((resolve, reject) => {
-            request(
-                {
-                    method: 'HEAD',
-                    url,
-                    followRedirect: false,
-                    headers,
-                },
-                function (
-                    error: Error,
-                    response: HttpZResponseModel,
-                    _body: unknown,
-                ) {
-                    if (error) {
-                        return reject(error);
-                    }
-                    resolve({
-                        headers: response?.headers,
-                        statusCode: response?.statusCode,
-                    });
-                },
-            );
-        });
-
-    return {
-        statusCode: statusCode as number,
-        statusMessage: statusMessage as string,
-        headers: Object.entries(resHeaders as Record<string, string>).map((
-            [name, value],
-        ) => ({ name, value })),
-    };
+    init: RequestInit,
+): Promise<Response> => {
+    return new Promise<Response>((resolve, reject) => {
+        request(
+            {
+                method: init.method || 'GET',
+                url,
+                followRedirect: !init.redirect || init.redirect === 'follow',
+                headers: init.headers || {},
+            },
+            function (
+                error: Error,
+                response: HttpZResponseModel,
+                body: string,
+            ) {
+                if (error) {
+                    return reject(error);
+                }
+                resolve(new Response(body, {
+                    headers: Object.fromEntries(
+                        response.headers?.map(({ name, value }) => [name, value || '']) || []
+                    ),
+                    status: response.statusCode,
+                    statusText: response.statusMessage,
+                }));
+            },
+        );
+    });
 };
 
 export const fetch = globalThis.fetch;
 
 export const cloneHeaders = (
-    headers: IterableIterator<[string, string]> | HttpZHeader[],
+    headers: Headers,
     iteratee = (value: string) => value,
 ): Headers => (new Headers(
     Object.fromEntries(
-        [...headers].map((item) => {
-            const [name, value] = Array.isArray(item)
-                ? item
-                : [item.name, item.value];
+        [...headers.entries()].map(([name, value]) => {
             return value ? [name, iteratee(value)] : [name];
         }),
     ),
 ));
 
 export const _internals = {
-    curl,
-    fetch,
-    node,
+    fetch: nodeRequest,
 };
