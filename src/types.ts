@@ -3,11 +3,6 @@ export interface HttpZParam {
     value?: string;
 }
 
-export interface HttpZHeader {
-    name: string;
-    value?: string;
-}
-
 export interface HttpZBodyParam {
     type?: 'inline' | 'attachment';
     contentType?: string;
@@ -26,7 +21,7 @@ export interface HttpZResponseModel {
     protocolVersion: string;
     statusCode: number;
     statusMessage?: string;
-    headers?: HttpZHeader[];
+    headers?: Record<string, string>;
     cookies?: HttpZParam[];
     body: HttpZBody;
     headersSize: number;
