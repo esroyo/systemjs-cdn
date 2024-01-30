@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.7.3](https://github.com/esroyo/systemjs.sh/compare/v1.7.2...v1.7.3) (2024-01-30)
+
+
+### Bug Fixes
+
+* prevent some headers propagation ([53f49f6](https://github.com/esroyo/systemjs.sh/commit/53f49f6683a30764583bcfd7b2e2663b39386de4))
+
 ## [1.7.2](https://github.com/esroyo/systemjs.sh/compare/v1.7.1...v1.7.2) (2023-11-24)
 
 ## [1.7.1](https://github.com/esroyo/systemjs.sh/compare/v1.7.0...v1.7.1) (2023-11-21)
