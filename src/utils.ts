@@ -92,6 +92,9 @@ export const handleResponse = async (responseProps: ResponseProps, shouldCache =
         statusText,
     } = responseProps;
     headers.set('x-cache-status', shouldCache ? 'MISS' : 'HIT'); 
+    if (!headers.has('access-control-allow-origin')) {
+        headers.set('access-control-allow-origin', '*');
+    }
     const response = new Response(body, {
         headers,
         status,
@@ -99,18 +102,14 @@ export const handleResponse = async (responseProps: ResponseProps, shouldCache =
     });
     const isCacheable = isJsResponse(response) || isRedirectResponse(response);
     if (shouldCache && isCacheable) {
-        try {
-            const kv = await Deno.openKv();
-            const blob = new TextEncoder().encode(JSON.stringify({
-                ...responseProps,
-                ctime: Date.now(),
-                headers: Object.fromEntries(headers.entries()),
-            }));
-            await kvSet(kv, ['cache', url], blob);
-            kv.close();
-        } catch (error) {
-            console.error(error);
-        }
+        const kv = await Deno.openKv();
+        const blob = new TextEncoder().encode(JSON.stringify({
+            ...responseProps,
+            ctime: Date.now(),
+            headers: Object.fromEntries(headers.entries()),
+        }));
+        await kvSet(kv, ['cache', url], blob);
+        kv.close();
     }
     return response;
 }
