@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.8.1](https://github.com/esroyo/systemjs.sh/compare/v1.8.0...v1.8.1) (2024-01-31)
+
+
+### Bug Fixes
+
+* handle kv set errors ([14ab7ca](https://github.com/esroyo/systemjs.sh/commit/14ab7ca9c750a463c9f005b38460b733b927aaab))
+
 ## [1.8.0](https://github.com/esroyo/systemjs.sh/compare/v1.7.3...v1.8.0) (2024-01-31)
 
 
