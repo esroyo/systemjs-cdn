@@ -200,6 +200,78 @@ Deno.test('esmProxyRequestHandler', async (t) => {
     );
 
     await t.step(
+        'should prefix the absolute paths (missing $esmOrigin) with the $basePath',
+        async () => {
+            Deno.env.set('BASE_PATH', '/sub-dir/234');
+            const fetchStub = stub(
+                _internals,
+                'fetch',
+                returnsNext([fetchReturn(`
+import "/stable/@vue/runtime-dom@3.3.4/es2022/runtime-dom.mjs";
+export * from "/stable/vue@3.3.4/es2022/vue.mjs";
+                    `)]),
+            );
+            const req = new Request(`${SELF_ORIGIN}/vue`);
+            const res = await esmProxyRequestHandler(req);
+            const systemjsCode = await res.text();
+            assertEquals(
+                !!systemjsCode.match(
+                    new RegExp(
+                        '\'/sub-dir/234/stable/@vue/runtime-dom@3.3.4/es2022/runtime-dom.mjs\''
+                    ),
+                ),
+                true,
+            );
+            assertEquals(
+                !!systemjsCode.match(
+                    new RegExp(
+                        '\'/sub-dir/234/stable/vue@3.3.4/es2022/vue.mjs\''
+                    ),
+                ),
+                true,
+            );
+            fetchStub.restore();
+            Deno.env.set('BASE_PATH', '');
+        },
+    );
+
+    await t.step(
+        'should do nothing to the absolute paths (missing $esmOrigin) when the $basePath is empty',
+        async () => {
+            Deno.env.set('BASE_PATH', '');
+            const fetchStub = stub(
+                _internals,
+                'fetch',
+                returnsNext([fetchReturn(`
+import "/stable/@vue/runtime-dom@3.3.4/es2022/runtime-dom.mjs";
+export * from "/stable/vue@3.3.4/es2022/vue.mjs";
+                    `)]),
+            );
+            const req = new Request(`${SELF_ORIGIN}/vue`);
+            const res = await esmProxyRequestHandler(req);
+            const systemjsCode = await res.text();
+            assertEquals(
+                !!systemjsCode.match(
+                    new RegExp(
+                        '\'/stable/@vue/runtime-dom@3.3.4/es2022/runtime-dom.mjs\''
+                    ),
+                ),
+                true,
+            );
+            assertEquals(
+                !!systemjsCode.match(
+                    new RegExp(
+                        '\'/stable/vue@3.3.4/es2022/vue.mjs\''
+                    ),
+                ),
+                true,
+            );
+            fetchStub.restore();
+            Deno.env.set('BASE_PATH', '');
+        },
+    );
+
+    await t.step(
         'should replace the $esmOrigin by the X-Real-Origin host if exists including $basePath',
         async () => {
             Deno.env.set('BASE_PATH', '/sub-dir/234');

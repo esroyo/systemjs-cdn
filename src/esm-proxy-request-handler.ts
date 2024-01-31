@@ -60,7 +60,17 @@ export async function esmProxyRequestHandler(
     const esmUrl = new URL(req.url.replace(selfOriginActual, ''), esmOrigin);
     const replaceOrigin = (() => {
         const esmOriginRegExp = new RegExp(esmOrigin, 'ig');
-        return (str: string) => str.replace(esmOriginRegExp, selfOriginFinal);
+        const registerRegExp = /register\(\[(?:['"][^'"]+['"](?:,\s*)?)*\],/gm;
+        const absolutePathRegExp = /['"][^'"]+['"]/gm;
+        const absolutePathReplaceRegExp = /^(['"])\//;
+        return (str: string) => {
+            return str.replace(esmOriginRegExp, selfOriginFinal)
+                .replace(registerRegExp, (registerMatch) => {
+                    return registerMatch.replace(absolutePathRegExp, (absolutePathMatch) => {
+                        return absolutePathMatch.replace(absolutePathReplaceRegExp, `$1${basePath}`);
+                    });
+                });
+        }
     })();
     const replaceOriginHeaders = (pair: [string, string] | null) => (pair === null ? pair : [pair[0], typeof pair[1] === 'string' ? replaceOrigin(pair[1]) : pair[1]] as [string, string]);
     const reqHeaders = cloneHeaders(req.headers, denyHeaders);

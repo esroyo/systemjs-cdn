@@ -42,6 +42,7 @@ export const toSystemjsWorker = async (
     const worker = new Worker(import.meta.resolve('./to-systemjs-worker.ts'), { type: 'module' });
     return new Promise((resolve) => {
         worker.addEventListener('message', (event: MessageEvent<{ code: string }>) => {
+            worker.terminate();
             resolve(event.data.code);
 }, false);
         worker.postMessage({
