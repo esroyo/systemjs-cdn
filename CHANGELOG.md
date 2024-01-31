@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.9.1](https://github.com/esroyo/systemjs.sh/compare/v1.9.0...v1.9.1) (2024-01-31)
+
+
+### Bug Fixes
+
+* avoid Worker recursion ([e8be08b](https://github.com/esroyo/systemjs.sh/commit/e8be08b8f1fff4308b6c244c57afa533770f59bc))
+* enable cache on larger modules ([0b15505](https://github.com/esroyo/systemjs.sh/commit/0b1550526ae776d573680636a09a49e4a7b814b1))
+
 ## [1.9.0](https://github.com/esroyo/systemjs.sh/compare/v1.8.1...v1.9.0) (2024-01-31)
 
 
