@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.9.3](https://github.com/esroyo/systemjs.sh/compare/v1.9.2...v1.9.3) (2024-01-31)
+
+
+### Bug Fixes
+
+* add header "access-control-allow-origin" is not exists ([4d49deb](https://github.com/esroyo/systemjs.sh/commit/4d49debf8194074e507a0f73632adf7a3cabc9d3))
+
 ## [1.9.2](https://github.com/esroyo/systemjs.sh/compare/v1.9.1...v1.9.2) (2024-01-31)
 
 
