@@ -6,7 +6,7 @@ import {
     rollupPluginVirtual,
 } from '../deps.ts';
 
-export const toSystemjs = async (
+export const toSystemjsMain = async (
     esmCode: string,
     rollupOutputOptions: OutputOptions = {},
 ): Promise<string> => {
@@ -34,3 +34,28 @@ export const toSystemjs = async (
     await bundle.close();
     return output[0].code;
 };
+
+export const toSystemjsWorker = async (
+    esmCode: string,
+    rollupOutputOptions: OutputOptions = {},
+): Promise<string> => {
+    const worker = new Worker(import.meta.resolve('./to-systemjs-worker.ts'), { type: 'module' });
+    return new Promise((resolve) => {
+        worker.addEventListener('message', (event: MessageEvent<{ code: string }>) => {
+            resolve(event.data.code);
+}, false);
+        worker.postMessage({
+            args: [esmCode, rollupOutputOptions],
+        });
+    });
+} 
+
+export const toSystemjs = async (
+    esmCode: string,
+    rollupOutputOptions: OutputOptions = {},
+): Promise<string> => {
+    if (typeof Worker !== 'undefined') {
+        return toSystemjsWorker(esmCode, rollupOutputOptions);
+    }
+    return toSystemjsMain(esmCode, rollupOutputOptions);
+}
