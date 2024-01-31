@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.8.0](https://github.com/esroyo/systemjs.sh/compare/v1.7.3...v1.8.0) (2024-01-31)
+
+
+### Features
+
+* implement a simple cache using Kv ([eb4b2e5](https://github.com/esroyo/systemjs.sh/commit/eb4b2e5d565b7163daf5bc0d237335f5d2d0c0ef))
+
 ## [1.7.3](https://github.com/esroyo/systemjs.sh/compare/v1.7.2...v1.7.3) (2024-01-30)
 
 
