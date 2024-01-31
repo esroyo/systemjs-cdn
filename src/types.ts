@@ -27,3 +27,12 @@ export interface HttpZResponseModel {
     headersSize: number;
     bodySize: number;
 }
+
+export type ResponseProps = {
+    url: string;
+    body: string;
+    ctime?: number;
+    headers: Headers;
+    status: number;
+    statusText: string;
+};

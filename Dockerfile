@@ -1,4 +1,4 @@
-FROM denoland/deno:alpine-1.38.1
+FROM denoland/deno:alpine-1.40.2
 
 # The port that your application listens to.
 EXPOSE 8000
@@ -18,4 +18,4 @@ RUN deno cache src/main.ts
 # Prefer not to run as root.
 USER deno
 
-CMD ["run", "--allow-net", "--allow-read", "--allow-env", "src/main.ts"]
+CMD ["run", "--allow-net", "--allow-read", "--allow-env", "--unstable-kv", "src/main.ts"]

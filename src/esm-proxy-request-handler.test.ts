@@ -20,7 +20,10 @@ const fetchReturn = (
 ) => (
     Promise.resolve(
         new Response(body, {
-            headers: new Headers({ 'access-control-allow-origin': '*' }),
+            headers: new Headers({
+                'access-control-allow-origin': '*',
+                'content-type': 'application/javascript; charset=utf-8',
+            }),
         }),
     )
 );

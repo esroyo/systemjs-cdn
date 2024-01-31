@@ -4,7 +4,7 @@
         "deploy": "deployctl deploy --prod --project=systemjs-sh src/main.ts --exclude=.env --exclude=coverage",
         "dev": "deno run --watch --allow-env --allow-read --allow-run --allow-net src/main.ts",
         "tag-version": "npx commit-and-tag-version && git push --follow-tags origin main",
-        "test": "deno test --allow-env --allow-read --allow-run"
+        "test": "DENO_ENV=test deno test --unstable-kv --allow-env --allow-read --allow-run"
     },
     "fmt": {
         "indentWidth": 4,
