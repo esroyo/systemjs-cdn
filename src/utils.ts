@@ -96,12 +96,17 @@ export const handleResponse = async (responseProps: ResponseProps, shouldCache =
     });
     const isCacheable = isJsResponse(response) || isRedirectResponse(response);
     if (shouldCache && isCacheable) {
-        const kv = await Deno.openKv();
-        await kv.set(['cache', url], {
-            ...responseProps,
-            ctime: Date.now(),
-            headers: Object.fromEntries(headers.entries()),
-        });
+        try {
+            const kv = await Deno.openKv();
+            await kv.set(['cache', url], {
+                ...responseProps,
+                ctime: Date.now(),
+                headers: Object.fromEntries(headers.entries()),
+            });
+            kv.close();
+        } catch (error) {
+            console.error(error);
+        }
     }
     return response;
 }

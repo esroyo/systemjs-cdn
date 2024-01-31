@@ -12,20 +12,9 @@ import { toSystemjs } from './to-systemjs.ts';
 import { ScopedPerformance } from '../deps.ts';
 import { ResponseProps } from './types.ts';
 
-
 export async function esmProxyRequestHandler(
     req: Request,
 ): Promise<Response> {
-    if (!isTestEnv()) {
-        const kv = await Deno.openKv();
-        const cacheEntry = await kv.get<ResponseProps>(['cache', req.url]);
-        if (isValidCacheEntry(cacheEntry.value)) {
-            return handleResponse({
-                ...cacheEntry.value,
-                headers: new Headers(cacheEntry.value.headers),
-            }, false);
-        }
-    }
     const scoped = new ScopedPerformance();
     const buildDebugPerformance = () => {
         return JSON.stringify([
@@ -36,6 +25,20 @@ export async function esmProxyRequestHandler(
         ]);
     };
     scoped.mark('total');
+    if (!isTestEnv()) {
+        const kv = await Deno.openKv();
+        const cacheEntry = await kv.get<ResponseProps>(['cache', req.url]);
+        kv.close();
+        if (isValidCacheEntry(cacheEntry.value)) {
+            const headers = new Headers(cacheEntry.value.headers);
+            scoped.measure('total', 'total');
+            headers.set('x-debug-performance', buildDebugPerformance());
+            return handleResponse({
+                ...cacheEntry.value,
+                headers,
+            }, false);
+        }
+    }
     const {
         BASE_PATH,
         ESM_ORIGIN,
