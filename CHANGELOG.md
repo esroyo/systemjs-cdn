@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.10.0](https://github.com/esroyo/systemjs.sh/compare/v1.9.3...v1.10.0) (2024-01-31)
+
+
+### Features
+
+* enable/disable cache with env var CACHE_MAXAGE ([7336a4d](https://github.com/esroyo/systemjs.sh/commit/7336a4dfe785da5bbae7e737feff93b47265208f))
+
 ## [1.9.3](https://github.com/esroyo/systemjs.sh/compare/v1.9.2...v1.9.3) (2024-01-31)
 
 
