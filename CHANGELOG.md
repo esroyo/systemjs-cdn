@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.9.2](https://github.com/esroyo/systemjs.sh/compare/v1.9.1...v1.9.2) (2024-01-31)
+
+
+### Bug Fixes
+
+* make sure BASE_PATH is honored on URL without origin (absolute paths) ([8c67c6f](https://github.com/esroyo/systemjs.sh/commit/8c67c6f0473450d55ffb86f58b0add3584691746))
+
 ## [1.9.1](https://github.com/esroyo/systemjs.sh/compare/v1.9.0...v1.9.1) (2024-01-31)
 
 
