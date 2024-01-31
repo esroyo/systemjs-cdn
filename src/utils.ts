@@ -1,4 +1,7 @@
-import { request } from '../deps.ts';
+import {
+    kvSet,
+    request,
+} from '../deps.ts';
 
 import type { HttpZResponseModel, ResponseProps } from './types.ts';
 
@@ -98,11 +101,12 @@ export const handleResponse = async (responseProps: ResponseProps, shouldCache =
     if (shouldCache && isCacheable) {
         try {
             const kv = await Deno.openKv();
-            await kv.set(['cache', url], {
+            const blob = new TextEncoder().encode(JSON.stringify({
                 ...responseProps,
                 ctime: Date.now(),
                 headers: Object.fromEntries(headers.entries()),
-            });
+            }));
+            await kvSet(kv, ['cache', url], blob);
             kv.close();
         } catch (error) {
             console.error(error);

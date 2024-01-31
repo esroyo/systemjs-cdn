@@ -9,8 +9,10 @@ import {
 } from './utils.ts';
 import { resolveConfig } from './resolve-config.ts';
 import { toSystemjs } from './to-systemjs.ts';
-import { ScopedPerformance } from '../deps.ts';
-import { ResponseProps } from './types.ts';
+import {
+    kvGet,
+    ScopedPerformance,
+} from '../deps.ts';
 
 export async function esmProxyRequestHandler(
     req: Request,
@@ -27,14 +29,15 @@ export async function esmProxyRequestHandler(
     scoped.mark('total');
     if (!isTestEnv()) {
         const kv = await Deno.openKv();
-        const cacheEntry = await kv.get<ResponseProps>(['cache', req.url]);
+        const blob = await kvGet(kv, ['cache', req.url]);
+        const value = blob && JSON.parse(new TextDecoder().decode(blob));
         kv.close();
-        if (isValidCacheEntry(cacheEntry.value)) {
-            const headers = new Headers(cacheEntry.value.headers);
+        if (isValidCacheEntry(value)) {
+            const headers = new Headers(value.headers);
             scoped.measure('total', 'total');
             headers.set('x-debug-performance', buildDebugPerformance());
             return handleResponse({
-                ...cacheEntry.value,
+                ...value,
                 headers,
             }, false);
         }
