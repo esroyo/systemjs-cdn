@@ -1,7 +1,9 @@
 import {
+    kvGet,
     kvSet,
     request,
 } from '../deps.ts';
+import { resolveConfig } from './resolve-config.ts';
 
 import type { HttpZResponseModel, ResponseProps } from './types.ts';
 
@@ -77,13 +79,42 @@ export const isRedirectResponse = (response: Response): boolean => {
     return response.status >= 300 && response.status < 400;
 }
 
-export const isTestEnv = () => Deno.env.get('DENO_ENV') === 'test';
-
-export const isValidCacheEntry = (value: ResponseProps | null): value is ResponseProps => {
-    return !!(value && value.ctime && (Date.now() - value.ctime < 600000));
+export const retrieveCache = async (kv: Promise<Deno.Kv>, key: Deno.KvKey): Promise<ResponseProps | null> => {
+    const { CACHE_MAXAGE } = await resolveConfig();
+    const settledKv = await kv;
+    const blob = await kvGet(settledKv, key);
+    const value = blob && JSON.parse(new TextDecoder().decode(blob));
+    settledKv.close();
+    const isValidCacheEntry = !!(
+        value
+        && value.ctime
+        && (Date.now() - value.ctime < (Number(CACHE_MAXAGE) * 1000))
+    );
+    return isValidCacheEntry ? value : null;
 }
 
-export const handleResponse = async (responseProps: ResponseProps, shouldCache = !isTestEnv()): Promise<Response> => {
+export const saveCache = async (kv: Promise<Deno.Kv>, key: Deno.KvKey, value: ResponseProps): Promise<void> => {
+    const blob = new TextEncoder().encode(JSON.stringify({
+        ...value,
+        ctime: Date.now(),
+        headers: Object.fromEntries(value.headers.entries()),
+    }));
+    const settledKv = await kv;
+    await kvSet(settledKv, key, blob);
+    settledKv.close();
+}
+
+const buildDebugPerformance = (performance: Performance) => {
+    return JSON.stringify([
+        ...performance.getEntriesByType('measure').map(({ name, duration }) => ({
+            name,
+            duration,
+        })),
+    ]);
+};
+
+export const createFinalResponse = async (responseProps: ResponseProps, performance: Performance, isCached: boolean): Promise<Response> => {
+    const { CACHE_MAXAGE } = await resolveConfig();
     const {
         url,
         body,
@@ -91,25 +122,22 @@ export const handleResponse = async (responseProps: ResponseProps, shouldCache =
         status,
         statusText,
     } = responseProps;
-    headers.set('x-cache-status', shouldCache ? 'MISS' : 'HIT'); 
+    headers.set('x-cache-status', isCached ? 'HIT' : 'MISS'); 
     if (!headers.has('access-control-allow-origin')) {
         headers.set('access-control-allow-origin', '*');
     }
+    performance.measure('total', 'total');
+    headers.set('x-debug-performance', buildDebugPerformance(performance));
+
     const response = new Response(body, {
         headers,
         status,
         statusText,
     });
     const isCacheable = isJsResponse(response) || isRedirectResponse(response);
-    if (shouldCache && isCacheable) {
-        const kv = await Deno.openKv();
-        const blob = new TextEncoder().encode(JSON.stringify({
-            ...responseProps,
-            ctime: Date.now(),
-            headers: Object.fromEntries(headers.entries()),
-        }));
-        await kvSet(kv, ['cache', url], blob);
-        kv.close();
+    const shouldCache = !isCached && isCacheable && Number(CACHE_MAXAGE);
+    if (shouldCache) {
+        await saveCache(Deno.openKv(), ['cache', url],  responseProps);
     }
     return response;
 }

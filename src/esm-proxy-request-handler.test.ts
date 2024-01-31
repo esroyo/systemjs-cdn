@@ -15,6 +15,9 @@ const {
 } = await resolveConfig();
 const SELF_ORIGIN = 'https://systemjs.test';
 
+// Disable cache for tests
+Deno.env.set('CACHE_MAXAGE', '0');
+
 const fetchReturn = (
     body = `export * from "${ESM_ORIGIN}/stable/vue@3.3.2/es2022/vue.mjs";`,
 ) => (

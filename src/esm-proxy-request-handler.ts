@@ -2,52 +2,35 @@ import {
     _internals,
     cloneHeaders,
     denyHeaders,
-    handleResponse,
+    createFinalResponse,
     isJsResponse,
-    isTestEnv,
-    isValidCacheEntry,
+    retrieveCache,
 } from './utils.ts';
 import { resolveConfig } from './resolve-config.ts';
 import { toSystemjs } from './to-systemjs.ts';
-import {
-    kvGet,
-    ScopedPerformance,
-} from '../deps.ts';
+import { ScopedPerformance } from '../deps.ts';
 
 export async function esmProxyRequestHandler(
     req: Request,
 ): Promise<Response> {
-    const scoped = new ScopedPerformance();
-    const buildDebugPerformance = () => {
-        return JSON.stringify([
-            ...scoped.getEntriesByType('measure').map(({ name, duration }) => ({
-                name,
-                duration,
-            })),
-        ]);
-    };
-    scoped.mark('total');
-    if (!isTestEnv()) {
-        const kv = await Deno.openKv();
-        const blob = await kvGet(kv, ['cache', req.url]);
-        const value = blob && JSON.parse(new TextDecoder().decode(blob));
-        kv.close();
-        if (isValidCacheEntry(value)) {
-            const headers = new Headers(value.headers);
-            scoped.measure('total', 'total');
-            headers.set('x-debug-performance', buildDebugPerformance());
-            return handleResponse({
-                ...value,
-                headers,
-            }, false);
-        }
-    }
+    const performance = new ScopedPerformance();
+    performance.mark('total');
     const {
         BASE_PATH,
+        CACHE_MAXAGE,
         ESM_ORIGIN,
         HOMEPAGE,
         OUTPUT_BANNER,
     } = await resolveConfig();
+    if (Number(CACHE_MAXAGE)) {
+        const value = await retrieveCache(Deno.openKv(), ['cache', req.url]);
+        if (value) {
+            return createFinalResponse({
+                ...value,
+                headers: new Headers(value.headers),
+            }, performance, true);
+        }
+    }
     const selfUrl = new URL(req.url);
     const basePath = `/${BASE_PATH}/`.replace(/\/+/g, '/');
     const esmOrigin = `${ESM_ORIGIN}/`.replace(/\/+$/, '/');
@@ -73,27 +56,23 @@ export async function esmProxyRequestHandler(
         }
     })();
     const replaceOriginHeaders = (pair: [string, string] | null) => (pair === null ? pair : [pair[0], typeof pair[1] === 'string' ? replaceOrigin(pair[1]) : pair[1]] as [string, string]);
-    const reqHeaders = cloneHeaders(req.headers, denyHeaders);
-    scoped.mark('fetch');
+    performance.mark('fetch');
     const esmResponse = await _internals.fetch(esmUrl.toString(), {
-        headers: reqHeaders,
+        headers: cloneHeaders(req.headers, denyHeaders),
         redirect: 'manual',
     });
-    scoped.measure('fetch', 'fetch');
+    performance.measure('fetch', 'fetch');
     let body = await esmResponse.text();
     if (isJsResponse(esmResponse)) {
-        scoped.mark('tosystemjs');
+        performance.mark('tosystemjs');
         body = replaceOrigin(await toSystemjs(body, { banner: OUTPUT_BANNER }));
-        scoped.measure('tosystemjs', 'tosystemjs');
+        performance.measure('tosystemjs', 'tosystemjs');
     }
-    const headers = cloneHeaders(esmResponse.headers, denyHeaders, replaceOriginHeaders);
-    scoped.measure('total', 'total');
-    headers.set('x-debug-performance', buildDebugPerformance());
-    return handleResponse({
+    return createFinalResponse({
         url: req.url,
         body,
-        headers,
+        headers: cloneHeaders(esmResponse.headers, denyHeaders, replaceOriginHeaders),
         status: esmResponse.status,
         statusText: esmResponse.statusText,
-    });
+    }, performance, false);
 }

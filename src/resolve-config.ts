@@ -3,6 +3,7 @@ import { dotenvLoad } from '../deps.ts';
 type Config =
     & Record<
         | 'BASE_PATH'
+        | 'CACHE_MAXAGE'
         | 'ESM_ORIGIN'
         | 'HOMEPAGE'
         | 'OUTPUT_BANNER',
@@ -11,6 +12,7 @@ type Config =
 const DEFAULTS: Config = {
     ESM_ORIGIN: 'https://esm.sh',
     BASE_PATH: '',
+    CACHE_MAXAGE: '600',
     HOMEPAGE: '',
     OUTPUT_BANNER: '',
 } as const;
