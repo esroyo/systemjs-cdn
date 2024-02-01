@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.10.1](https://github.com/esroyo/systemjs.sh/compare/v1.10.0...v1.10.1) (2024-02-01)
+
+
+### Bug Fixes
+
+* make sure BASE_PATH is honored on URL without origin (absolute paths) on dyn imports ([3e3093a](https://github.com/esroyo/systemjs.sh/commit/3e3093ab2272f8e677299da7a09f26ee8f9d81a5))
+
 ## [1.10.0](https://github.com/esroyo/systemjs.sh/compare/v1.9.3...v1.10.0) (2024-01-31)
 
 
