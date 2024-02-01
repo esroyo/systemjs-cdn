@@ -211,6 +211,8 @@ Deno.test('esmProxyRequestHandler', async (t) => {
                 'fetch',
                 returnsNext([fetchReturn(`
 import "/stable/@vue/runtime-dom@3.3.4/es2022/runtime-dom.mjs";
+export const foo = () => import("/stable/monaco-editor@0.45.0/es2022/monaco-editor.css");
+export const bar = () => import("https://unpkg.com/systemjs/dist/s.js");
 export * from "/stable/vue@3.3.4/es2022/vue.mjs";
                     `)]),
             );
@@ -229,6 +231,22 @@ export * from "/stable/vue@3.3.4/es2022/vue.mjs";
                 !!systemjsCode.match(
                     new RegExp(
                         '\'/sub-dir/234/stable/vue@3.3.4/es2022/vue.mjs\''
+                    ),
+                ),
+                true,
+            );
+            assertEquals(
+                !!systemjsCode.match(
+                    new RegExp(
+                        '\'/sub-dir/234/stable/monaco-editor@0.45.0/es2022/monaco-editor.css\''
+                    ),
+                ),
+                true,
+            );
+            assertEquals(
+                !!systemjsCode.match(
+                    new RegExp(
+                        '\'https://unpkg.com/systemjs/dist/s.js\''
                     ),
                 ),
                 true,

@@ -43,7 +43,7 @@ export async function esmProxyRequestHandler(
     const esmUrl = new URL(req.url.replace(selfOriginActual, ''), esmOrigin);
     const replaceOrigin = (() => {
         const esmOriginRegExp = new RegExp(esmOrigin, 'ig');
-        const registerRegExp = /register\(\[(?:['"][^'"]+['"](?:,\s*)?)*\],/gm;
+        const registerRegExp = /(?:register|import)\(\[?(?:['"][^'"]+['"](?:,\s*)?)*\]?/gm;
         const absolutePathRegExp = /['"][^'"]+['"]/gm;
         const absolutePathReplaceRegExp = /^(['"])\//;
         return (str: string) => {
