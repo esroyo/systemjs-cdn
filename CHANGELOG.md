@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.10.2](https://github.com/esroyo/systemjs.sh/compare/v1.10.1...v1.10.2) (2024-02-02)
+
+
+### Bug Fixes
+
+* cache is partitioned by target/user-agent ([9baa3ad](https://github.com/esroyo/systemjs.sh/commit/9baa3ad75cf081e4de1f76ea1483e5ef79d67bce))
+
 ## [1.10.1](https://github.com/esroyo/systemjs.sh/compare/v1.10.0...v1.10.1) (2024-02-01)
 
 
