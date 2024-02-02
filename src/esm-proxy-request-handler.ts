@@ -8,7 +8,10 @@ import {
 } from './utils.ts';
 import { resolveConfig } from './resolve-config.ts';
 import { toSystemjs } from './to-systemjs.ts';
-import { ScopedPerformance } from '../deps.ts';
+import {
+    getBuildTargetFromUA,
+    ScopedPerformance,
+} from '../deps.ts';
 
 export async function esmProxyRequestHandler(
     req: Request,
@@ -22,13 +25,14 @@ export async function esmProxyRequestHandler(
         HOMEPAGE,
         OUTPUT_BANNER,
     } = await resolveConfig();
+    const buildTarget = getBuildTargetFromUA(req.headers.get('user-agent'));
     if (Number(CACHE_MAXAGE)) {
-        const value = await retrieveCache(Deno.openKv(), ['cache', req.url]);
+        const value = await retrieveCache(Deno.openKv(), [req.url, buildTarget]);
         if (value) {
             return createFinalResponse({
                 ...value,
                 headers: new Headers(value.headers),
-            }, performance, true);
+            }, performance, buildTarget, true);
         }
     }
     const selfUrl = new URL(req.url);
@@ -74,5 +78,5 @@ export async function esmProxyRequestHandler(
         headers: cloneHeaders(esmResponse.headers, denyHeaders, replaceOriginHeaders),
         status: esmResponse.status,
         statusText: esmResponse.statusText,
-    }, performance, false);
+    }, performance, buildTarget, false);
 }

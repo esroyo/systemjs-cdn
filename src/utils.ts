@@ -82,7 +82,7 @@ export const isRedirectResponse = (response: Response): boolean => {
 export const retrieveCache = async (kv: Promise<Deno.Kv>, key: Deno.KvKey): Promise<ResponseProps | null> => {
     const { CACHE_MAXAGE } = await resolveConfig();
     const settledKv = await kv;
-    const blob = await kvGet(settledKv, key);
+    const blob = await kvGet(settledKv, ['cache', ...key]);
     const value = blob && JSON.parse(new TextDecoder().decode(blob));
     settledKv.close();
     const isValidCacheEntry = !!(
@@ -100,7 +100,7 @@ export const saveCache = async (kv: Promise<Deno.Kv>, key: Deno.KvKey, value: Re
         headers: Object.fromEntries(value.headers.entries()),
     }));
     const settledKv = await kv;
-    await kvSet(settledKv, key, blob);
+    await kvSet(settledKv, ['cache', ...key], blob);
     settledKv.close();
 }
 
@@ -113,7 +113,7 @@ const buildDebugPerformance = (performance: Performance) => {
     ]);
 };
 
-export const createFinalResponse = async (responseProps: ResponseProps, performance: Performance, isCached: boolean): Promise<Response> => {
+export const createFinalResponse = async (responseProps: ResponseProps, performance: Performance, buildTarget: string, isCached: boolean): Promise<Response> => {
     const { CACHE_MAXAGE } = await resolveConfig();
     const {
         url,
@@ -137,7 +137,7 @@ export const createFinalResponse = async (responseProps: ResponseProps, performa
     const isCacheable = isJsResponse(response) || isRedirectResponse(response);
     const shouldCache = !isCached && isCacheable && Number(CACHE_MAXAGE);
     if (shouldCache) {
-        await saveCache(Deno.openKv(), ['cache', url],  responseProps);
+        await saveCache(Deno.openKv(), [url, buildTarget],  responseProps);
     }
     return response;
 }

@@ -3,6 +3,7 @@
   "packages": {
     "specifiers": {
       "npm:@rollup/plugin-virtual@3.0.2": "npm:@rollup/plugin-virtual@3.0.2_rollup@3.29.4",
+      "npm:esm-compat@0.0.2": "npm:esm-compat@0.0.2",
       "npm:request@2.88.2": "npm:request@2.88.2",
       "npm:rollup@3.29.4": "npm:rollup@3.29.4"
     },
@@ -80,6 +81,10 @@
           "jsbn": "jsbn@0.1.1",
           "safer-buffer": "safer-buffer@2.1.2"
         }
+      },
+      "esm-compat@0.0.2": {
+        "integrity": "sha512-bhxQnjc8r2V8E3IksGC7MCNTTLVQfXv6F0aYDmvijPoEAhJ53sAA/R/wktA9buMNgxfEo1aRKCSRrM0L62Hc1w==",
+        "dependencies": {}
       },
       "extend@3.0.2": {
         "integrity": "sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g==",
