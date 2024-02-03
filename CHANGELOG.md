@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.11.1](https://github.com/esroyo/systemjs.sh/compare/v1.11.0...v1.11.1) (2024-02-03)
+
+
+### Bug Fixes
+
+* typo on toSystemjs ref ([4368246](https://github.com/esroyo/systemjs.sh/commit/43682465156c954b4ec7e9a735e6955e45739675))
+
 ## [1.11.0](https://github.com/esroyo/systemjs.sh/compare/v1.10.2...v1.11.0) (2024-02-03)
 
 
