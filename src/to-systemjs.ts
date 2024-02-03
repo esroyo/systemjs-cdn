@@ -2,7 +2,8 @@ import {
     InputOptions,
     ModuleFormat,
     OutputOptions,
-    rollup,
+    rollup as _rollup,
+    rollupVersion as _rollupVersion,
     rollupPluginVirtual,
 } from '../deps.ts';
 
@@ -10,6 +11,14 @@ export const toSystemjsMain = async (
     esmCode: string,
     rollupOutputOptions: OutputOptions = {},
 ): Promise<string> => {
+    let rollup = _rollup;
+    let rollupVersion = _rollupVersion;
+    try {
+        const mod = await import('npm:rollup@4.9.6');
+        // @ts-ignore
+        rollup = mod.rollup;
+        rollupVersion = mod.VERSION;
+    } catch (_) {}
     const inputOptions: InputOptions = {
         external: () => true,
         input: 'esmCode',
@@ -23,6 +32,7 @@ export const toSystemjsMain = async (
     const outputOptions: OutputOptions = {
         dir: 'out', // not really used
         format: 'systemjs' as ModuleFormat,
+        footer: `/* rollup@${rollupVersion} */`,
         sourcemap: false,
     };
 

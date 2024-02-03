@@ -5,7 +5,10 @@ export type {
     ModuleFormat,
     OutputOptions,
 } from 'npm:rollup@3.29.4';
-export { rollup } from 'npm:rollup@3.29.4';
+export {
+    rollup,
+    VERSION as rollupVersion,
+} from 'npm:rollup@3.29.4';
 export { load as dotenvLoad } from 'https://deno.land/std/dotenv/mod.ts';
 export { serve } from 'https://deno.land/std/http/mod.ts';
 export { default as request } from 'npm:request@2.88.2';
