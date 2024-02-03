@@ -222,7 +222,7 @@ export * from "/stable/vue@3.3.4/es2022/vue.mjs";
             assertEquals(
                 !!systemjsCode.match(
                     new RegExp(
-                        '\'/sub-dir/234/stable/@vue/runtime-dom@3.3.4/es2022/runtime-dom.mjs\''
+                        "'/sub-dir/234/stable/@vue/runtime-dom@3.3.4/es2022/runtime-dom.mjs'",
                     ),
                 ),
                 true,
@@ -230,7 +230,7 @@ export * from "/stable/vue@3.3.4/es2022/vue.mjs";
             assertEquals(
                 !!systemjsCode.match(
                     new RegExp(
-                        '\'/sub-dir/234/stable/vue@3.3.4/es2022/vue.mjs\''
+                        "'/sub-dir/234/stable/vue@3.3.4/es2022/vue.mjs'",
                     ),
                 ),
                 true,
@@ -238,7 +238,7 @@ export * from "/stable/vue@3.3.4/es2022/vue.mjs";
             assertEquals(
                 !!systemjsCode.match(
                     new RegExp(
-                        '\'/sub-dir/234/stable/monaco-editor@0.45.0/es2022/monaco-editor.css\''
+                        "'/sub-dir/234/stable/monaco-editor@0.45.0/es2022/monaco-editor.css'",
                     ),
                 ),
                 true,
@@ -246,7 +246,7 @@ export * from "/stable/vue@3.3.4/es2022/vue.mjs";
             assertEquals(
                 !!systemjsCode.match(
                     new RegExp(
-                        '\'https://unpkg.com/systemjs/dist/s.js\''
+                        "'https://unpkg.com/systemjs/dist/s.js'",
                     ),
                 ),
                 true,
@@ -274,7 +274,7 @@ export * from "/stable/vue@3.3.4/es2022/vue.mjs";
             assertEquals(
                 !!systemjsCode.match(
                     new RegExp(
-                        '\'/stable/@vue/runtime-dom@3.3.4/es2022/runtime-dom.mjs\''
+                        "'/stable/@vue/runtime-dom@3.3.4/es2022/runtime-dom.mjs'",
                     ),
                 ),
                 true,
@@ -282,7 +282,7 @@ export * from "/stable/vue@3.3.4/es2022/vue.mjs";
             assertEquals(
                 !!systemjsCode.match(
                     new RegExp(
-                        '\'/stable/vue@3.3.4/es2022/vue.mjs\''
+                        "'/stable/vue@3.3.4/es2022/vue.mjs'",
                     ),
                 ),
                 true,
@@ -327,12 +327,14 @@ export * from "/stable/vue@3.3.4/es2022/vue.mjs";
                 _internals,
                 'fetch',
                 returnsNext([
-                    Promise.resolve(new Response('', {
-                        status: 302,
-                        headers: {
-                            'Location': `${ESM_ORIGIN}/stable/vue@3.3.2`,
-                        },
-                    })),
+                    Promise.resolve(
+                        new Response('', {
+                            status: 302,
+                            headers: {
+                                'Location': `${ESM_ORIGIN}/stable/vue@3.3.2`,
+                            },
+                        }),
+                    ),
                 ]),
             );
             const req = new Request(`${SELF_ORIGIN}/vue`);

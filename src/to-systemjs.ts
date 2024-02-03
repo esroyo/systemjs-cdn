@@ -3,8 +3,8 @@ import {
     ModuleFormat,
     OutputOptions,
     rollup as _rollup,
-    rollupVersion as _rollupVersion,
     rollupPluginVirtual,
+    rollupVersion as _rollupVersion,
 } from '../deps.ts';
 
 export const toSystemjsMain = async (
@@ -49,17 +49,23 @@ export const toSystemjsWorker = async (
     esmCode: string,
     rollupOutputOptions: OutputOptions = {},
 ): Promise<string> => {
-    const worker = new Worker(import.meta.resolve('./to-systemjs-worker.ts'), { type: 'module' });
+    const worker = new Worker(import.meta.resolve('./to-systemjs-worker.ts'), {
+        type: 'module',
+    });
     return new Promise((resolve) => {
-        worker.addEventListener('message', (event: MessageEvent<{ code: string }>) => {
-            worker.terminate();
-            resolve(event.data.code);
-}, false);
+        worker.addEventListener(
+            'message',
+            (event: MessageEvent<{ code: string }>) => {
+                worker.terminate();
+                resolve(event.data.code);
+            },
+            false,
+        );
         worker.postMessage({
             args: [esmCode, rollupOutputOptions],
         });
     });
-} 
+};
 
 export const toSystemjs = async (
     esmCode: string,
@@ -69,4 +75,4 @@ export const toSystemjs = async (
         return toSystemjsWorker(esmCode, rollupOutputOptions);
     }
     return toSystemjsMain(esmCode, rollupOutputOptions);
-}
+};
