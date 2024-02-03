@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.11.0](https://github.com/esroyo/systemjs.sh/compare/v1.10.2...v1.11.0) (2024-02-03)
+
+
+### Features
+
+* enable usage of rollup@4 ([93cb4ea](https://github.com/esroyo/systemjs.sh/commit/93cb4ea652398cfa41d7b9d7513d329d9ac31b4c))
+
 ## [1.10.2](https://github.com/esroyo/systemjs.sh/compare/v1.10.1...v1.10.2) (2024-02-02)
 
 
