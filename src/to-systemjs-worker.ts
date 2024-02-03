@@ -3,7 +3,7 @@ import { toSystemjsMain } from './to-systemjs.ts';
 // @ts-ignore
 self.addEventListener(
     'message',
-    async (event: MessageEvent<{ args: Parameters<typeof toSystemjs> }>) => {
+    async (event: MessageEvent<{ args: Parameters<typeof toSystemjsMain> }>) => {
         // @ts-ignore
         const transpiledCode = await toSystemjsMain(...event.data.args);
         // @ts-ignore
