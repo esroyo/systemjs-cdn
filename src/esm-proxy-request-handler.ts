@@ -24,11 +24,14 @@ export async function esmProxyRequestHandler(
     } = await resolveConfig();
     const buildTarget = getBuildTargetFromUA(req.headers.get('user-agent'));
     if (Number(CACHE_MAXAGE)) {
+        performance.mark('cache-read');
         const value = await retrieveCache(Deno.openKv(), [
             req.url,
             buildTarget,
         ]);
+        performance.measure('cache-read', 'cache-read');
         if (value) {
+            performance.measure('cache-hit', { start: performance.now() });
             return createFinalResponse(
                 {
                     ...value,
@@ -40,6 +43,7 @@ export async function esmProxyRequestHandler(
             );
         }
     }
+    performance.measure('cache-miss', { start: performance.now() });
     const selfUrl = new URL(req.url);
     const basePath = `/${BASE_PATH}/`.replace(/\/+/g, '/');
     const esmOrigin = `${ESM_ORIGIN}/`.replace(/\/+$/, '/');
@@ -77,17 +81,17 @@ export async function esmProxyRequestHandler(
         pair[0],
         typeof pair[1] === 'string' ? replaceOrigin(pair[1]) : pair[1],
     ] as [string, string]);
-    performance.mark('fetch');
+    performance.mark('upstream');
     const esmResponse = await _internals.fetch(esmUrl.toString(), {
         headers: cloneHeaders(req.headers, denyHeaders),
         redirect: 'manual',
     });
-    performance.measure('fetch', 'fetch');
+    performance.measure('upstream', 'upstream');
     let body = await esmResponse.text();
     if (isJsResponse(esmResponse)) {
-        performance.mark('tosystemjs');
+        performance.mark('build');
         body = replaceOrigin(await toSystemjs(body, { banner: OUTPUT_BANNER }));
-        performance.measure('tosystemjs', 'tosystemjs');
+        performance.measure('build', 'build');
     }
     return createFinalResponse(
         {

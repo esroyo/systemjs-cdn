@@ -82,8 +82,12 @@ export const isJsResponse = (response: Response): boolean => {
     ));
 };
 
-export const isRedirectResponse = (response: Response): boolean => {
-    return response.status >= 300 && response.status < 400;
+export const isRedirect = (status: number): boolean => {
+    return status >= 300 && status < 400;
+};
+
+export const isOk = (status: number): boolean => {
+    return status >= 200 && status < 300;
 };
 
 export const retrieveCache = async (
@@ -118,16 +122,11 @@ export const saveCache = async (
     settledKv.close();
 };
 
-const buildDebugPerformance = (performance: Performance) => {
-    return JSON.stringify([
-        ...performance.getEntriesByType('measure').map((
-            { name, duration },
-        ) => ({
-            name,
-            duration,
-        })),
-    ]);
-};
+const buildDebugPerformance = (performance: Performance): string => (
+    performance.getEntriesByType('measure')
+      .map(({ name, duration }) => `${name}${duration ? `;dur=${duration}` : ''}`)
+      .join(',')
+);
 
 export const createFinalResponse = async (
     responseProps: ResponseProps,
@@ -143,23 +142,26 @@ export const createFinalResponse = async (
         status,
         statusText,
     } = responseProps;
-    headers.set('x-cache-status', isCached ? 'HIT' : 'MISS');
     if (!headers.has('access-control-allow-origin')) {
         headers.set('access-control-allow-origin', '*');
     }
+    const isCacheable = isOk(status) || isRedirect(status);
+    const shouldCache = !isCached && isCacheable && Number(CACHE_MAXAGE);
+    if (shouldCache) {
+        performance.mark('cache-write');
+        await saveCache(Deno.openKv(), [url, buildTarget], responseProps);
+        performance.measure('cache-write', 'cache-write');
+    }
+
     performance.measure('total', 'total');
-    headers.set('x-debug-performance', buildDebugPerformance(performance));
+    headers.set('server-timing', buildDebugPerformance(performance));
 
     const response = new Response(body, {
         headers,
         status,
         statusText,
     });
-    const isCacheable = isJsResponse(response) || isRedirectResponse(response);
-    const shouldCache = !isCached && isCacheable && Number(CACHE_MAXAGE);
-    if (shouldCache) {
-        await saveCache(Deno.openKv(), [url, buildTarget], responseProps);
-    }
+
     return response;
 };
 
