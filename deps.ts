@@ -1,4 +1,3 @@
-import 'https://deno.land/std/dotenv/mod.ts';
 export { default as rollupPluginVirtual } from 'npm:@rollup/plugin-virtual@3.0.2';
 export type {
     InputOptions,
@@ -9,7 +8,7 @@ export {
     rollup,
     VERSION as rollupVersion,
 } from 'npm:rollup@3.29.4';
-export { load as dotenvLoad } from 'https://deno.land/std/dotenv/mod.ts';
+export { loadSync as dotenvLoad } from 'https://deno.land/std/dotenv/mod.ts';
 export { serve } from 'https://deno.land/std/http/mod.ts';
 export { default as request } from 'npm:request@2.88.2';
 export { ScopedPerformance } from 'https://deno.land/x/scoped_performance@v2.0.0/mod.ts';

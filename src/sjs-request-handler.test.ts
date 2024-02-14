@@ -5,21 +5,25 @@ import {
     returnsNext,
     stub,
 } from '../dev_deps.ts';
+import {
+    dotenvLoad,
+} from '../deps.ts';
 
 import { _internals } from './utils.ts';
-import { esmProxyRequestHandler } from './esm-proxy-request-handler.ts';
-import { resolveConfig } from './resolve-config.ts';
+import { sjsRequestHandler } from './sjs-request-handler.ts';
 
-const {
-    ESM_ORIGIN,
-} = await resolveConfig();
+dotenvLoad({ export: true });
+
+const UPSTREAM_ORIGIN = Deno.env.get('UPSTREAM_ORIGIN') as string;
+const HOMEPAGE = Deno.env.get('HOMEPAGE');
 const SELF_ORIGIN = 'https://systemjs.test';
 
 // Disable cache for tests
 Deno.env.set('CACHE_MAXAGE', '0');
+Deno.env.set('OUTPUT_BANNER', '');
 
 const fetchReturn = (
-    body = `export * from "${ESM_ORIGIN}/stable/vue@3.3.2/es2022/vue.mjs";`,
+    body = `export * from "${UPSTREAM_ORIGIN}/stable/vue@3.3.2/es2022/vue.mjs";`,
 ) => (
     Promise.resolve(
         new Response(body, {
@@ -31,16 +35,16 @@ const fetchReturn = (
     )
 );
 
-Deno.test('esmProxyRequestHandler', async (t) => {
-    await t.step('should redirect to $esmOrigin on request empty', async () => {
+Deno.test('sjsRequestHandler', async (t) => {
+    await t.step('should redirect to $HOMEPAGE on request empty', async () => {
         const req = new Request(SELF_ORIGIN);
-        const res = await esmProxyRequestHandler(req);
+        const res = await sjsRequestHandler(req);
         assertEquals(res.status, 302);
-        assertEquals(res.headers.get('location'), `${ESM_ORIGIN}/`);
+        assertEquals(res.headers.get('location'), HOMEPAGE);
     });
 
     await t.step(
-        'should forward the request to $esmOrigin keeping the parameters',
+        'should forward the request to $UPSTREAM_ORIGIN keeping the parameters',
         async () => {
             const fetchStub = stub(
                 _internals,
@@ -48,28 +52,28 @@ Deno.test('esmProxyRequestHandler', async (t) => {
                 returnsNext([fetchReturn()]),
             );
             const req = new Request(`${SELF_ORIGIN}/foo?bundle`);
-            await esmProxyRequestHandler(req);
-            assertSpyCallArg(fetchStub, 0, 0, `${ESM_ORIGIN}/foo?bundle`);
+            await sjsRequestHandler(req);
+            assertSpyCallArg(fetchStub, 0, 0, `${UPSTREAM_ORIGIN}/foo?bundle`);
             fetchStub.restore();
         },
     );
 
-    await t.step('should handle $esmOrigin with ending slash', async () => {
-        Deno.env.set('ESM_ORIGIN', 'https://esm.sh/');
+    await t.step('should handle $UPSTREAM_ORIGIN with ending slash', async () => {
+        Deno.env.set('UPSTREAM_ORIGIN', 'https://esm.sh/');
         const fetchStub = stub(
             _internals,
             'fetch',
             returnsNext([fetchReturn()]),
         );
         const req = new Request(`${SELF_ORIGIN}/foo?bundle`);
-        await esmProxyRequestHandler(req);
+        await sjsRequestHandler(req);
         assertSpyCallArg(fetchStub, 0, 0, `https://esm.sh/foo?bundle`);
         fetchStub.restore();
-        Deno.env.set('ESM_ORIGIN', ESM_ORIGIN);
+        Deno.env.set('UPSTREAM_ORIGIN', UPSTREAM_ORIGIN);
     });
 
     await t.step(
-        'should forward the request to $esmOrigin removing the $basePath',
+        'should forward the request to $UPSTREAM_ORIGIN removing the $basePath',
         async () => {
             Deno.env.set('BASE_PATH', '/sub-dir');
             const fetchStub = stub(
@@ -78,15 +82,15 @@ Deno.test('esmProxyRequestHandler', async (t) => {
                 returnsNext([fetchReturn()]),
             );
             const req = new Request(`${SELF_ORIGIN}/sub-dir/foo?bundle`);
-            await esmProxyRequestHandler(req);
-            assertSpyCallArg(fetchStub, 0, 0, `${ESM_ORIGIN}/foo?bundle`);
+            await sjsRequestHandler(req);
+            assertSpyCallArg(fetchStub, 0, 0, `${UPSTREAM_ORIGIN}/foo?bundle`);
             fetchStub.restore();
             Deno.env.set('BASE_PATH', '');
         },
     );
 
     await t.step(
-        'should forward the request to $esmOrigin taking into account that `X-Real-Origin` and the current request URL may differ in origin',
+        'should forward the request to $UPSTREAM_ORIGIN taking into account that `X-Real-Origin` and the current request URL may differ in origin',
         async () => {
             Deno.env.set('BASE_PATH', '/sub-dir');
             const fetchStub = stub(
@@ -97,15 +101,15 @@ Deno.test('esmProxyRequestHandler', async (t) => {
             const req = new Request(`${SELF_ORIGIN}/sub-dir/foo?bundle`, {
                 headers: { 'X-Real-Origin': 'https://systemjs.sh/' },
             });
-            await esmProxyRequestHandler(req);
-            assertSpyCallArg(fetchStub, 0, 0, `${ESM_ORIGIN}/foo?bundle`);
+            await sjsRequestHandler(req);
+            assertSpyCallArg(fetchStub, 0, 0, `${UPSTREAM_ORIGIN}/foo?bundle`);
             fetchStub.restore();
             Deno.env.set('BASE_PATH', '');
         },
     );
 
     await t.step(
-        'should forward the ESM_SEVICE_HOST response headers back to the client',
+        'should forward the upstream response CORS headers back to the client',
         async () => {
             const fetchStub = stub(
                 _internals,
@@ -113,7 +117,7 @@ Deno.test('esmProxyRequestHandler', async (t) => {
                 returnsNext([fetchReturn()]),
             );
             const req = new Request(`${SELF_ORIGIN}/vue`);
-            const res = await esmProxyRequestHandler(req);
+            const res = await sjsRequestHandler(req);
             assertEquals(res.headers.get('access-control-allow-origin'), '*');
             fetchStub.restore();
         },
@@ -128,21 +132,21 @@ Deno.test('esmProxyRequestHandler', async (t) => {
                 returnsNext([fetchReturn()]),
             );
             const req = new Request(`${SELF_ORIGIN}/vue`);
-            const res: Response = await esmProxyRequestHandler(req);
+            const res: Response = await sjsRequestHandler(req);
             const systemjsCode = await res.text();
             assertEquals(systemjsCode.startsWith('System.register('), true);
             fetchStub.restore();
         },
     );
 
-    await t.step('should replace the $esmOrigin by the self host', async () => {
+    await t.step('should replace the $UPSTREAM_ORIGIN by the self host', async () => {
         const fetchStub = stub(
             _internals,
             'fetch',
             returnsNext([fetchReturn()]),
         );
         const req = new Request(`${SELF_ORIGIN}/vue`);
-        const res = await esmProxyRequestHandler(req);
+        const res = await sjsRequestHandler(req);
         const systemjsCode = await res.text();
         assertEquals(
             !!systemjsCode.match(
@@ -154,7 +158,7 @@ Deno.test('esmProxyRequestHandler', async (t) => {
     });
 
     await t.step(
-        'should replace the $esmOrigin by the X-Real-Origin host if exists',
+        'should replace the $UPSTREAM_ORIGIN by the X-Real-Origin host if exists',
         async () => {
             const fetchStub = stub(
                 _internals,
@@ -165,7 +169,7 @@ Deno.test('esmProxyRequestHandler', async (t) => {
             const req = new Request(`${SELF_ORIGIN}/vue`, {
                 headers: { 'X-Real-Origin': realOrigin },
             });
-            const res = await esmProxyRequestHandler(req);
+            const res = await sjsRequestHandler(req);
             const systemjsCode = await res.text();
             assertEquals(
                 !!systemjsCode.match(
@@ -178,7 +182,7 @@ Deno.test('esmProxyRequestHandler', async (t) => {
     );
 
     await t.step(
-        'should replace the $esmOrigin by the self host including $basePath',
+        'should replace the $UPSTREAM_ORIGIN by the self host including $basePath',
         async () => {
             Deno.env.set('BASE_PATH', '/sub-dir/234');
             const fetchStub = stub(
@@ -187,7 +191,7 @@ Deno.test('esmProxyRequestHandler', async (t) => {
                 returnsNext([fetchReturn()]),
             );
             const req = new Request(`${SELF_ORIGIN}/vue`);
-            const res = await esmProxyRequestHandler(req);
+            const res = await sjsRequestHandler(req);
             const systemjsCode = await res.text();
             assertEquals(
                 !!systemjsCode.match(
@@ -203,7 +207,7 @@ Deno.test('esmProxyRequestHandler', async (t) => {
     );
 
     await t.step(
-        'should prefix the absolute paths (missing $esmOrigin) with the $basePath',
+        'should prefix the absolute paths (missing $UPSTREAM_ORIGIN) with the $basePath',
         async () => {
             Deno.env.set('BASE_PATH', '/sub-dir/234');
             const fetchStub = stub(
@@ -217,7 +221,7 @@ export * from "/stable/vue@3.3.4/es2022/vue.mjs";
                     `)]),
             );
             const req = new Request(`${SELF_ORIGIN}/vue`);
-            const res = await esmProxyRequestHandler(req);
+            const res = await sjsRequestHandler(req);
             const systemjsCode = await res.text();
             assertEquals(
                 !!systemjsCode.match(
@@ -257,7 +261,7 @@ export * from "/stable/vue@3.3.4/es2022/vue.mjs";
     );
 
     await t.step(
-        'should do nothing to the absolute paths (missing $esmOrigin) when the $basePath is empty',
+        'should do nothing to the absolute paths (missing $UPSTREAM_ORIGIN) when the $basePath is empty',
         async () => {
             Deno.env.set('BASE_PATH', '');
             const fetchStub = stub(
@@ -269,7 +273,7 @@ export * from "/stable/vue@3.3.4/es2022/vue.mjs";
                     `)]),
             );
             const req = new Request(`${SELF_ORIGIN}/vue`);
-            const res = await esmProxyRequestHandler(req);
+            const res = await sjsRequestHandler(req);
             const systemjsCode = await res.text();
             assertEquals(
                 !!systemjsCode.match(
@@ -293,7 +297,7 @@ export * from "/stable/vue@3.3.4/es2022/vue.mjs";
     );
 
     await t.step(
-        'should replace the $esmOrigin by the X-Real-Origin host if exists including $basePath',
+        'should replace the $UPSTREAM_ORIGIN by the X-Real-Origin host if exists including $basePath',
         async () => {
             Deno.env.set('BASE_PATH', '/sub-dir/234');
             const fetchStub = stub(
@@ -305,7 +309,7 @@ export * from "/stable/vue@3.3.4/es2022/vue.mjs";
             const req = new Request(`${SELF_ORIGIN}/vue`, {
                 headers: { 'X-Real-Origin': realOrigin },
             });
-            const res = await esmProxyRequestHandler(req);
+            const res = await sjsRequestHandler(req);
             const systemjsCode = await res.text();
             assertEquals(
                 !!systemjsCode.match(
@@ -331,14 +335,14 @@ export * from "/stable/vue@3.3.4/es2022/vue.mjs";
                         new Response('', {
                             status: 302,
                             headers: {
-                                'Location': `${ESM_ORIGIN}/stable/vue@3.3.2`,
+                                'Location': `${UPSTREAM_ORIGIN}/stable/vue@3.3.2`,
                             },
                         }),
                     ),
                 ]),
             );
             const req = new Request(`${SELF_ORIGIN}/vue`);
-            const res = await esmProxyRequestHandler(req);
+            const res = await sjsRequestHandler(req);
             assertEquals(res.status, 302);
             assertEquals(
                 res.headers.get('location'),
@@ -360,7 +364,7 @@ export * from "/stable/vue@3.3.4/es2022/vue.mjs";
                 ]),
             );
             const req = new Request(`${SELF_ORIGIN}/vue`);
-            const res = await esmProxyRequestHandler(req);
+            const res = await sjsRequestHandler(req);
             assertEquals(res.status, 404);
             assertSpyCalls(fetchStub, 1);
             fetchStub.restore();

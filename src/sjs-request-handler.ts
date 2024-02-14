@@ -6,22 +6,19 @@ import {
     isJsResponse,
     retrieveCache,
 } from './utils.ts';
-import { resolveConfig } from './resolve-config.ts';
 import { toSystemjs } from './to-systemjs.ts';
 import { getBuildTargetFromUA, ScopedPerformance } from '../deps.ts';
 
-export async function esmProxyRequestHandler(
+export async function sjsRequestHandler(
     req: Request,
 ): Promise<Response> {
     const performance = new ScopedPerformance();
     performance.mark('total');
-    const {
-        BASE_PATH,
-        CACHE_MAXAGE,
-        ESM_ORIGIN,
-        HOMEPAGE,
-        OUTPUT_BANNER,
-    } = await resolveConfig();
+    const BASE_PATH = Deno.env.get('BASE_PATH');
+    const CACHE_MAXAGE = Deno.env.get('CACHE_MAXAGE');
+    const UPSTREAM_ORIGIN = Deno.env.get('UPSTREAM_ORIGIN');
+    const HOMEPAGE = Deno.env.get('HOMEPAGE');
+    const OUTPUT_BANNER = Deno.env.get('OUTPUT_BANNER');
     const buildTarget = getBuildTargetFromUA(req.headers.get('user-agent'));
     if (Number(CACHE_MAXAGE)) {
         performance.mark('cache-read');
@@ -46,22 +43,22 @@ export async function esmProxyRequestHandler(
     performance.measure('cache-miss', { start: performance.now() });
     const selfUrl = new URL(req.url);
     const basePath = `/${BASE_PATH}/`.replace(/\/+/g, '/');
-    const esmOrigin = `${ESM_ORIGIN}/`.replace(/\/+$/, '/');
+    const upstreamOrigin = `${UPSTREAM_ORIGIN}/`.replace(/\/+$/, '/');
     if ([`${basePath}`, '/', ''].includes(selfUrl.pathname)) {
-        return Response.redirect(HOMEPAGE || esmOrigin, 302);
+        return Response.redirect(HOMEPAGE || upstreamOrigin, 302);
     }
     const finalUrl = new URL(req.headers.get('x-real-origin') ?? selfUrl);
     const selfOriginActual = `${selfUrl.origin}${basePath}`;
     const selfOriginFinal = `${finalUrl.origin}${basePath}`;
-    const esmUrl = new URL(req.url.replace(selfOriginActual, ''), esmOrigin);
+    const upstreamUrl = new URL(req.url.replace(selfOriginActual, ''), upstreamOrigin);
     const replaceOrigin = (() => {
-        const esmOriginRegExp = new RegExp(esmOrigin, 'ig');
+        const upstreamOriginRegExp = new RegExp(upstreamOrigin, 'ig');
         const registerRegExp =
             /(?:register|import)\(\[?(?:['"][^'"]+['"](?:,\s*)?)*\]?/gm;
         const absolutePathRegExp = /['"][^'"]+['"]/gm;
         const absolutePathReplaceRegExp = /^(['"])\//;
         return (str: string) => {
-            return str.replace(esmOriginRegExp, selfOriginFinal)
+            return str.replace(upstreamOriginRegExp, selfOriginFinal)
                 .replace(registerRegExp, (registerMatch) => {
                     return registerMatch.replace(
                         absolutePathRegExp,
@@ -82,13 +79,13 @@ export async function esmProxyRequestHandler(
         typeof pair[1] === 'string' ? replaceOrigin(pair[1]) : pair[1],
     ] as [string, string]);
     performance.mark('upstream');
-    const esmResponse = await _internals.fetch(esmUrl.toString(), {
+    const upstreamResponse = await _internals.fetch(upstreamUrl.toString(), {
         headers: cloneHeaders(req.headers, denyHeaders),
         redirect: 'manual',
     });
     performance.measure('upstream', 'upstream');
-    let body = await esmResponse.text();
-    if (isJsResponse(esmResponse)) {
+    let body = await upstreamResponse.text();
+    if (isJsResponse(upstreamResponse)) {
         performance.mark('build');
         body = replaceOrigin(await toSystemjs(body, { banner: OUTPUT_BANNER }));
         performance.measure('build', 'build');
@@ -98,12 +95,12 @@ export async function esmProxyRequestHandler(
             url: req.url,
             body,
             headers: cloneHeaders(
-                esmResponse.headers,
+                upstreamResponse.headers,
                 denyHeaders,
                 replaceOriginHeaders,
             ),
-            status: esmResponse.status,
-            statusText: esmResponse.statusText,
+            status: upstreamResponse.status,
+            statusText: upstreamResponse.statusText,
         },
         performance,
         buildTarget,

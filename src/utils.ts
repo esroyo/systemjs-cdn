@@ -1,5 +1,4 @@
 import { kvGet, kvSet, request } from '../deps.ts';
-import { resolveConfig } from './resolve-config.ts';
 
 import type { HttpZResponseModel, ResponseProps } from './types.ts';
 
@@ -94,7 +93,7 @@ export const retrieveCache = async (
     kv: Promise<Deno.Kv>,
     key: Deno.KvKey,
 ): Promise<ResponseProps | null> => {
-    const { CACHE_MAXAGE } = await resolveConfig();
+    const CACHE_MAXAGE = Deno.env.get('CACHE_MAXAGE');
     const settledKv = await kv;
     const blob = await kvGet(settledKv, ['cache', ...key]);
     const value = blob && JSON.parse(new TextDecoder().decode(blob));
@@ -134,7 +133,7 @@ export const createFinalResponse = async (
     buildTarget: string,
     isCached: boolean,
 ): Promise<Response> => {
-    const { CACHE_MAXAGE } = await resolveConfig();
+    const CACHE_MAXAGE = Deno.env.get('CACHE_MAXAGE');
     const {
         url,
         body,

@@ -1,5 +1,7 @@
-import { serve } from '../deps.ts';
+import { dotenvLoad, serve } from '../deps.ts';
 
-import { esmProxyRequestHandler } from './esm-proxy-request-handler.ts';
+import { sjsRequestHandler } from './sjs-request-handler.ts';
 
-serve(esmProxyRequestHandler, { port: 8000 });
+dotenvLoad({ export: true });
+
+serve(sjsRequestHandler, { port: 8000 });
