@@ -93,17 +93,24 @@ export const retrieveCache = async (
     kv: Promise<Deno.Kv>,
     key: Deno.KvKey,
 ): Promise<ResponseProps | null> => {
-    const CACHE_MAXAGE = Deno.env.get('CACHE_MAXAGE');
     const settledKv = await kv;
     const blob = await kvGet(settledKv, ['cache', ...key]);
     const value = blob && JSON.parse(new TextDecoder().decode(blob));
     settledKv.close();
     const isValidCacheEntry = !!(
         value &&
-        value.ctime &&
-        (Date.now() - value.ctime < (Number(CACHE_MAXAGE) * 1000))
+        value.expires &&
+        value.expires > Date.now()
     );
     return isValidCacheEntry ? value : null;
+};
+
+const calcExpires = (headers: Headers): string => {
+    const DEFAULT = '600';
+    const cacheControl = Object.fromEntries((headers.get('cache-control') ?? '').split(/\s*,\s*/g).map((part) => part.split('=')));
+    const effectiveMaxAge = Number(cacheControl['max-age'] || DEFAULT) * 1000; 
+    const expires = String(Date.now() + effectiveMaxAge);
+    return expires;
 };
 
 export const saveCache = async (
@@ -113,7 +120,7 @@ export const saveCache = async (
 ): Promise<void> => {
     const blob = new TextEncoder().encode(JSON.stringify({
         ...value,
-        ctime: Date.now(),
+        expires: calcExpires(value.headers), 
         headers: Object.fromEntries(value.headers.entries()),
     }));
     const settledKv = await kv;
@@ -131,9 +138,8 @@ export const createFinalResponse = async (
     responseProps: ResponseProps,
     performance: Performance,
     buildTarget: string,
-    isCached: boolean,
+    shouldCache: boolean,
 ): Promise<Response> => {
-    const CACHE_MAXAGE = Deno.env.get('CACHE_MAXAGE');
     const {
         url,
         body,
@@ -145,8 +151,8 @@ export const createFinalResponse = async (
         headers.set('access-control-allow-origin', '*');
     }
     const isCacheable = isOk(status) || isRedirect(status);
-    const shouldCache = !isCached && isCacheable && Number(CACHE_MAXAGE);
-    if (shouldCache) {
+    const willCache = shouldCache && isCacheable;
+    if (willCache) {
         performance.mark('cache-write');
         await saveCache(Deno.openKv(), [url, buildTarget], responseProps);
         performance.measure('cache-write', 'cache-write');

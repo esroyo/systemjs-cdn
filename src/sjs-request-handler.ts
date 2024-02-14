@@ -15,12 +15,12 @@ export async function sjsRequestHandler(
     const performance = new ScopedPerformance();
     performance.mark('total');
     const BASE_PATH = Deno.env.get('BASE_PATH');
-    const CACHE_MAXAGE = Deno.env.get('CACHE_MAXAGE');
+    const CACHE = Deno.env.get('CACHE') === 'true';
     const UPSTREAM_ORIGIN = Deno.env.get('UPSTREAM_ORIGIN');
     const HOMEPAGE = Deno.env.get('HOMEPAGE');
     const OUTPUT_BANNER = Deno.env.get('OUTPUT_BANNER');
     const buildTarget = getBuildTargetFromUA(req.headers.get('user-agent'));
-    if (Number(CACHE_MAXAGE)) {
+    if (CACHE) {
         performance.mark('cache-read');
         const value = await retrieveCache(Deno.openKv(), [
             req.url,
@@ -36,7 +36,7 @@ export async function sjsRequestHandler(
                 },
                 performance,
                 buildTarget,
-                true,
+                false,
             );
         }
     }
@@ -104,6 +104,6 @@ export async function sjsRequestHandler(
         },
         performance,
         buildTarget,
-        false,
+        CACHE,
     );
 }

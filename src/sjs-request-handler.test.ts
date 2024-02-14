@@ -19,7 +19,7 @@ const HOMEPAGE = Deno.env.get('HOMEPAGE');
 const SELF_ORIGIN = 'https://systemjs.test';
 
 // Disable cache for tests
-Deno.env.set('CACHE_MAXAGE', '0');
+Deno.env.set('CACHE', 'false');
 Deno.env.set('OUTPUT_BANNER', '');
 
 const fetchReturn = (
