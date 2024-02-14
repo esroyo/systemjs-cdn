@@ -5,9 +5,7 @@ import {
     returnsNext,
     stub,
 } from '../dev_deps.ts';
-import {
-    dotenvLoad,
-} from '../deps.ts';
+import { dotenvLoad } from '../deps.ts';
 
 import { _internals } from './utils.ts';
 import { sjsRequestHandler } from './sjs-request-handler.ts';
@@ -23,7 +21,8 @@ Deno.env.set('CACHE', 'false');
 Deno.env.set('OUTPUT_BANNER', '');
 
 const fetchReturn = (
-    body = `export * from "${UPSTREAM_ORIGIN}/stable/vue@3.3.2/es2022/vue.mjs";`,
+    body =
+        `export * from "${UPSTREAM_ORIGIN}/stable/vue@3.3.2/es2022/vue.mjs";`,
 ) => (
     Promise.resolve(
         new Response(body, {
@@ -58,19 +57,22 @@ Deno.test('sjsRequestHandler', async (t) => {
         },
     );
 
-    await t.step('should handle $UPSTREAM_ORIGIN with ending slash', async () => {
-        Deno.env.set('UPSTREAM_ORIGIN', 'https://esm.sh/');
-        const fetchStub = stub(
-            _internals,
-            'fetch',
-            returnsNext([fetchReturn()]),
-        );
-        const req = new Request(`${SELF_ORIGIN}/foo?bundle`);
-        await sjsRequestHandler(req);
-        assertSpyCallArg(fetchStub, 0, 0, `https://esm.sh/foo?bundle`);
-        fetchStub.restore();
-        Deno.env.set('UPSTREAM_ORIGIN', UPSTREAM_ORIGIN);
-    });
+    await t.step(
+        'should handle $UPSTREAM_ORIGIN with ending slash',
+        async () => {
+            Deno.env.set('UPSTREAM_ORIGIN', 'https://esm.sh/');
+            const fetchStub = stub(
+                _internals,
+                'fetch',
+                returnsNext([fetchReturn()]),
+            );
+            const req = new Request(`${SELF_ORIGIN}/foo?bundle`);
+            await sjsRequestHandler(req);
+            assertSpyCallArg(fetchStub, 0, 0, `https://esm.sh/foo?bundle`);
+            fetchStub.restore();
+            Deno.env.set('UPSTREAM_ORIGIN', UPSTREAM_ORIGIN);
+        },
+    );
 
     await t.step(
         'should forward the request to $UPSTREAM_ORIGIN removing the $basePath',
@@ -139,23 +141,28 @@ Deno.test('sjsRequestHandler', async (t) => {
         },
     );
 
-    await t.step('should replace the $UPSTREAM_ORIGIN by the self host', async () => {
-        const fetchStub = stub(
-            _internals,
-            'fetch',
-            returnsNext([fetchReturn()]),
-        );
-        const req = new Request(`${SELF_ORIGIN}/vue`);
-        const res = await sjsRequestHandler(req);
-        const systemjsCode = await res.text();
-        assertEquals(
-            !!systemjsCode.match(
-                new RegExp(`${SELF_ORIGIN}/stable/vue@3.3.2/es2022/vue.mjs`),
-            ),
-            true,
-        );
-        fetchStub.restore();
-    });
+    await t.step(
+        'should replace the $UPSTREAM_ORIGIN by the self host',
+        async () => {
+            const fetchStub = stub(
+                _internals,
+                'fetch',
+                returnsNext([fetchReturn()]),
+            );
+            const req = new Request(`${SELF_ORIGIN}/vue`);
+            const res = await sjsRequestHandler(req);
+            const systemjsCode = await res.text();
+            assertEquals(
+                !!systemjsCode.match(
+                    new RegExp(
+                        `${SELF_ORIGIN}/stable/vue@3.3.2/es2022/vue.mjs`,
+                    ),
+                ),
+                true,
+            );
+            fetchStub.restore();
+        },
+    );
 
     await t.step(
         'should replace the $UPSTREAM_ORIGIN by the X-Real-Origin host if exists',
@@ -335,7 +342,8 @@ export * from "/stable/vue@3.3.4/es2022/vue.mjs";
                         new Response('', {
                             status: 302,
                             headers: {
-                                'Location': `${UPSTREAM_ORIGIN}/stable/vue@3.3.2`,
+                                'Location':
+                                    `${UPSTREAM_ORIGIN}/stable/vue@3.3.2`,
                             },
                         }),
                     ),

@@ -108,8 +108,12 @@ export const retrieveCache = async (
 
 const calcExpires = (headers: Headers): string => {
     const DEFAULT = '600';
-    const cacheControl = Object.fromEntries((headers.get('cache-control') ?? '').split(/\s*,\s*/g).map((part) => part.split('=')));
-    const effectiveMaxAge = Number(cacheControl['max-age'] || DEFAULT) * 1000; 
+    const cacheControl = Object.fromEntries(
+        (headers.get('cache-control') ?? '').split(/\s*,\s*/g).map((part) =>
+            part.split('=')
+        ),
+    );
+    const effectiveMaxAge = Number(cacheControl['max-age'] || DEFAULT) * 1000;
     const expires = String(Date.now() + effectiveMaxAge);
     return expires;
 };
@@ -121,7 +125,7 @@ export const saveCache = async (
 ): Promise<void> => {
     const blob = new TextEncoder().encode(JSON.stringify({
         ...value,
-        expires: calcExpires(value.headers), 
+        expires: calcExpires(value.headers),
         headers: Object.fromEntries(value.headers.entries()),
     }));
     const settledKv = await kv;
@@ -131,8 +135,10 @@ export const saveCache = async (
 
 const buildDebugPerformance = (performance: Performance): string => (
     performance.getEntriesByType('measure')
-      .map(({ name, duration }) => `${name}${duration ? `;dur=${duration}` : ''}`)
-      .join(',')
+        .map(({ name, duration }) =>
+            `${name}${duration ? `;dur=${duration}` : ''}`
+        )
+        .join(',')
 );
 
 export const createFinalResponse = async (

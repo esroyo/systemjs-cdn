@@ -51,7 +51,10 @@ export async function sjsRequestHandler(
     const finalUrl = new URL(req.headers.get('x-real-origin') ?? selfUrl);
     const selfOriginActual = `${selfUrl.origin}${basePath}`;
     const selfOriginFinal = `${finalUrl.origin}${basePath}`;
-    const upstreamUrl = new URL(req.url.replace(selfOriginActual, ''), upstreamOrigin);
+    const upstreamUrl = new URL(
+        req.url.replace(selfOriginActual, ''),
+        upstreamOrigin,
+    );
     const replaceOrigin = (() => {
         const upstreamOriginRegExp = new RegExp(upstreamOrigin, 'ig');
         const registerRegExp =
