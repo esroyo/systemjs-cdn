@@ -1,4 +1,5 @@
 import { kvGet, kvSet, request } from '../deps.ts';
+import { denoKv } from './services.ts';
 
 import type { HttpZResponseModel, ResponseProps } from './types.ts';
 
@@ -96,7 +97,7 @@ export const retrieveCache = async (
     const settledKv = await kv;
     const blob = await kvGet(settledKv, ['cache', ...key]);
     const value = blob && JSON.parse(new TextDecoder().decode(blob));
-    settledKv.close();
+    //settledKv.close();
     const isValidCacheEntry = !!(
         value &&
         value.expires &&
@@ -125,7 +126,7 @@ export const saveCache = async (
     }));
     const settledKv = await kv;
     await kvSet(settledKv, ['cache', ...key], blob);
-    settledKv.close();
+    //settledKv.close();
 };
 
 const buildDebugPerformance = (performance: Performance): string => (
@@ -154,7 +155,7 @@ export const createFinalResponse = async (
     const willCache = shouldCache && isCacheable;
     if (willCache) {
         performance.mark('cache-write');
-        await saveCache(Deno.openKv(), [url, buildTarget], responseProps);
+        await saveCache(denoKv, [url, buildTarget], responseProps);
         performance.measure('cache-write', 'cache-write');
     }
 

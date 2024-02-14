@@ -6,6 +6,7 @@ import {
     isJsResponse,
     retrieveCache,
 } from './utils.ts';
+import { denoKv } from './services.ts';
 import { toSystemjs } from './to-systemjs.ts';
 import { getBuildTargetFromUA, ScopedPerformance } from '../deps.ts';
 
@@ -22,7 +23,7 @@ export async function sjsRequestHandler(
     const buildTarget = getBuildTargetFromUA(req.headers.get('user-agent'));
     if (CACHE) {
         performance.mark('cache-read');
-        const value = await retrieveCache(Deno.openKv(), [
+        const value = await retrieveCache(denoKv, [
             req.url,
             buildTarget,
         ]);
@@ -39,8 +40,8 @@ export async function sjsRequestHandler(
                 false,
             );
         }
+        performance.measure('cache-miss', { start: performance.now() });
     }
-    performance.measure('cache-miss', { start: performance.now() });
     const selfUrl = new URL(req.url);
     const basePath = `/${BASE_PATH}/`.replace(/\/+/g, '/');
     const upstreamOrigin = `${UPSTREAM_ORIGIN}/`.replace(/\/+$/, '/');
