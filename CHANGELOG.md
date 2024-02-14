@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.12.0](https://github.com/esroyo/systemjs.sh/compare/v1.11.1...v1.12.0) (2024-02-14)
+
+
+### Features
+
+* perform caching based on upstream max-age (rename env var to CACHE) ([e95ffde](https://github.com/esroyo/systemjs.sh/commit/e95ffde9f4edd4ffd3639168ad87db9844900a33))
+* use server-timing API to report duration ([611798b](https://github.com/esroyo/systemjs.sh/commit/611798b5230d51c56aac8f00f0090b245fd56d26))
+
+
+### Bug Fixes
+
+* only output cache hit/miss if CACHE is enabled ([4c9d25a](https://github.com/esroyo/systemjs.sh/commit/4c9d25ac6f6833f176ea3dbb79cf31b81c7c062e))
+
 ## [1.11.1](https://github.com/esroyo/systemjs.sh/compare/v1.11.0...v1.11.1) (2024-02-03)
 
 
