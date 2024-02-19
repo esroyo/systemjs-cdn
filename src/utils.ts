@@ -147,6 +147,8 @@ export const createFinalResponse = async (
     buildTarget: string,
     shouldCache: boolean,
 ): Promise<Response> => {
+    const CACHE_CLIENT_REDIRECT =
+        Number(Deno.env.get('CACHE_CLIENT_REDIRECT') as string) || 0;
     const {
         url,
         body,
@@ -157,12 +159,23 @@ export const createFinalResponse = async (
     if (!headers.has('access-control-allow-origin')) {
         headers.set('access-control-allow-origin', '*');
     }
-    const isCacheable = isOk(status) || isRedirect(status);
+    const isActualRedirect = isRedirect(status);
+    const isCacheable = isOk(status) || isActualRedirect;
     const willCache = shouldCache && isCacheable;
     if (willCache) {
         performance.mark('cache-write');
         await saveCache(denoKv, [url, buildTarget], responseProps);
         performance.measure('cache-write', 'cache-write');
+    }
+
+    if (
+        CACHE_CLIENT_REDIRECT && isActualRedirect &&
+        !headers.has('cache-control')
+    ) {
+        headers.set(
+            'cache-control',
+            `public, max-age=${CACHE_CLIENT_REDIRECT}`,
+        );
     }
 
     performance.measure('total', 'total');
