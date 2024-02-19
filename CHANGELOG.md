@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.13.0](https://github.com/esroyo/systemjs.sh/compare/v1.12.0...v1.13.0) (2024-02-19)
+
+
+### Features
+
+* add CACHE_CLIENT_REDIRECT option (default 600) ([dfbbf3e](https://github.com/esroyo/systemjs.sh/commit/dfbbf3e1f77701861fbfaa0d1be17b7a210edfe5))
+
 ## [1.12.0](https://github.com/esroyo/systemjs.sh/compare/v1.11.1...v1.12.0) (2024-02-14)
 
 
