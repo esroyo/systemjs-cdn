@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.14.1](https://github.com/esroyo/systemjs.sh/compare/v1.14.0...v1.14.1) (2024-02-22)
+
+
+### Bug Fixes
+
+* remove x-forwarded-for header ([e356e4a](https://github.com/esroyo/systemjs.sh/commit/e356e4a0d3aa9828b37674b9083a07b35577d0f2))
+
 ## [1.14.0](https://github.com/esroyo/systemjs.sh/compare/v1.13.0...v1.14.0) (2024-02-22)
 
 
