@@ -25,35 +25,6 @@ export async function sjsRequestHandler(
     const HOMEPAGE = Deno.env.get('HOMEPAGE');
     const OUTPUT_BANNER = Deno.env.get('OUTPUT_BANNER');
     const buildTarget = getBuildTargetFromUA(req.headers.get('user-agent'));
-    if (CACHE) {
-        performance.mark('cache-read');
-        const value = await retrieveCache(denoKv, [
-            req.url,
-            buildTarget,
-        ]);
-        performance.measure('cache-read', 'cache-read');
-        if (value) {
-            performance.measure('cache-hit', { start: performance.now() });
-            const response = await createFinalResponse(
-                {
-                    ...value,
-                    headers: new Headers(value.headers),
-                },
-                performance,
-                buildTarget,
-                false,
-            );
-            if (CACHE_CLIENT_REDIRECT && isRedirect(response.status)) {
-                return createFastPathResponse(
-                    response,
-                    performance,
-                    buildTarget,
-                );
-            }
-            return response;
-        }
-        performance.measure('cache-miss', { start: performance.now() });
-    }
     const selfUrl = new URL(req.url);
     const basePath = `/${BASE_PATH}/`.replace(/\/+/g, '/');
     const upstreamOrigin = `${UPSTREAM_ORIGIN}/`.replace(/\/+$/, '/');
@@ -94,6 +65,36 @@ export async function sjsRequestHandler(
         pair[0],
         typeof pair[1] === 'string' ? replaceOrigin(pair[1]) : pair[1],
     ] as [string, string]);
+    const canonicalUrl = replaceOrigin(req.url);
+    if (CACHE) {
+        performance.mark('cache-read');
+        const value = await retrieveCache(denoKv, [
+            canonicalUrl,
+            buildTarget,
+        ]);
+        performance.measure('cache-read', 'cache-read');
+        if (value) {
+            performance.measure('cache-hit', { start: performance.now() });
+            const response = await createFinalResponse(
+                {
+                    ...value,
+                    headers: new Headers(value.headers),
+                },
+                performance,
+                buildTarget,
+                false,
+            );
+            if (CACHE_CLIENT_REDIRECT && isRedirect(response.status)) {
+                return createFastPathResponse(
+                    response,
+                    performance,
+                    buildTarget,
+                );
+            }
+            return response;
+        }
+        performance.measure('cache-miss', { start: performance.now() });
+    }
     performance.mark('upstream');
     const upstreamResponse = await _internals.fetch(upstreamUrl.toString(), {
         headers: cloneHeaders(req.headers, denyHeaders),
@@ -108,7 +109,7 @@ export async function sjsRequestHandler(
     }
     const response = await createFinalResponse(
         {
-            url: req.url,
+            url: canonicalUrl,
             body,
             headers: cloneHeaders(
                 upstreamResponse.headers,

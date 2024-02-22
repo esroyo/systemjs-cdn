@@ -230,8 +230,6 @@ export const createFastPathResponse = async (
 
     const rebuildedHeaders = cloneHeaders(response.headers);
     
-    rebuildedHeaders.set('x-debug-redirect-cache-miss', JSON.stringify({ redirectLocation, buildTarget }));
-
     performance.clearMeasures('total');
     performance.measure('total', 'total');
 
