@@ -173,7 +173,6 @@ export const createFinalResponse = async (
         performance.mark('cache-write');
         await saveCache(denoKv, [url, buildTarget], responseProps);
         performance.measure('cache-write', 'cache-write');
-        headers.set('x-debug-cache-key', JSON.stringify([url, buildTarget]));
     }
     const shouldSetCacheClientRedirect = CACHE_CLIENT_REDIRECT &&
         isFastPathRedirect;

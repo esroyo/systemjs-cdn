@@ -31,9 +31,9 @@ export async function sjsRequestHandler(
     if ([`${basePath}`, '/', ''].includes(selfUrl.pathname)) {
         return Response.redirect(HOMEPAGE || upstreamOrigin, 302);
     }
-    const finalUrl = new URL(req.headers.get('x-real-origin') ?? selfUrl);
+    const finalOriginUrl = new URL(req.headers.get('x-real-origin') ?? selfUrl);
     const selfOriginActual = `${selfUrl.origin}${basePath}`;
-    const selfOriginFinal = `${finalUrl.origin}${basePath}`;
+    const selfOriginFinal = `${finalOriginUrl.origin}${basePath}`;
     const upstreamUrl = new URL(
         req.url.replace(selfOriginActual, ''),
         upstreamOrigin,
@@ -65,11 +65,11 @@ export async function sjsRequestHandler(
         pair[0],
         typeof pair[1] === 'string' ? replaceOrigin(pair[1]) : pair[1],
     ] as [string, string]);
-    const canonicalUrl = replaceOrigin(req.url);
+    const publicSelfUrl = new URL(replaceOrigin(req.url), finalOriginUrl.origin).toString();
     if (CACHE) {
         performance.mark('cache-read');
         const value = await retrieveCache(denoKv, [
-            canonicalUrl,
+            publicSelfUrl,
             buildTarget,
         ]);
         performance.measure('cache-read', 'cache-read');
@@ -109,7 +109,7 @@ export async function sjsRequestHandler(
     }
     const response = await createFinalResponse(
         {
-            url: canonicalUrl,
+            url: publicSelfUrl,
             body,
             headers: cloneHeaders(
                 upstreamResponse.headers,
