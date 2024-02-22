@@ -1,8 +1,8 @@
 import {
     _internals,
     cloneHeaders,
-    createFinalResponse,
     createFastPathResponse,
+    createFinalResponse,
     denyHeaders,
     isJsResponse,
     isRedirect,
@@ -44,7 +44,11 @@ export async function sjsRequestHandler(
                 false,
             );
             if (CACHE_CLIENT_REDIRECT && isRedirect(response.status)) {
-                return createFastPathResponse(response, performance, buildTarget);
+                return createFastPathResponse(
+                    response,
+                    performance,
+                    buildTarget,
+                );
             }
             return response;
         }

@@ -66,9 +66,14 @@ const denyHeadersList = [
     'nel',
     'report-to',
     'server',
+    'via',
+    'x-amz-cf-id',
+    'x-amz-cf-pop',
+    'x-cache',
     'x-content-source',
     'x-debug',
     'x-esm-id',
+    'x-forwarded-for',
     'x-real-origin',
     'x-typescript-types',
 ];
@@ -169,8 +174,8 @@ export const createFinalResponse = async (
         await saveCache(denoKv, [url, buildTarget], responseProps);
         performance.measure('cache-write', 'cache-write');
     }
-    const shouldSetCacheClientRedirect = CACHE_CLIENT_REDIRECT
-        && isFastPathRedirect;
+    const shouldSetCacheClientRedirect = CACHE_CLIENT_REDIRECT &&
+        isFastPathRedirect;
     if (shouldSetCacheClientRedirect) {
         headers.set(
             'cache-control',
