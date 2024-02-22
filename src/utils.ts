@@ -166,13 +166,14 @@ export const createFinalResponse = async (
     if (!headers.has('access-control-allow-origin')) {
         headers.set('access-control-allow-origin', '*');
     }
-    const isActualRedirect = isRedirect(status);
+    const isActualRedirect = isRedirect(status) && !isFastPathRedirect;
     const isCacheable = isOk(status) || isActualRedirect;
     const willCache = shouldCache && isCacheable;
     if (willCache) {
         performance.mark('cache-write');
         await saveCache(denoKv, [url, buildTarget], responseProps);
         performance.measure('cache-write', 'cache-write');
+        headers.set('x-debug-cache-key', JSON.stringify([url, buildTarget]));
     }
     const shouldSetCacheClientRedirect = CACHE_CLIENT_REDIRECT &&
         isFastPathRedirect;
