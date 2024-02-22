@@ -65,7 +65,8 @@ export async function sjsRequestHandler(
         pair[0],
         typeof pair[1] === 'string' ? replaceOrigin(pair[1]) : pair[1],
     ] as [string, string]);
-    const publicSelfUrl = new URL(replaceOrigin(req.url), finalOriginUrl.origin).toString();
+    const publicSelfUrl = new URL(replaceOrigin(req.url), finalOriginUrl.origin)
+        .toString();
     if (CACHE) {
         performance.mark('cache-read');
         const value = await retrieveCache(denoKv, [
