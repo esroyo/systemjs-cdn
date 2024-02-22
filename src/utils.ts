@@ -146,6 +146,7 @@ export const createFinalResponse = async (
     performance: Performance,
     buildTarget: string,
     shouldCache: boolean,
+    isFastPathRedirect?: boolean,
 ): Promise<Response> => {
     const CACHE_CLIENT_REDIRECT =
         Number(Deno.env.get('CACHE_CLIENT_REDIRECT') as string) || 0;
@@ -167,17 +168,18 @@ export const createFinalResponse = async (
         await saveCache(denoKv, [url, buildTarget], responseProps);
         performance.measure('cache-write', 'cache-write');
     }
-
-    if (
-        CACHE_CLIENT_REDIRECT && isActualRedirect &&
-        !headers.has('cache-control')
-    ) {
+    const shouldSetCacheClientRedirect = CACHE_CLIENT_REDIRECT
+        && isFastPathRedirect;
+    if (shouldSetCacheClientRedirect) {
         headers.set(
             'cache-control',
             `public, max-age=${CACHE_CLIENT_REDIRECT}`,
         );
     }
 
+    if (isFastPathRedirect) {
+        performance.clearMeasures('total');
+    }
     performance.measure('total', 'total');
     headers.set('server-timing', buildDebugPerformance(performance));
 
@@ -188,6 +190,49 @@ export const createFinalResponse = async (
     });
 
     return response;
+};
+
+export const createFastPathResponse = async (
+    response: Response,
+    performance: Performance,
+    buildTarget: string,
+): Promise<Response> => {
+    const redirectLocation = response.headers.get('location');
+    if (!redirectLocation) {
+        return response;
+    }
+    performance.mark('redirect-cache-read');
+    const value = await retrieveCache(denoKv, [
+        redirectLocation,
+        buildTarget,
+    ]);
+    performance.measure('redirect-cache-read', 'redirect-cache-read');
+    if (value) {
+        performance.measure('redirect-cache-hit', { start: performance.now() });
+        return createFinalResponse(
+            {
+                ...value,
+                headers: new Headers(value.headers),
+            },
+            performance,
+            buildTarget,
+            false,
+            true,
+        );
+    }
+    performance.measure('redirect-cache-miss', { start: performance.now() });
+
+    const rebuildedHeaders = cloneHeaders(response.headers);
+
+    performance.clearMeasures('total');
+    performance.measure('total', 'total');
+
+    rebuildedHeaders.set('server-timing', buildDebugPerformance(performance));
+    return new Response(response.body, {
+        headers: rebuildedHeaders,
+        status: response.status,
+        statusText: response.statusText,
+    });
 };
 
 export const _internals = {

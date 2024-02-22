@@ -2,8 +2,10 @@ import {
     _internals,
     cloneHeaders,
     createFinalResponse,
+    createFastPathResponse,
     denyHeaders,
     isJsResponse,
+    isRedirect,
     retrieveCache,
 } from './utils.ts';
 import { denoKv } from './services.ts';
@@ -17,6 +19,8 @@ export async function sjsRequestHandler(
     performance.mark('total');
     const BASE_PATH = Deno.env.get('BASE_PATH');
     const CACHE = Deno.env.get('CACHE') === 'true';
+    const CACHE_CLIENT_REDIRECT =
+        Number(Deno.env.get('CACHE_CLIENT_REDIRECT') as string) || 0;
     const UPSTREAM_ORIGIN = Deno.env.get('UPSTREAM_ORIGIN');
     const HOMEPAGE = Deno.env.get('HOMEPAGE');
     const OUTPUT_BANNER = Deno.env.get('OUTPUT_BANNER');
@@ -30,7 +34,7 @@ export async function sjsRequestHandler(
         performance.measure('cache-read', 'cache-read');
         if (value) {
             performance.measure('cache-hit', { start: performance.now() });
-            return createFinalResponse(
+            const response = await createFinalResponse(
                 {
                     ...value,
                     headers: new Headers(value.headers),
@@ -39,6 +43,10 @@ export async function sjsRequestHandler(
                 buildTarget,
                 false,
             );
+            if (CACHE_CLIENT_REDIRECT && isRedirect(response.status)) {
+                return createFastPathResponse(response, performance, buildTarget);
+            }
+            return response;
         }
         performance.measure('cache-miss', { start: performance.now() });
     }
@@ -94,7 +102,7 @@ export async function sjsRequestHandler(
         body = replaceOrigin(await toSystemjs(body, { banner: OUTPUT_BANNER }));
         performance.measure('build', 'build');
     }
-    return createFinalResponse(
+    const response = await createFinalResponse(
         {
             url: req.url,
             body,
@@ -110,4 +118,8 @@ export async function sjsRequestHandler(
         buildTarget,
         CACHE,
     );
+    if (CACHE && CACHE_CLIENT_REDIRECT && isRedirect(response.status)) {
+        return createFastPathResponse(response, performance, buildTarget);
+    }
+    return response;
 }
