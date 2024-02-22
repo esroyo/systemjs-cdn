@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.14.0](https://github.com/esroyo/systemjs.sh/compare/v1.13.0...v1.14.0) (2024-02-22)
+
+
+### Features
+
+* CACHE_CLIENT_REDIRECT will enable a fast-path response ([1cbc475](https://github.com/esroyo/systemjs.sh/commit/1cbc4750b591357fb65a72cde51f55a705b1e177))
+
+
+### Bug Fixes
+
+* remove upstream Date header ([cd93961](https://github.com/esroyo/systemjs.sh/commit/cd939618a0e13033e403afcb52604c5f630499f7))
+
 ## [1.13.0](https://github.com/esroyo/systemjs.sh/compare/v1.12.0...v1.13.0) (2024-02-19)
 
 
