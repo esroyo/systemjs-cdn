@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.14.3](https://github.com/esroyo/systemjs.sh/compare/v1.14.2...v1.14.3) (2024-02-22)
+
+
+### Bug Fixes
+
+* correct the calc of the public final url ([0ac6c34](https://github.com/esroyo/systemjs.sh/commit/0ac6c34eb93d57cd93f914237683b868a5d0e983))
+* finetune cache write condition ([35ce0f4](https://github.com/esroyo/systemjs.sh/commit/35ce0f4d085823a96da7bd9d842083bc5ccb5122))
+
 ## [1.14.2](https://github.com/esroyo/systemjs.sh/compare/v1.14.1...v1.14.2) (2024-02-22)
 
 
