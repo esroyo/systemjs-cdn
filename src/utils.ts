@@ -1,5 +1,4 @@
 import { kvGet, kvSet, request } from '../deps.ts';
-import { denoKv } from './services.ts';
 
 import type { HttpZResponseModel, ResponseProps } from './types.ts';
 
@@ -171,7 +170,11 @@ export const createFinalResponse = async (
     const willCache = shouldCache && isCacheable;
     if (willCache) {
         performance.mark('cache-write');
-        await saveCache(denoKv, [url, buildTarget], responseProps);
+        await saveCache(
+            import('./services.ts').then((mod) => mod.denoKv),
+            [url, buildTarget],
+            responseProps,
+        );
         performance.measure('cache-write', 'cache-write');
     }
     const shouldSetCacheClientRedirect = CACHE_CLIENT_REDIRECT &&
@@ -208,10 +211,13 @@ export const createFastPathResponse = async (
         return response;
     }
     performance.mark('redirect-cache-read');
-    const value = await retrieveCache(denoKv, [
-        redirectLocation,
-        buildTarget,
-    ]);
+    const value = await retrieveCache(
+        import('./services.ts').then((mod) => mod.denoKv),
+        [
+            redirectLocation,
+            buildTarget,
+        ],
+    );
     performance.measure('redirect-cache-read', 'redirect-cache-read');
     if (value) {
         performance.measure('redirect-cache-hit', { start: performance.now() });

@@ -65,7 +65,9 @@ export async function sjsRequestHandler(
         pair[0],
         typeof pair[1] === 'string' ? replaceOrigin(pair[1]) : pair[1],
     ] as [string, string]);
-    const publicSelfUrl = new URL(req.url.replace(selfUrl.origin, finalOriginUrl.origin))
+    const publicSelfUrl = new URL(
+        req.url.replace(selfUrl.origin, finalOriginUrl.origin),
+    )
         .toString();
     if (CACHE) {
         performance.mark('cache-read');
