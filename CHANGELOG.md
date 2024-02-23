@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.14.6](https://github.com/esroyo/systemjs.sh/compare/v1.14.5...v1.14.6) (2024-02-23)
+
 ## [1.14.5](https://github.com/esroyo/systemjs.sh/compare/v1.14.4...v1.14.5) (2024-02-23)
 
 ## [1.14.4](https://github.com/esroyo/systemjs.sh/compare/v1.14.3...v1.14.4) (2024-02-22)
