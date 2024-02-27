@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.14.8](https://github.com/esroyo/systemjs.sh/compare/v1.14.7...v1.14.8) (2024-02-27)
+
+
+### Bug Fixes
+
+* ensure clearing of performance is done after response is created ([2346ab3](https://github.com/esroyo/systemjs.sh/commit/2346ab352c40828e08955fbc5d6434d536b04920))
+
 ## [1.14.7](https://github.com/esroyo/systemjs.sh/compare/v1.14.6...v1.14.7) (2024-02-27)
 
 
