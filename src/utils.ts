@@ -198,7 +198,10 @@ export const createFinalResponse = async (
         performance.clearMeasures('total');
     }
     performance.measure('total', 'total');
-    headers.set('server-timing', buildDebugPerformance(performance));
+    headers.set(
+        'server-timing',
+        buildDebugPerformance(performance, !isFastPathRedirect),
+    );
 
     const response = new Response(body, {
         headers,
