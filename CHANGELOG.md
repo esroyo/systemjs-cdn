@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.15.1](https://github.com/esroyo/systemjs.sh/compare/v1.15.0...v1.15.1) (2024-02-27)
+
+
+### Bug Fixes
+
+* handle redis connection failure ([4b47e0c](https://github.com/esroyo/systemjs.sh/commit/4b47e0c16640b8678a1414bdc6bdf4651b5cbf73))
+
 ## [1.15.0](https://github.com/esroyo/systemjs.sh/compare/v1.14.8...v1.15.0) (2024-02-27)
 
 
