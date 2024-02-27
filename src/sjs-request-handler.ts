@@ -91,7 +91,7 @@ export async function sjsRequestHandler(
                 buildTarget,
                 false,
             );
-            if (CACHE_CLIENT_REDIRECT && isRedirect(response.status)) {
+            if (CACHE_CLIENT_REDIRECT && isRedirect(response)) {
                 const fastResponse = await createFastPathResponse(
                     response,
                     performance,
@@ -133,7 +133,7 @@ export async function sjsRequestHandler(
         buildTarget,
         CACHE,
     );
-    if (CACHE && CACHE_CLIENT_REDIRECT && isRedirect(response.status)) {
+    if (CACHE && CACHE_CLIENT_REDIRECT && isRedirect(response)) {
         const fastResponse = await createFastPathResponse(
             response,
             performance,

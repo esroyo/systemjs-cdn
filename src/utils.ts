@@ -87,12 +87,16 @@ export const isJsResponse = (response: Response): boolean => {
     ));
 };
 
-export const isRedirect = (status: number): boolean => {
+export const isRedirect = ({ status }: { status: number }): boolean => {
     return status >= 300 && status < 400;
 };
 
-export const isOk = (status: number): boolean => {
+export const isOk = ({ status }: { status: number }): boolean => {
     return status >= 200 && status < 300;
+};
+
+export const isNotFound = ({ status }: { status: number }): boolean => {
+    return status === 404;
 };
 
 export const calcExpires = (headers: Headers): string => {
@@ -134,8 +138,9 @@ export const createFinalResponse = async (
     if (!headers.has('access-control-allow-origin')) {
         headers.set('access-control-allow-origin', '*');
     }
-    const isActualRedirect = isRedirect(status) && !isFastPathRedirect;
-    const isCacheable = isOk(status) || isActualRedirect;
+    const isActualRedirect = isRedirect(responseProps) && !isFastPathRedirect;
+    const isCacheable = isNotFound(responseProps) || isOk(responseProps) ||
+        isActualRedirect;
     const willCache = shouldCache && isCacheable;
     if (willCache) {
         performance.mark('cache-write');
