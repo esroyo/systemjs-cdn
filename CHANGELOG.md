@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.14.7](https://github.com/esroyo/systemjs.sh/compare/v1.14.6...v1.14.7) (2024-02-27)
+
+
+### Bug Fixes
+
+* clear performance entries once serverTiming is build ([0c912bf](https://github.com/esroyo/systemjs.sh/commit/0c912bf17bac9351d9f3b7f5ec5fef05eef428ae))
+* ensure clearing of performance is done at the end ([fe4540f](https://github.com/esroyo/systemjs.sh/commit/fe4540f211313b2c0a09065911e6fbebac85716d))
+
 ## [1.14.6](https://github.com/esroyo/systemjs.sh/compare/v1.14.5...v1.14.6) (2024-02-23)
 
 ## [1.14.5](https://github.com/esroyo/systemjs.sh/compare/v1.14.4...v1.14.5) (2024-02-23)
