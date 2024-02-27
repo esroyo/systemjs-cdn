@@ -14,9 +14,14 @@ export const services = {
         if (!instances.cache) {
             const REDIS_HOSTNAME = Deno.env.get('CACHE_REDIS_HOSTNAME');
             if (REDIS_HOSTNAME) {
-                instances.cache = new RedisCache(redis.connect({
+                const redisPromise = redis.connect({
                     hostname: REDIS_HOSTNAME,
-                }));
+                });
+                instances.cache = new RedisCache(redisPromise);
+                redisPromise.catch(() => {
+                    instances.cache?.close();
+                    delete instances.cache;
+                });
             } else {
                 const denoKv: Promise<Deno.Kv> = Deno.openKv();
                 instances.cache = new DenoKvCache(denoKv);
