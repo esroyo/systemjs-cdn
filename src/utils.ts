@@ -1,5 +1,5 @@
 import { kvGet, kvSet, request } from '../deps.ts';
-
+import { services } from './services.ts';
 import type { HttpZResponseModel, ResponseProps } from './types.ts';
 
 export const nodeRequest = async (
@@ -95,23 +95,7 @@ export const isOk = (status: number): boolean => {
     return status >= 200 && status < 300;
 };
 
-export const retrieveCache = async (
-    kv: Promise<Deno.Kv>,
-    key: Deno.KvKey,
-): Promise<ResponseProps | null> => {
-    const settledKv = await kv;
-    const blob = await kvGet(settledKv, ['cache', ...key]);
-    const value = blob && JSON.parse(new TextDecoder().decode(blob));
-    //settledKv.close();
-    const isValidCacheEntry = !!(
-        value &&
-        value.expires &&
-        value.expires > Date.now()
-    );
-    return isValidCacheEntry ? value : null;
-};
-
-const calcExpires = (headers: Headers): string => {
+export const calcExpires = (headers: Headers): string => {
     const DEFAULT = '600';
     const cacheControl = Object.fromEntries(
         (headers.get('cache-control') ?? '').split(/\s*,\s*/g).map((part) =>
@@ -121,21 +105,6 @@ const calcExpires = (headers: Headers): string => {
     const effectiveMaxAge = Number(cacheControl['max-age'] || DEFAULT) * 1000;
     const expires = String(Date.now() + effectiveMaxAge);
     return expires;
-};
-
-export const saveCache = async (
-    kv: Promise<Deno.Kv>,
-    key: Deno.KvKey,
-    value: ResponseProps,
-): Promise<void> => {
-    const blob = new TextEncoder().encode(JSON.stringify({
-        ...value,
-        expires: calcExpires(value.headers),
-        headers: Object.fromEntries(value.headers.entries()),
-    }));
-    const settledKv = await kv;
-    await kvSet(settledKv, ['cache', ...key], blob);
-    //settledKv.close();
 };
 
 const buildDebugPerformance = (performance: Performance): string => (
@@ -170,8 +139,7 @@ export const createFinalResponse = async (
     const willCache = shouldCache && isCacheable;
     if (willCache) {
         performance.mark('cache-write');
-        await saveCache(
-            import('./services.ts').then((mod) => mod.denoKv),
+        await services.cache.set(
             [url, buildTarget],
             responseProps,
         );
@@ -214,13 +182,10 @@ export const createFastPathResponse = async (
         return response;
     }
     performance.mark('redirect-cache-read');
-    const value = await retrieveCache(
-        import('./services.ts').then((mod) => mod.denoKv),
-        [
-            redirectLocation,
-            buildTarget,
-        ],
-    );
+    const value = await services.cache.get([
+        redirectLocation,
+        buildTarget,
+    ]);
     performance.measure('redirect-cache-read', 'redirect-cache-read');
     if (value) {
         performance.measure('redirect-cache-hit', { start: performance.now() });

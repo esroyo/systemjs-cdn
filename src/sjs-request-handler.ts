@@ -6,9 +6,8 @@ import {
     denyHeaders,
     isJsResponse,
     isRedirect,
-    retrieveCache,
 } from './utils.ts';
-import { denoKv } from './services.ts';
+import { services } from './services.ts';
 import { toSystemjs } from './to-systemjs.ts';
 import { getBuildTargetFromUA, ScopedPerformance } from '../deps.ts';
 
@@ -76,7 +75,7 @@ export async function sjsRequestHandler(
         .toString();
     if (CACHE) {
         performance.mark('cache-read');
-        const value = await retrieveCache(denoKv, [
+        const value = await services.cache.get([
             publicSelfUrl,
             buildTarget,
         ]);

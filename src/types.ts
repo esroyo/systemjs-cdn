@@ -36,3 +36,9 @@ export type ResponseProps = {
     status: number;
     statusText: string;
 };
+
+export interface Cache {
+    get(key: string[]): Promise<ResponseProps | null>;
+    set(key: string[], value: ResponseProps): Promise<void>;
+    close(): Promise<void>;
+}

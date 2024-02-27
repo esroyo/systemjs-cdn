@@ -14,3 +14,5 @@ export {
     set as kvSet,
 } from 'https://deno.land/x/kv_toolbox@0.6.1/blob.ts';
 export { getBuildTargetFromUA } from 'npm:esm-compat@0.0.2';
+export * as redis from 'https://deno.land/x/redis@v0.32.1/mod.ts';
+export type { Redis } from 'https://deno.land/x/redis@v0.32.1/mod.ts';
