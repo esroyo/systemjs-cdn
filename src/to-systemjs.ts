@@ -71,7 +71,8 @@ export const toSystemjs = async (
     esmCode: string,
     rollupOutputOptions: OutputOptions = {},
 ): Promise<string> => {
-    if (typeof Worker !== 'undefined') {
+    const WORKER_ENABLE = Deno.env.get('WORKER_ENABLE') === 'true';
+    if (WORKER_ENABLE && typeof Worker !== 'undefined') {
         return toSystemjsWorker(esmCode, rollupOutputOptions);
     }
     return toSystemjsMain(esmCode, rollupOutputOptions);
