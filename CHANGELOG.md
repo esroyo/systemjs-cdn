@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.15.2](https://github.com/esroyo/systemjs.sh/compare/v1.15.1...v1.15.2) (2024-02-27)
+
+
+### Bug Fixes
+
+* 404 should be cached ([4bc28d7](https://github.com/esroyo/systemjs.sh/commit/4bc28d79b5a4428c7641219c5bad0458445ff52f))
+
 ## [1.15.1](https://github.com/esroyo/systemjs.sh/compare/v1.15.0...v1.15.1) (2024-02-27)
 
 
