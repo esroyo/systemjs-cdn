@@ -16,6 +16,10 @@ export async function sjsRequestHandler(
     req: Request,
 ): Promise<Response> {
     const performance = new ScopedPerformance();
+    const clearPerformance = () => {
+        performance.clearMarks();
+        performance.clearMeasures();
+    };
     performance.mark('total');
     const BASE_PATH = Deno.env.get('BASE_PATH');
     const CACHE = Deno.env.get('CACHE') === 'true';
@@ -29,6 +33,7 @@ export async function sjsRequestHandler(
     const basePath = `/${BASE_PATH}/`.replace(/\/+/g, '/');
     const upstreamOrigin = `${UPSTREAM_ORIGIN}/`.replace(/\/+$/, '/');
     if ([`${basePath}`, '/', ''].includes(selfUrl.pathname)) {
+        clearPerformance();
         return Response.redirect(HOMEPAGE || upstreamOrigin, 302);
     }
     const finalOriginUrl = new URL(req.headers.get('x-real-origin') ?? selfUrl);
@@ -88,12 +93,15 @@ export async function sjsRequestHandler(
                 false,
             );
             if (CACHE_CLIENT_REDIRECT && isRedirect(response.status)) {
-                return createFastPathResponse(
+                const fastResponse = await createFastPathResponse(
                     response,
                     performance,
                     buildTarget,
                 );
+                clearPerformance();
+                return fastResponse;
             }
+            clearPerformance();
             return response;
         }
         performance.measure('cache-miss', { start: performance.now() });
@@ -127,7 +135,14 @@ export async function sjsRequestHandler(
         CACHE,
     );
     if (CACHE && CACHE_CLIENT_REDIRECT && isRedirect(response.status)) {
-        return createFastPathResponse(response, performance, buildTarget);
+        const fastResponse = await createFastPathResponse(
+            response,
+            performance,
+            buildTarget,
+        );
+        clearPerformance();
+        return fastResponse;
     }
+    clearPerformance();
     return response;
 }

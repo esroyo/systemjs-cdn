@@ -138,21 +138,13 @@ export const saveCache = async (
     //settledKv.close();
 };
 
-const buildDebugPerformance = (
-    performance: Performance,
-    shouldClear = true,
-): string => {
-    const serverTiming = performance.getEntriesByType('measure')
+const buildDebugPerformance = (performance: Performance): string => (
+    performance.getEntriesByType('measure')
         .map(({ name, duration }) =>
             `${name}${duration ? `;dur=${duration}` : ''}`
         )
-        .join(',');
-    if (shouldClear) {
-        performance.clearMarks();
-        performance.clearMeasures();
-    }
-    return serverTiming;
-};
+        .join(',')
+);
 
 export const createFinalResponse = async (
     responseProps: ResponseProps,
@@ -200,7 +192,7 @@ export const createFinalResponse = async (
     performance.measure('total', 'total');
     headers.set(
         'server-timing',
-        buildDebugPerformance(performance, !isFastPathRedirect),
+        buildDebugPerformance(performance),
     );
 
     const response = new Response(body, {
