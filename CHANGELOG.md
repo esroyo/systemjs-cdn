@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.15.0](https://github.com/esroyo/systemjs.sh/compare/v1.14.8...v1.15.0) (2024-02-27)
+
+
+### Features
+
+* add option to disable Worker `WORKER_ENABLE` ([9f6b565](https://github.com/esroyo/systemjs.sh/commit/9f6b565d758dd65fce2758a1036bae5c04b587fd))
+* add redis cache via option CACHE_REDIS_HOSTNAME ([624ea09](https://github.com/esroyo/systemjs.sh/commit/624ea09b0f4e4e90e745e04827c723d8b07fda17))
+
 ## [1.14.8](https://github.com/esroyo/systemjs.sh/compare/v1.14.7...v1.14.8) (2024-02-27)
 
 
