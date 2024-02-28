@@ -99,6 +99,10 @@ export const isNotFound = ({ status }: { status: number }): boolean => {
     return status === 404;
 };
 
+export const isForbidden = ({ status }: { status: number }): boolean => {
+    return status === 403;
+};
+
 export const calcExpires = (headers: Headers): string => {
     const DEFAULT = '600';
     const cacheControl = Object.fromEntries(
@@ -139,7 +143,8 @@ export const createFinalResponse = async (
         headers.set('access-control-allow-origin', '*');
     }
     const isActualRedirect = isRedirect(responseProps) && !isFastPathRedirect;
-    const isCacheable = isNotFound(responseProps) || isOk(responseProps) ||
+    const isCacheable = isForbidden(responseProps) ||
+        isNotFound(responseProps) || isOk(responseProps) ||
         isActualRedirect;
     const willCache = shouldCache && isCacheable;
     if (willCache) {
