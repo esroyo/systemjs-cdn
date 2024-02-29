@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.16.0](https://github.com/esroyo/systemjs.sh/compare/v1.15.3...v1.16.0) (2024-02-29)
+
+
+### Features
+
+* take advantage of redis EX ([5395db1](https://github.com/esroyo/systemjs.sh/commit/5395db14e930467b81e64e10645ec98ce25200fa))
+
 ## [1.15.3](https://github.com/esroyo/systemjs.sh/compare/v1.15.2...v1.15.3) (2024-02-28)
 
 
