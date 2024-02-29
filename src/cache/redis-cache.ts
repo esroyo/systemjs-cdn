@@ -28,13 +28,16 @@ export class RedisCache implements Cache {
     }
 
     public async set(key: string[], value: ResponseProps): Promise<void> {
+        const control = calcExpires(value.headers);
         const data = JSON.stringify({
             ...value,
-            expires: calcExpires(value.headers),
+            expires: control.expires,
             headers: Object.fromEntries(value.headers.entries()),
         });
         const settledRedis = await this.redis;
-        await settledRedis.set(this.serializeKey(key), data);
+        await settledRedis.set(this.serializeKey(key), data, {
+            ex: Math.floor(control.maxAge / 1000),
+        });
     }
 
     public async close(): Promise<void> {

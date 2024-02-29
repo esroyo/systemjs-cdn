@@ -20,7 +20,7 @@ export class DenoKvCache implements Cache {
     public async set(key: string[], value: ResponseProps): Promise<void> {
         const blob = new TextEncoder().encode(JSON.stringify({
             ...value,
-            expires: calcExpires(value.headers),
+            expires: calcExpires(value.headers).expires,
             headers: Object.fromEntries(value.headers.entries()),
         }));
         const settledKv = await this.kv;

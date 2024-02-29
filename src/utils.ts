@@ -103,7 +103,9 @@ export const isForbidden = ({ status }: { status: number }): boolean => {
     return status === 403;
 };
 
-export const calcExpires = (headers: Headers): string => {
+export const calcExpires = (
+    headers: Headers,
+): { maxAge: number; expires: string } => {
     const DEFAULT = '600';
     const cacheControl = Object.fromEntries(
         (headers.get('cache-control') ?? '').split(/\s*,\s*/g).map((part) =>
@@ -112,7 +114,10 @@ export const calcExpires = (headers: Headers): string => {
     );
     const effectiveMaxAge = Number(cacheControl['max-age'] || DEFAULT) * 1000;
     const expires = String(Date.now() + effectiveMaxAge);
-    return expires;
+    return {
+        maxAge: effectiveMaxAge,
+        expires,
+    };
 };
 
 const buildDebugPerformance = (performance: Performance): string => (
