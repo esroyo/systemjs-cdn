@@ -42,3 +42,14 @@ export interface Cache {
     set(key: string[], value: ResponseProps): Promise<void>;
     close(): Promise<void>;
 }
+
+export type Config = {
+    BASE_PATH?: string;
+    CACHE: boolean;
+    CACHE_CLIENT_REDIRECT?: number;
+    CACHE_REDIS_HOSTNAME?: string;
+    HOMEPAGE?: string;
+    OUTPUT_BANNER?: string;
+    UPSTREAM_ORIGIN: string;
+    WORKER_ENABLE?: boolean;
+};

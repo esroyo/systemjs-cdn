@@ -1,6 +1,5 @@
-import { kvGet, kvSet, request } from '../deps.ts';
-import { services } from './services.ts';
-import type { HttpZResponseModel, ResponseProps } from './types.ts';
+import { request } from '../deps.ts';
+import type { HttpZResponseModel } from './types.ts';
 
 export const nodeRequest = async (
     url: string,
@@ -34,8 +33,6 @@ export const nodeRequest = async (
         );
     });
 };
-
-export const fetch = globalThis.fetch;
 
 export const cloneHeaders = (
     headers: Headers,
@@ -120,116 +117,10 @@ export const calcExpires = (
     };
 };
 
-const buildDebugPerformance = (performance: Performance): string => (
+export const buildDebugPerformance = (performance: Performance): string => (
     performance.getEntriesByType('measure')
         .map(({ name, duration }) =>
             `${name}${duration ? `;dur=${duration}` : ''}`
         )
         .join(',')
 );
-
-export const createFinalResponse = async (
-    responseProps: ResponseProps,
-    performance: Performance,
-    buildTarget: string,
-    shouldCache: boolean,
-    isFastPathRedirect?: boolean,
-): Promise<Response> => {
-    const CACHE_CLIENT_REDIRECT =
-        Number(Deno.env.get('CACHE_CLIENT_REDIRECT') as string) || 0;
-    const {
-        url,
-        body,
-        headers,
-        status,
-        statusText,
-    } = responseProps;
-    if (!headers.has('access-control-allow-origin')) {
-        headers.set('access-control-allow-origin', '*');
-    }
-    const isActualRedirect = isRedirect(responseProps) && !isFastPathRedirect;
-    const isCacheable = isForbidden(responseProps) ||
-        isNotFound(responseProps) || isOk(responseProps) ||
-        isActualRedirect;
-    const willCache = shouldCache && isCacheable;
-    if (willCache) {
-        performance.mark('cache-write');
-        await services.cache.set(
-            [url, buildTarget],
-            responseProps,
-        );
-        performance.measure('cache-write', 'cache-write');
-    }
-    const shouldSetCacheClientRedirect = CACHE_CLIENT_REDIRECT &&
-        isFastPathRedirect;
-    if (shouldSetCacheClientRedirect) {
-        headers.set(
-            'cache-control',
-            `public, max-age=${CACHE_CLIENT_REDIRECT}`,
-        );
-    }
-
-    if (isFastPathRedirect) {
-        performance.clearMeasures('total');
-    }
-    performance.measure('total', 'total');
-    headers.set(
-        'server-timing',
-        buildDebugPerformance(performance),
-    );
-
-    const response = new Response(body, {
-        headers,
-        status,
-        statusText,
-    });
-
-    return response;
-};
-
-export const createFastPathResponse = async (
-    response: Response,
-    performance: Performance,
-    buildTarget: string,
-): Promise<Response> => {
-    const redirectLocation = response.headers.get('location');
-    if (!redirectLocation) {
-        return response;
-    }
-    performance.mark('redirect-cache-read');
-    const value = await services.cache.get([
-        redirectLocation,
-        buildTarget,
-    ]);
-    performance.measure('redirect-cache-read', 'redirect-cache-read');
-    if (value) {
-        performance.measure('redirect-cache-hit', { start: performance.now() });
-        return createFinalResponse(
-            {
-                ...value,
-                headers: new Headers(value.headers),
-            },
-            performance,
-            buildTarget,
-            false,
-            true,
-        );
-    }
-    performance.measure('redirect-cache-miss', { start: performance.now() });
-
-    const rebuildedHeaders = cloneHeaders(response.headers);
-
-    performance.clearMeasures('total');
-    performance.measure('total', 'total');
-
-    rebuildedHeaders.set('server-timing', buildDebugPerformance(performance));
-    return new Response(response.body, {
-        headers: rebuildedHeaders,
-        status: response.status,
-        statusText: response.statusText,
-    });
-};
-
-export const _internals = {
-    fetch: nodeRequest,
-};

@@ -1,7 +1,6 @@
-export { assertEquals } from 'https://deno.land/std/testing/asserts.ts';
+export { assertEquals } from 'https://deno.land/std@0.218.2/assert/mod.ts';
 export {
     assertSpyCallArg,
     assertSpyCalls,
-    returnsNext,
-    stub,
-} from 'https://deno.land/std/testing/mock.ts';
+    spy,
+} from 'https://deno.land/std@0.218.2/testing/mock.ts';

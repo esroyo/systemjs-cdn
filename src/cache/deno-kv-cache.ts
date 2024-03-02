@@ -3,7 +3,7 @@ import { Cache, ResponseProps } from '../types.ts';
 import { calcExpires } from '../utils.ts';
 
 export class DenoKvCache implements Cache {
-    constructor(private kv: Promise<Deno.Kv>) {}
+    constructor(private kv: Promise<Deno.Kv> = Deno.openKv()) {}
 
     public async get(key: string[]): Promise<ResponseProps | null> {
         const settledKv = await this.kv;

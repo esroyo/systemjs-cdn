@@ -5,7 +5,7 @@ import { calcExpires } from '../utils.ts';
 export class RedisCache implements Cache {
     protected glue = ';;';
 
-    constructor(private redis: Promise<Redis>) {}
+    constructor(private redis: Promise<Redis> | Redis) {}
 
     protected serializeKey(key: string[]): string {
         return key.join(this.glue);
