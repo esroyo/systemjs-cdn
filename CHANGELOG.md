@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.16.2](https://github.com/esroyo/systemjs.sh/compare/v1.16.1...v1.16.2) (2024-03-03)
+
+
+### Bug Fixes
+
+* replace UPSTREAM origin in non-js body responses ([cafbed6](https://github.com/esroyo/systemjs.sh/commit/cafbed63399e89b62fae38c9d753e3bac9be6870))
+
+
+### Other
+
+* drop user-land expires in favor of cache built-ins ([981346a](https://github.com/esroyo/systemjs.sh/commit/981346aed858ae6f3b1d15b3b0738b380f640283))
+* refactor without steps ([d80898a](https://github.com/esroyo/systemjs.sh/commit/d80898a24177435740c125f0d8e2a4ba65e06e8f))
+
 ## [1.16.1](https://github.com/esroyo/systemjs.sh/compare/v1.16.0...v1.16.1) (2024-03-02)
 
 ## [1.16.0](https://github.com/esroyo/systemjs.sh/compare/v1.15.3...v1.16.0) (2024-02-29)
