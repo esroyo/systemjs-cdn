@@ -237,6 +237,8 @@ export function createRequestHandler(
                 await toSystemjs(body, { banner: OUTPUT_BANNER }),
             );
             performance.measure('build', 'build');
+        } else {
+            body = replaceOrigin(body);
         }
         const response = await createFinalResponse(
             {
