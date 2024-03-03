@@ -19,24 +19,18 @@ export class RedisCache implements Cache {
         const settledRedis = await this.redis;
         const data = await settledRedis.get(this.serializeKey(key));
         const value = data && JSON.parse(data);
-        const isValidCacheEntry = !!(
-            value &&
-            value.expires &&
-            value.expires > Date.now()
-        );
-        return isValidCacheEntry ? value : null;
+        return value || null;
     }
 
     public async set(key: string[], value: ResponseProps): Promise<void> {
-        const control = calcExpires(value.headers);
+        const expires = calcExpires(value.headers);
         const data = JSON.stringify({
             ...value,
-            expires: control.expires,
             headers: Object.fromEntries(value.headers.entries()),
         });
         const settledRedis = await this.redis;
         await settledRedis.set(this.serializeKey(key), data, {
-            ex: Math.floor(control.maxAge / 1000),
+            ex: Math.floor(expires / 1000),
         });
     }
 

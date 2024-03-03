@@ -9,22 +9,17 @@ export class DenoKvCache implements Cache {
         const settledKv = await this.kv;
         const blob = await kvGet(settledKv, ['cache', ...key]);
         const value = blob && JSON.parse(new TextDecoder().decode(blob));
-        const isValidCacheEntry = !!(
-            value &&
-            value.expires &&
-            value.expires > Date.now()
-        );
-        return isValidCacheEntry ? value : null;
+        return value || null;
     }
 
     public async set(key: string[], value: ResponseProps): Promise<void> {
+        const expires = calcExpires(value.headers);
         const blob = new TextEncoder().encode(JSON.stringify({
             ...value,
-            expires: calcExpires(value.headers).expires,
             headers: Object.fromEntries(value.headers.entries()),
         }));
         const settledKv = await this.kv;
-        await kvSet(settledKv, ['cache', ...key], blob);
+        await kvSet(settledKv, ['cache', ...key], blob, { expireIn: expires });
     }
 
     public async close(): Promise<void> {
