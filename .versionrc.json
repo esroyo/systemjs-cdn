@@ -1,0 +1,12 @@
+{
+    "types": [
+        { "type": "feat", "section": "Features" },
+        { "type": "fix", "section": "Bug Fixes" },
+        { "type": "chore", "section": "Other", "hidden": true },
+        { "type": "docs", "section": "Other", "hidden": false },
+        { "type": "style", "section": "Other", "hidden": true },
+        { "type": "refactor", "section": "Other", "hidden": false },
+        { "type": "perf", "section": "Other", "hidden": false },
+        { "type": "test", "section": "Other", "hidden": false }
+    ]
+}
