@@ -7,7 +7,7 @@ import {
 import { dotenvLoad } from '../deps.ts';
 
 import { createRequestHandler } from './create-request-handler.ts';
-import { Config } from './types.ts';
+import { Config, ResponseProps } from './types.ts';
 
 dotenvLoad({ export: true });
 
@@ -407,5 +407,86 @@ Deno.test(
         const res = await handler(req);
         assertEquals(res.status, 404);
         assertSpyCalls(fetchMock, 1);
+    },
+);
+
+Deno.test(
+    'should return the cached response if exists',
+    async (t) => {
+        const fetchMock = spy(() => fetchReturn());
+        const cacheMock = {
+            close: spy(async () => {}),
+            get: spy(async () => ({
+                url: `${SELF_ORIGIN}/foo?bundle`,
+                body: '/* cached */',
+                headers: new Headers(),
+                status: 200,
+                statusText: 'OKIE',
+            })),
+            set: spy(async () => {}),
+        };
+        const handler = createRequestHandler(
+            {
+                ...baseConfig,
+                CACHE: true,
+            },
+            cacheMock,
+            fetchMock,
+        );
+        const req = new Request(`${SELF_ORIGIN}/foo?bundle`);
+        const res = await handler(req);
+        await t.step('should try to get from the cache', async () => {
+            assertSpyCalls(cacheMock.get, 1);
+        });
+        await t.step(
+            'should build the response based on the cached value',
+            async () => {
+                assertEquals(await res.text(), '/* cached */');
+                assertEquals(res.status, 200);
+                assertEquals(res.statusText, 'OKIE');
+            },
+        );
+        await t.step('should not fetch $UPSTREAM_ORIGIN', async () => {
+            assertSpyCalls(fetchMock, 0);
+        });
+        await t.step('should not set anything in the cache', async () => {
+            assertSpyCalls(cacheMock.set, 0);
+        });
+    },
+);
+
+Deno.test(
+    'should fetch $UPSTREAM_ORIGIN if there is no cached response',
+    async (t) => {
+        const upstreamBody = 'export const foobar = 1;';
+        const fetchMock = spy(() => fetchReturn(upstreamBody));
+        const cacheMock = {
+            close: spy(async () => {}),
+            get: spy(async () => null),
+            set: spy(async (_key: string[], _res: ResponseProps) => {}),
+        };
+        const handler = createRequestHandler(
+            {
+                ...baseConfig,
+                CACHE: true,
+            },
+            cacheMock,
+            fetchMock,
+        );
+        const req = new Request(`${SELF_ORIGIN}/foo?bundle`);
+        await handler(req);
+        await t.step('should try to get from the cache', async () => {
+            assertSpyCalls(cacheMock.get, 1);
+        });
+        await t.step('should fetch $UPSTREAM_ORIGIN', async () => {
+            assertSpyCalls(fetchMock, 1);
+        });
+        await t.step('should set the response in the cache', async () => {
+            assertSpyCalls(cacheMock.set, 1);
+            const spyCall = cacheMock.set.calls[0];
+            const secondArg = spyCall && spyCall.args[1];
+            assertEquals(secondArg.url, `${SELF_ORIGIN}/foo?bundle`);
+            assertEquals(secondArg.body.includes('const foobar'), true);
+        });
     },
 );
