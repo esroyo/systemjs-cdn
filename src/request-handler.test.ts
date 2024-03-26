@@ -490,3 +490,114 @@ Deno.test(
         });
     },
 );
+
+Deno.test(
+    'When the cached response is a redirect > should fast-path the contents of the redirect location if those exist in cache',
+    async (t) => {
+        const cacheReturns = [{
+            url: `${SELF_ORIGIN}/foo?bundle`,
+            body: '',
+            headers: new Headers({
+                location: `${SELF_ORIGIN}/foo@2?bundle`,
+            }),
+            status: 302,
+            statusText: 'Redirect',
+        }, {
+            url: `${SELF_ORIGIN}/foo@2?bundle`,
+            body: '/* cached */',
+            headers: new Headers(),
+            status: 200,
+            statusText: 'OKIE',
+        }];
+        const fetchMock = spy(() => fetchReturn());
+        const cacheMock = {
+            close: spy(async () => {}),
+            get: spy(async () => {
+                return cacheReturns.shift() || null;
+            }),
+            set: spy(async () => {}),
+        };
+        const handler = createRequestHandler(
+            {
+                ...baseConfig,
+                CACHE: true,
+                CACHE_CLIENT_REDIRECT: 600,
+            },
+            cacheMock,
+            fetchMock,
+        );
+        const req = new Request(`${SELF_ORIGIN}/foo?bundle`);
+        const res = await handler(req);
+        await t.step('should try to get from the cache', async () => {
+            assertSpyCalls(cacheMock.get, 2);
+        });
+        await t.step(
+            'should build the response based on the cached value',
+            async () => {
+                assertEquals(await res.text(), '/* cached */');
+                assertEquals(res.status, 200);
+                assertEquals(res.statusText, 'OKIE');
+            },
+        );
+        await t.step('should not fetch $UPSTREAM_ORIGIN', async () => {
+            assertSpyCalls(fetchMock, 0);
+        });
+        await t.step('should not set anything in the cache', async () => {
+            assertSpyCalls(cacheMock.set, 0);
+        });
+    },
+);
+
+Deno.test(
+    'When the cached response is a redirect > should return the redirect as-is if those do not exist in cache',
+    async (t) => {
+        const cacheReturns = [{
+            url: `${SELF_ORIGIN}/foo?bundle`,
+            body: '',
+            headers: new Headers({
+                location: `${SELF_ORIGIN}/foo@2?bundle`,
+            }),
+            status: 302,
+            statusText: 'Redirect',
+        }];
+        const fetchMock = spy(() => fetchReturn());
+        const cacheMock = {
+            close: spy(async () => {}),
+            get: spy(async () => {
+                return cacheReturns.shift() || null;
+            }),
+            set: spy(async () => {}),
+        };
+        const handler = createRequestHandler(
+            {
+                ...baseConfig,
+                CACHE: true,
+                CACHE_CLIENT_REDIRECT: 600,
+            },
+            cacheMock,
+            fetchMock,
+        );
+        const req = new Request(`${SELF_ORIGIN}/foo?bundle`);
+        const res = await handler(req);
+        await t.step('should try to get from the cache', async () => {
+            assertSpyCalls(cacheMock.get, 2);
+        });
+        await t.step(
+            'should respond with the redirect as-is',
+            async () => {
+                assertEquals(res.status, 302);
+                assertEquals(res.statusText, 'Redirect');
+                assertEquals(
+                    res.headers.get('location'),
+                    `${SELF_ORIGIN}/foo@2?bundle`,
+                );
+            },
+        );
+        await t.step('should not fetch $UPSTREAM_ORIGIN', async () => {
+            assertSpyCalls(fetchMock, 0);
+        });
+        await t.step('should not set anything in the cache', async () => {
+            assertSpyCalls(cacheMock.set, 0);
+        });
+    },
+);
