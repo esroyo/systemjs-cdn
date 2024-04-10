@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.16.3](https://github.com/esroyo/systemjs.sh/compare/v1.16.2...v1.16.3) (2024-04-10)
+
+
+### Other
+
+* cover all fast-path cases and Worker ([df52d5c](https://github.com/esroyo/systemjs.sh/commit/df52d5ce6c6a981aac7db1736b36ff2627edca27))
+* cover basic get/set from cache ([36e22cb](https://github.com/esroyo/systemjs.sh/commit/36e22cb26fbd6d0c9778103d26eb2f9beeb6106b))
+* cover fast-path basic case ([c6b3841](https://github.com/esroyo/systemjs.sh/commit/c6b38414e4d07d7bd6c72f1b490bc5f811ad05aa))
+
 ## [1.16.2](https://github.com/esroyo/systemjs.sh/compare/v1.16.1...v1.16.2) (2024-03-03)
 
 
