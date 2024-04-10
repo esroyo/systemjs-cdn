@@ -6,6 +6,7 @@ import {
     rollupPluginVirtual,
     rollupVersion as _rollupVersion,
 } from '../deps.ts';
+import type { Config } from './types.ts';
 
 export const toSystemjsMain = async (
     esmCode: string,
@@ -32,15 +33,15 @@ export const toSystemjsMain = async (
     const outputOptions: OutputOptions = {
         dir: 'out', // not really used
         format: 'systemjs' as ModuleFormat,
-        footer: `/* rollup@${rollupVersion} */`,
         sourcemap: false,
+        ...rollupOutputOptions,
+        footer: `/* rollup@${rollupVersion}${
+            rollupOutputOptions.footer ? ` - ${rollupOutputOptions.footer}` : ''
+        } */`,
     };
 
     const bundle = await rollup(inputOptions);
-    const { output } = await bundle.generate({
-        ...outputOptions,
-        ...rollupOutputOptions,
-    });
+    const { output } = await bundle.generate(outputOptions);
     await bundle.close();
     return output[0].code;
 };
@@ -70,10 +71,13 @@ export const toSystemjsWorker = async (
 export const toSystemjs = async (
     esmCode: string,
     rollupOutputOptions: OutputOptions = {},
+    options?: Pick<Config, 'WORKER_ENABLE'>,
 ): Promise<string> => {
-    const WORKER_ENABLE = Deno.env.get('WORKER_ENABLE') === 'true';
-    if (WORKER_ENABLE && typeof Worker !== 'undefined') {
-        return toSystemjsWorker(esmCode, rollupOutputOptions);
+    if (options?.WORKER_ENABLE && typeof Worker !== 'undefined') {
+        return toSystemjsWorker(esmCode, {
+            footer: '(worker)',
+            ...rollupOutputOptions,
+        });
     }
     return toSystemjsMain(esmCode, rollupOutputOptions);
 };

@@ -42,6 +42,18 @@ Deno.test('should redirect to $HOMEPAGE on request empty', async () => {
     assertEquals(res.headers.get('location'), baseConfig.HOMEPAGE);
 });
 
+Deno.test('should redirect to bare $UPSTREAM_ORIGIN on request empty if $HOMEPAGE is falsy', async () => {
+    const config = {
+        ...baseConfig,
+        HOMEPAGE: '',
+    };
+    const handler = createRequestHandler(config);
+    const req = new Request(SELF_ORIGIN);
+    const res = await handler(req);
+    assertEquals(res.status, 302);
+    assertEquals(res.headers.get('location'), `${baseConfig.UPSTREAM_ORIGIN}/`);
+});
+
 Deno.test('should forward the request to $UPSTREAM_ORIGIN keeping the parameters', async () => {
     const fetchMock = spy(() => fetchReturn());
     const handler = createRequestHandler(
@@ -147,6 +159,24 @@ Deno.test('should return an string of code in systemjs format', async () => {
     assertEquals(systemjsCode.startsWith('System.register('), true);
 });
 
+Deno.test('should return an string of code in systemjs format (WORKER_ENABLE)', async () => {
+    const fetchMock = spy(() => fetchReturn());
+    const config = {
+        ...baseConfig,
+        WORKER_ENABLE: true,
+    };
+    const handler = createRequestHandler(
+        config,
+        undefined,
+        fetchMock,
+    );
+    const req = new Request(`${SELF_ORIGIN}/vue`);
+    const res: Response = await handler(req);
+    const systemjsCode = await res.text();
+    assertEquals(systemjsCode.startsWith('System.register('), true);
+    assertEquals(systemjsCode.endsWith(' - (worker) */\n'), true);
+});
+
 Deno.test('should replace the $UPSTREAM_ORIGIN by the self host', async () => {
     const fetchMock = spy(() => fetchReturn());
     const handler = createRequestHandler(
@@ -239,7 +269,7 @@ export * from "/stable/vue@3.3.4/es2022/vue.mjs";
         const res = await handler(req);
         const systemjsCode = await res.text();
         await t.step(
-            'should add the $BASE_PATH to the aboslute static import',
+            'should add the $BASE_PATH to the absolute static import',
             () => {
                 assertEquals(
                     !!systemjsCode.match(
@@ -251,7 +281,7 @@ export * from "/stable/vue@3.3.4/es2022/vue.mjs";
                 );
             },
         );
-        await t.step('should add the $BASE_PATH to the aboslute export', () => {
+        await t.step('should add the $BASE_PATH to the absolute export', () => {
             assertEquals(
                 !!systemjsCode.match(
                     new RegExp(
@@ -262,7 +292,7 @@ export * from "/stable/vue@3.3.4/es2022/vue.mjs";
             );
         });
         await t.step(
-            'should add the $BASE_PATH to the aboslute dynamic import',
+            'should add the $BASE_PATH to the absolute dynamic import',
             () => {
                 assertEquals(
                     !!systemjsCode.match(
@@ -598,6 +628,127 @@ Deno.test(
         });
         await t.step('should not set anything in the cache', async () => {
             assertSpyCalls(cacheMock.set, 0);
+        });
+    },
+);
+
+Deno.test(
+    'When the cached response is a redirect > should return the redirect as-is if Location response header is missing',
+    async (t) => {
+        const cacheReturns = [{
+            url: `${SELF_ORIGIN}/foo?bundle`,
+            body: '',
+            headers: new Headers(),
+            status: 302,
+            statusText: 'Redirect',
+        }];
+        const fetchMock = spy(() => fetchReturn());
+        const cacheMock = {
+            close: spy(async () => {}),
+            get: spy(async () => {
+                return cacheReturns.shift() || null;
+            }),
+            set: spy(async () => {}),
+        };
+        const handler = createRequestHandler(
+            {
+                ...baseConfig,
+                CACHE: true,
+                CACHE_CLIENT_REDIRECT: 600,
+            },
+            cacheMock,
+            fetchMock,
+        );
+        const req = new Request(`${SELF_ORIGIN}/foo?bundle`);
+        const res = await handler(req);
+        await t.step('should try to get from the cache', async () => {
+            assertSpyCalls(cacheMock.get, 1);
+        });
+        await t.step(
+            'should respond with the redirect as-is',
+            async () => {
+                assertEquals(res.status, 302);
+                assertEquals(res.statusText, 'Redirect');
+                assertEquals(
+                    res.headers.get('location'),
+                    null,
+                );
+            },
+        );
+        await t.step('should not fetch $UPSTREAM_ORIGIN', async () => {
+            assertSpyCalls(fetchMock, 0);
+        });
+        await t.step('should not set anything in the cache', async () => {
+            assertSpyCalls(cacheMock.set, 0);
+        });
+    },
+);
+
+Deno.test(
+    'when $UPSTREAM_ORIGIN response is a redirect > should fast-path the contents of the redirect location if those exist in cache',
+    async (t) => {
+        const cacheReturns = [
+            null,
+            {
+                url: `${SELF_ORIGIN}/foo@2?bundle`,
+                body: '/* cached */',
+                headers: new Headers(),
+                status: 200,
+                statusText: 'OKIE',
+            },
+        ];
+        const fetchMock = spy(() =>
+            Promise.resolve(
+                new Response('', {
+                    headers: new Headers({
+                        'location':
+                            `${baseConfig.UPSTREAM_ORIGIN}/foo@2?bundle`,
+                    }),
+                    status: 302,
+                    statusText: 'Redirect',
+                }),
+            )
+        );
+        const cacheMock = {
+            close: spy(async () => {}),
+            get: spy(async () => {
+                return cacheReturns.shift() || null;
+            }),
+            set: spy(async () => {}),
+        };
+        const handler = createRequestHandler(
+            {
+                ...baseConfig,
+                CACHE: true,
+                CACHE_CLIENT_REDIRECT: 600,
+            },
+            cacheMock,
+            fetchMock,
+        );
+        const req = new Request(`${SELF_ORIGIN}/foo?bundle`);
+        const res = await handler(req);
+        await t.step(
+            'should try to get from the cache a total of two times',
+            async () => {
+                assertSpyCalls(cacheMock.get, 2);
+            },
+        );
+        await t.step(
+            'should build the final response based on the cached value',
+            async () => {
+                assertEquals(await res.text(), '/* cached */');
+                assertEquals(res.status, 200);
+                assertEquals(res.statusText, 'OKIE');
+            },
+        );
+        await t.step(
+            'should fetch $UPSTREAM_ORIGIN the first time',
+            async () => {
+                assertSpyCalls(fetchMock, 1);
+            },
+        );
+        await t.step('should set in the cache 1 time', async () => {
+            assertSpyCalls(cacheMock.set, 1);
         });
     },
 );

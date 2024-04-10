@@ -169,7 +169,7 @@ export function createRequestHandler(
                 /(?:register|import)\(\[?(?:['"][^'"]+['"](?:,\s*)?)*\]?/gm;
             const absolutePathRegExp = /['"][^'"]+['"]/gm;
             const absolutePathReplaceRegExp = /^(['"])\//;
-            return (str: string) => {
+            return (str: string): string => {
                 return str.replace(upstreamOriginRegExp, selfOriginFinal)
                     .replace(registerRegExp, (registerMatch) => {
                         return registerMatch.replace(
@@ -186,10 +186,11 @@ export function createRequestHandler(
         })();
         const replaceOriginHeaders = (
             pair: [string, string] | null,
-        ) => (pair === null ? pair : [
-            pair[0],
-            typeof pair[1] === 'string' ? replaceOrigin(pair[1]) : pair[1],
-        ] as [string, string]);
+        ):
+            | [string, string]
+            | null => (pair === null
+                ? pair
+                : [pair[0], replaceOrigin(pair[1])]);
         const publicSelfUrl = new URL(
             req.url.replace(selfUrl.origin, finalOriginUrl.origin),
         )
@@ -234,7 +235,7 @@ export function createRequestHandler(
         if (isJsResponse(upstreamResponse)) {
             performance.mark('build');
             body = replaceOrigin(
-                await toSystemjs(body, { banner: OUTPUT_BANNER }),
+                await toSystemjs(body, { banner: OUTPUT_BANNER }, config),
             );
             performance.measure('build', 'build');
         } else {
