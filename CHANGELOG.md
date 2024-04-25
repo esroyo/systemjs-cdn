@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.17.0](https://github.com/esroyo/systemjs.sh/compare/v1.16.3...v1.17.0) (2024-04-25)
+
+
+### Features
+
+* new options for finegrained control of caching ([b82b341](https://github.com/esroyo/systemjs.sh/commit/b82b3419b1b1ebad0e970aff4fe07cdfe084a14d))
+
 ## [1.16.3](https://github.com/esroyo/systemjs.sh/compare/v1.16.2...v1.16.3) (2024-04-10)
 
 
