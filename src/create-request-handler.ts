@@ -19,12 +19,14 @@ export function createRequestHandler(
     fetch = nodeRequest,
 ): (request: Request) => Promise<Response> {
     const {
-        CACHE_CLIENT_REDIRECT,
         BASE_PATH,
         CACHE,
+        CACHE_CLIENT_REDIRECT,
+        CACHE_REDIRECT,
         UPSTREAM_ORIGIN,
         HOMEPAGE,
         OUTPUT_BANNER,
+        REDIRECT_FASTPATH,
     } = config;
 
     const createFinalResponse = async (
@@ -147,11 +149,10 @@ export function createRequestHandler(
         performance.mark('total');
         const buildTarget = getBuildTargetFromUA(req.headers.get('user-agent'));
         const selfUrl = new URL(req.url);
-        const basePath = `/${BASE_PATH}/`.replace(/\/+/g, '/');
-        const upstreamOrigin = `${UPSTREAM_ORIGIN}/`.replace(/\/+$/, '/');
-        if ([`${basePath}`, '/', ''].includes(selfUrl.pathname)) {
+        const basePath = BASE_PATH === '/' ? BASE_PATH : `${BASE_PATH}/`;
+        if (selfUrl.pathname === BASE_PATH || selfUrl.pathname === basePath) {
             return disposeReturn(
-                Response.redirect(HOMEPAGE || upstreamOrigin, 302),
+                Response.redirect(HOMEPAGE || UPSTREAM_ORIGIN, 302),
             );
         }
         const finalOriginUrl = new URL(
@@ -161,10 +162,10 @@ export function createRequestHandler(
         const selfOriginFinal = `${finalOriginUrl.origin}${basePath}`;
         const upstreamUrl = new URL(
             req.url.replace(selfOriginActual, ''),
-            upstreamOrigin,
+            UPSTREAM_ORIGIN,
         );
         const replaceOrigin = (() => {
-            const upstreamOriginRegExp = new RegExp(upstreamOrigin, 'ig');
+            const upstreamOriginRegExp = new RegExp(UPSTREAM_ORIGIN, 'ig');
             const registerRegExp =
                 /(?:register|import)\(\[?(?:['"][^'"]+['"](?:,\s*)?)*\]?/gm;
             const absolutePathRegExp = /['"][^'"]+['"]/gm;
@@ -213,7 +214,7 @@ export function createRequestHandler(
                     buildTarget,
                     false,
                 );
-                if (CACHE_CLIENT_REDIRECT && isRedirect(response)) {
+                if (REDIRECT_FASTPATH && isRedirect(response)) {
                     const fastResponse = await createFastPathResponse(
                         response,
                         performance,
@@ -255,9 +256,9 @@ export function createRequestHandler(
             },
             performance,
             buildTarget,
-            CACHE,
+            !!(CACHE && (!isRedirect(upstreamResponse) || CACHE_REDIRECT)),
         );
-        if (CACHE && CACHE_CLIENT_REDIRECT && isRedirect(response)) {
+        if (CACHE && REDIRECT_FASTPATH && isRedirect(response)) {
             const fastResponse = await createFastPathResponse(
                 response,
                 performance,

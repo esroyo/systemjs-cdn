@@ -15,14 +15,14 @@ const baseConfig: Config = {
     BASE_PATH: '/',
     CACHE: false,
     HOMEPAGE: 'https://home/page',
-    UPSTREAM_ORIGIN: 'https://esm.sh',
+    UPSTREAM_ORIGIN: 'https://esm.sh/',
     OUTPUT_BANNER: '',
 };
-const SELF_ORIGIN = 'https://systemjs.test';
+const SELF_ORIGIN = 'https://systemjs.test/';
 
 const fetchReturn = (
     body =
-        `export * from "${baseConfig.UPSTREAM_ORIGIN}/stable/vue@3.3.2/es2022/vue.mjs";`,
+        `export * from "${baseConfig.UPSTREAM_ORIGIN}stable/vue@3.3.2/es2022/vue.mjs";`,
 ) => (
     Promise.resolve(
         new Response(body, {
@@ -51,7 +51,7 @@ Deno.test('should redirect to bare $UPSTREAM_ORIGIN on request empty if $HOMEPAG
     const req = new Request(SELF_ORIGIN);
     const res = await handler(req);
     assertEquals(res.status, 302);
-    assertEquals(res.headers.get('location'), `${baseConfig.UPSTREAM_ORIGIN}/`);
+    assertEquals(res.headers.get('location'), baseConfig.UPSTREAM_ORIGIN);
 });
 
 Deno.test('should forward the request to $UPSTREAM_ORIGIN keeping the parameters', async () => {
@@ -61,13 +61,13 @@ Deno.test('should forward the request to $UPSTREAM_ORIGIN keeping the parameters
         undefined,
         fetchMock,
     );
-    const req = new Request(`${SELF_ORIGIN}/foo?bundle`);
+    const req = new Request(`${SELF_ORIGIN}foo?bundle`);
     await handler(req);
     assertSpyCallArg(
         fetchMock,
         0,
         0,
-        `${baseConfig.UPSTREAM_ORIGIN}/foo?bundle`,
+        `${baseConfig.UPSTREAM_ORIGIN}foo?bundle`,
     );
 });
 
@@ -82,7 +82,7 @@ Deno.test('should handle $UPSTREAM_ORIGIN with ending slash', async () => {
         undefined,
         fetchMock,
     );
-    const req = new Request(`${SELF_ORIGIN}/foo?bundle`);
+    const req = new Request(`${SELF_ORIGIN}foo?bundle`);
     await handler(req);
     assertSpyCallArg(fetchMock, 0, 0, `https://esm.sh/foo?bundle`);
 });
@@ -98,13 +98,13 @@ Deno.test('should forward the request to $UPSTREAM_ORIGIN removing the $BASE_PAT
         undefined,
         fetchMock,
     );
-    const req = new Request(`${SELF_ORIGIN}/sub-dir/foo?bundle`);
+    const req = new Request(`${SELF_ORIGIN}sub-dir/foo?bundle`);
     await handler(req);
     assertSpyCallArg(
         fetchMock,
         0,
         0,
-        `${baseConfig.UPSTREAM_ORIGIN}/foo?bundle`,
+        `${baseConfig.UPSTREAM_ORIGIN}foo?bundle`,
     );
 });
 
@@ -119,7 +119,7 @@ Deno.test('should take into account that `X-Real-Origin` and the current request
         undefined,
         fetchMock,
     );
-    const req = new Request(`${SELF_ORIGIN}/sub-dir/foo?bundle`, {
+    const req = new Request(`${SELF_ORIGIN}sub-dir/foo?bundle`, {
         headers: { 'X-Real-Origin': 'https://systemjs.sh/' },
     });
     await handler(req);
@@ -127,7 +127,7 @@ Deno.test('should take into account that `X-Real-Origin` and the current request
         fetchMock,
         0,
         0,
-        `${baseConfig.UPSTREAM_ORIGIN}/foo?bundle`,
+        `${baseConfig.UPSTREAM_ORIGIN}foo?bundle`,
     );
 });
 
@@ -140,7 +140,7 @@ Deno.test(
             undefined,
             fetchMock,
         );
-        const req = new Request(`${SELF_ORIGIN}/vue`);
+        const req = new Request(`${SELF_ORIGIN}vue`);
         const res = await handler(req);
         assertEquals(res.headers.get('access-control-allow-origin'), '*');
     },
@@ -153,7 +153,7 @@ Deno.test('should return an string of code in systemjs format', async () => {
         undefined,
         fetchMock,
     );
-    const req = new Request(`${SELF_ORIGIN}/vue`);
+    const req = new Request(`${SELF_ORIGIN}vue`);
     const res: Response = await handler(req);
     const systemjsCode = await res.text();
     assertEquals(systemjsCode.startsWith('System.register('), true);
@@ -170,7 +170,7 @@ Deno.test('should return an string of code in systemjs format (WORKER_ENABLE)', 
         undefined,
         fetchMock,
     );
-    const req = new Request(`${SELF_ORIGIN}/vue`);
+    const req = new Request(`${SELF_ORIGIN}vue`);
     const res: Response = await handler(req);
     const systemjsCode = await res.text();
     assertEquals(systemjsCode.startsWith('System.register('), true);
@@ -184,13 +184,13 @@ Deno.test('should replace the $UPSTREAM_ORIGIN by the self host', async () => {
         undefined,
         fetchMock,
     );
-    const req = new Request(`${SELF_ORIGIN}/vue`);
+    const req = new Request(`${SELF_ORIGIN}vue`);
     const res = await handler(req);
     const systemjsCode = await res.text();
     assertEquals(
         !!systemjsCode.match(
             new RegExp(
-                `${SELF_ORIGIN}/stable/vue@3.3.2/es2022/vue.mjs`,
+                `${SELF_ORIGIN}stable/vue@3.3.2/es2022/vue.mjs`,
             ),
         ),
         true,
@@ -199,8 +199,8 @@ Deno.test('should replace the $UPSTREAM_ORIGIN by the self host', async () => {
 
 Deno.test('should replace the $UPSTREAM_ORIGIN by the X-Real-Origin host if exists', async () => {
     const fetchMock = spy(() => fetchReturn());
-    const realOrigin = 'https://public.proxy.com';
-    const req = new Request(`${SELF_ORIGIN}/vue`, {
+    const realOrigin = 'https://public.proxy.com/';
+    const req = new Request(`${SELF_ORIGIN}vue`, {
         headers: { 'X-Real-Origin': realOrigin },
     });
     const handler = createRequestHandler(
@@ -212,7 +212,7 @@ Deno.test('should replace the $UPSTREAM_ORIGIN by the X-Real-Origin host if exis
     const systemjsCode = await res.text();
     assertEquals(
         !!systemjsCode.match(
-            new RegExp(`${realOrigin}/stable/vue@3.3.2/es2022/vue.mjs`),
+            new RegExp(`${realOrigin}stable/vue@3.3.2/es2022/vue.mjs`),
         ),
         true,
     );
@@ -231,13 +231,13 @@ Deno.test(
             undefined,
             fetchMock,
         );
-        const req = new Request(`${SELF_ORIGIN}/vue`);
+        const req = new Request(`${SELF_ORIGIN}vue`);
         const res = await handler(req);
         const systemjsCode = await res.text();
         assertEquals(
             !!systemjsCode.match(
                 new RegExp(
-                    `${SELF_ORIGIN}/sub-dir/234/stable/vue@3.3.2/es2022/vue.mjs`,
+                    `${SELF_ORIGIN}sub-dir/234/stable/vue@3.3.2/es2022/vue.mjs`,
                 ),
             ),
             true,
@@ -265,7 +265,7 @@ export * from "/stable/vue@3.3.4/es2022/vue.mjs";
             undefined,
             fetchMock,
         );
-        const req = new Request(`${SELF_ORIGIN}/vue`);
+        const req = new Request(`${SELF_ORIGIN}vue`);
         const res = await handler(req);
         const systemjsCode = await res.text();
         await t.step(
@@ -323,7 +323,7 @@ export * from "/stable/vue@3.3.4/es2022/vue.mjs";
 Deno.test(
     'should do nothing to the absolute paths (missing $UPSTREAM_ORIGIN) when the $BASE_PATH is empty',
     async () => {
-        const BASE_PATH = '';
+        const BASE_PATH = '/';
         const fetchMock = spy(() =>
             fetchReturn(`
 import "/stable/@vue/runtime-dom@3.3.4/es2022/runtime-dom.mjs";
@@ -338,7 +338,7 @@ export * from "/stable/vue@3.3.4/es2022/vue.mjs";
             undefined,
             fetchMock,
         );
-        const req = new Request(`${SELF_ORIGIN}/vue`);
+        const req = new Request(`${SELF_ORIGIN}vue`);
         const res = await handler(req);
         const systemjsCode = await res.text();
         assertEquals(
@@ -365,8 +365,8 @@ Deno.test(
     async () => {
         const BASE_PATH = '/sub-dir/234';
         const fetchMock = spy(() => fetchReturn());
-        const realOrigin = 'https://public.proxy.com';
-        const req = new Request(`${SELF_ORIGIN}/vue`, {
+        const realOrigin = 'https://public.proxy.com/';
+        const req = new Request(`${SELF_ORIGIN}vue`, {
             headers: { 'X-Real-Origin': realOrigin },
         });
         const handler = createRequestHandler(
@@ -382,7 +382,7 @@ Deno.test(
         assertEquals(
             !!systemjsCode.match(
                 new RegExp(
-                    `${realOrigin}/sub-dir/234/stable/vue@3.3.2/es2022/vue.mjs`,
+                    `${realOrigin}sub-dir/234/stable/vue@3.3.2/es2022/vue.mjs`,
                 ),
             ),
             true,
@@ -395,11 +395,11 @@ Deno.test(
     async () => {
         const fetchMock = spy(async () =>
             new Response(
-                `<a href="${baseConfig.UPSTREAM_ORIGIN}/vue@3.3.2">Found</a>.`,
+                `<a href="${baseConfig.UPSTREAM_ORIGIN}vue@3.3.2">Found</a>.`,
                 {
                     status: 302,
                     headers: {
-                        'Location': `${baseConfig.UPSTREAM_ORIGIN}/vue@3.3.2`,
+                        'Location': `${baseConfig.UPSTREAM_ORIGIN}vue@3.3.2`,
                     },
                 },
             )
@@ -409,23 +409,23 @@ Deno.test(
             undefined,
             fetchMock,
         );
-        const req = new Request(`${SELF_ORIGIN}/vue`);
+        const req = new Request(`${SELF_ORIGIN}vue`);
         const res = await handler(req);
         assertEquals(res.status, 302);
         assertEquals(
             res.headers.get('location'),
-            `${SELF_ORIGIN}/vue@3.3.2`,
+            `${SELF_ORIGIN}vue@3.3.2`,
         );
         assertEquals(
             await res.text(),
-            `<a href="${SELF_ORIGIN}/vue@3.3.2">Found</a>.`,
+            `<a href="${SELF_ORIGIN}vue@3.3.2">Found</a>.`,
         );
         assertSpyCalls(fetchMock, 1);
     },
 );
 
 Deno.test(
-    'should return the original reponse "as-is" when UPSTREAM_ORIGIN responds with a !ok status other than >= 300 < 400',
+    'should return the original reponse "as-is" when $UPSTREAM_ORIGIN responds with a !ok status other than >= 300 < 400',
     async () => {
         const fetchMock = spy(async () => new Response('', { status: 404 }));
         const handler = createRequestHandler(
@@ -433,7 +433,7 @@ Deno.test(
             undefined,
             fetchMock,
         );
-        const req = new Request(`${SELF_ORIGIN}/vue`);
+        const req = new Request(`${SELF_ORIGIN}vue`);
         const res = await handler(req);
         assertEquals(res.status, 404);
         assertSpyCalls(fetchMock, 1);
@@ -447,7 +447,7 @@ Deno.test(
         const cacheMock = {
             close: spy(async () => {}),
             get: spy(async () => ({
-                url: `${SELF_ORIGIN}/foo?bundle`,
+                url: `${SELF_ORIGIN}foo?bundle`,
                 body: '/* cached */',
                 headers: new Headers(),
                 status: 200,
@@ -463,7 +463,7 @@ Deno.test(
             cacheMock,
             fetchMock,
         );
-        const req = new Request(`${SELF_ORIGIN}/foo?bundle`);
+        const req = new Request(`${SELF_ORIGIN}foo?bundle`);
         const res = await handler(req);
         await t.step('should try to get from the cache', async () => {
             assertSpyCalls(cacheMock.get, 1);
@@ -503,7 +503,7 @@ Deno.test(
             cacheMock,
             fetchMock,
         );
-        const req = new Request(`${SELF_ORIGIN}/foo?bundle`);
+        const req = new Request(`${SELF_ORIGIN}foo?bundle`);
         await handler(req);
         await t.step('should try to get from the cache', async () => {
             assertSpyCalls(cacheMock.get, 1);
@@ -515,7 +515,7 @@ Deno.test(
             assertSpyCalls(cacheMock.set, 1);
             const spyCall = cacheMock.set.calls[0];
             const secondArg = spyCall && spyCall.args[1];
-            assertEquals(secondArg.url, `${SELF_ORIGIN}/foo?bundle`);
+            assertEquals(secondArg.url, `${SELF_ORIGIN}foo?bundle`);
             assertEquals(secondArg.body.includes('const foobar'), true);
         });
     },
@@ -525,15 +525,15 @@ Deno.test(
     'When the cached response is a redirect > should fast-path the contents of the redirect location if those exist in cache',
     async (t) => {
         const cacheReturns = [{
-            url: `${SELF_ORIGIN}/foo?bundle`,
+            url: `${SELF_ORIGIN}foo?bundle`,
             body: '',
             headers: new Headers({
-                location: `${SELF_ORIGIN}/foo@2?bundle`,
+                location: `${SELF_ORIGIN}foo@2?bundle`,
             }),
             status: 302,
             statusText: 'Redirect',
         }, {
-            url: `${SELF_ORIGIN}/foo@2?bundle`,
+            url: `${SELF_ORIGIN}foo@2?bundle`,
             body: '/* cached */',
             headers: new Headers(),
             status: 200,
@@ -551,12 +551,12 @@ Deno.test(
             {
                 ...baseConfig,
                 CACHE: true,
-                CACHE_CLIENT_REDIRECT: 600,
+                REDIRECT_FASTPATH: true,
             },
             cacheMock,
             fetchMock,
         );
-        const req = new Request(`${SELF_ORIGIN}/foo?bundle`);
+        const req = new Request(`${SELF_ORIGIN}foo?bundle`);
         const res = await handler(req);
         await t.step('should try to get from the cache', async () => {
             assertSpyCalls(cacheMock.get, 2);
@@ -582,10 +582,10 @@ Deno.test(
     'When the cached response is a redirect > should return the redirect as-is if those do not exist in cache',
     async (t) => {
         const cacheReturns = [{
-            url: `${SELF_ORIGIN}/foo?bundle`,
+            url: `${SELF_ORIGIN}foo?bundle`,
             body: '',
             headers: new Headers({
-                location: `${SELF_ORIGIN}/foo@2?bundle`,
+                location: `${SELF_ORIGIN}foo@2?bundle`,
             }),
             status: 302,
             statusText: 'Redirect',
@@ -602,12 +602,12 @@ Deno.test(
             {
                 ...baseConfig,
                 CACHE: true,
-                CACHE_CLIENT_REDIRECT: 600,
+                REDIRECT_FASTPATH: true,
             },
             cacheMock,
             fetchMock,
         );
-        const req = new Request(`${SELF_ORIGIN}/foo?bundle`);
+        const req = new Request(`${SELF_ORIGIN}foo?bundle`);
         const res = await handler(req);
         await t.step('should try to get from the cache', async () => {
             assertSpyCalls(cacheMock.get, 2);
@@ -619,7 +619,7 @@ Deno.test(
                 assertEquals(res.statusText, 'Redirect');
                 assertEquals(
                     res.headers.get('location'),
-                    `${SELF_ORIGIN}/foo@2?bundle`,
+                    `${SELF_ORIGIN}foo@2?bundle`,
                 );
             },
         );
@@ -636,7 +636,7 @@ Deno.test(
     'When the cached response is a redirect > should return the redirect as-is if Location response header is missing',
     async (t) => {
         const cacheReturns = [{
-            url: `${SELF_ORIGIN}/foo?bundle`,
+            url: `${SELF_ORIGIN}foo?bundle`,
             body: '',
             headers: new Headers(),
             status: 302,
@@ -659,7 +659,7 @@ Deno.test(
             cacheMock,
             fetchMock,
         );
-        const req = new Request(`${SELF_ORIGIN}/foo?bundle`);
+        const req = new Request(`${SELF_ORIGIN}foo?bundle`);
         const res = await handler(req);
         await t.step('should try to get from the cache', async () => {
             assertSpyCalls(cacheMock.get, 1);
@@ -690,7 +690,7 @@ Deno.test(
         const cacheReturns = [
             null,
             {
-                url: `${SELF_ORIGIN}/foo@2?bundle`,
+                url: `${SELF_ORIGIN}foo@2?bundle`,
                 body: '/* cached */',
                 headers: new Headers(),
                 status: 200,
@@ -701,8 +701,7 @@ Deno.test(
             Promise.resolve(
                 new Response('', {
                     headers: new Headers({
-                        'location':
-                            `${baseConfig.UPSTREAM_ORIGIN}/foo@2?bundle`,
+                        'location': `${baseConfig.UPSTREAM_ORIGIN}foo@2?bundle`,
                     }),
                     status: 302,
                     statusText: 'Redirect',
@@ -720,12 +719,13 @@ Deno.test(
             {
                 ...baseConfig,
                 CACHE: true,
-                CACHE_CLIENT_REDIRECT: 600,
+                CACHE_REDIRECT: 600,
+                REDIRECT_FASTPATH: true,
             },
             cacheMock,
             fetchMock,
         );
-        const req = new Request(`${SELF_ORIGIN}/foo?bundle`);
+        const req = new Request(`${SELF_ORIGIN}foo?bundle`);
         const res = await handler(req);
         await t.step(
             'should try to get from the cache a total of two times',

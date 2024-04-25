@@ -120,3 +120,34 @@ export const buildDebugPerformance = (performance: Performance): string => (
         )
         .join(',')
 );
+
+/**
+ * Make sure the base path is not empty, starts with "/"
+ * and does not end with "/" when length is > 1
+ */
+export const sanitizeBasePath = (originalBasePath?: string): string => {
+    if (!originalBasePath) {
+        return '/';
+    }
+    const url = new URL(originalBasePath, 'http://x');
+    return url.pathname.length > 1 && url.pathname.endsWith('/')
+        ? url.pathname.slice(0, -1)
+        : url.pathname;
+};
+
+/**
+ * Make sure the URL is complete including a minimum path,
+ * and does not end with "/" when path length is > 1
+ */
+export const sanitizeUpstreamOrigin = (
+    originalUpstreamOrigin?: string,
+): string => {
+    if (!originalUpstreamOrigin) {
+        return '';
+    }
+    const url = new URL(originalUpstreamOrigin);
+    if (url.pathname.length > 1 && url.pathname.endsWith('/')) {
+        url.pathname = url.pathname.slice(0, -1);
+    }
+    return `${url.origin}${url.pathname}`;
+};

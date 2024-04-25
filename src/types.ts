@@ -43,12 +43,14 @@ export interface Cache {
 }
 
 export type Config = {
-    BASE_PATH?: string;
+    BASE_PATH: string;
     CACHE: boolean;
+    CACHE_REDIRECT?: number;
     CACHE_CLIENT_REDIRECT?: number;
     CACHE_REDIS_HOSTNAME?: string;
     HOMEPAGE?: string;
     OUTPUT_BANNER?: string;
+    REDIRECT_FASTPATH?: boolean;
     UPSTREAM_ORIGIN: string;
     WORKER_ENABLE?: boolean;
 };
