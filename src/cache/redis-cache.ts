@@ -1,6 +1,5 @@
 import { Redis } from '../../deps.ts';
-import { Cache, ResponseProps } from '../types.ts';
-import { calcExpires } from '../utils.ts';
+import { Cache, CacheSetOptions, ResponseProps } from '../types.ts';
 
 export class RedisCache implements Cache {
     protected glue = ';;';
@@ -22,16 +21,21 @@ export class RedisCache implements Cache {
         return value || null;
     }
 
-    public async set(key: string[], value: ResponseProps): Promise<void> {
-        const expires = calcExpires(value.headers);
+    public async set(
+        key: string[],
+        value: ResponseProps,
+        options?: CacheSetOptions,
+    ): Promise<void> {
         const data = JSON.stringify({
             ...value,
             headers: Object.fromEntries(value.headers.entries()),
         });
+        const optionsRedis: { ex?: number } = {};
+        if (options?.expireIn) {
+            optionsRedis.ex = Math.floor(options.expireIn / 1000);
+        }
         const settledRedis = await this.redis;
-        await settledRedis.set(this.serializeKey(key), data, {
-            ex: Math.floor(expires / 1000),
-        });
+        await settledRedis.set(this.serializeKey(key), data, optionsRedis);
     }
 
     public async close(): Promise<void> {

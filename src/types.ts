@@ -36,9 +36,17 @@ export type ResponseProps = {
     statusText: string;
 };
 
+export type CacheSetOptions = {
+    expireIn?: number;
+};
+
 export interface Cache {
     get(key: string[]): Promise<ResponseProps | null>;
-    set(key: string[], value: ResponseProps): Promise<void>;
+    set(
+        key: string[],
+        value: ResponseProps,
+        options?: CacheSetOptions,
+    ): Promise<void>;
     close(): Promise<void>;
 }
 

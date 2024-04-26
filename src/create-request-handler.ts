@@ -1,5 +1,6 @@
 import {
     buildDebugPerformance,
+    calcExpires,
     cloneHeaders,
     denyHeaders,
     isForbidden,
@@ -57,6 +58,7 @@ export function createRequestHandler(
             await cache?.set(
                 [url, buildTarget],
                 responseProps,
+                { expireIn: calcExpires(headers, CACHE_REDIRECT) },
             );
             performance.measure('cache-write', 'cache-write');
         }

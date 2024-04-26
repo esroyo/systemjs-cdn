@@ -102,8 +102,8 @@ export const isForbidden = ({ status }: { status: number }): boolean => {
 
 export const calcExpires = (
     headers: Headers,
+    DEFAULT = 600,
 ): number => {
-    const DEFAULT = '600';
     const cacheControl = Object.fromEntries(
         (headers.get('cache-control') ?? '').split(/\s*,\s*/g).map((part) =>
             part.split('=')

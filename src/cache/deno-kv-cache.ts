@@ -1,6 +1,5 @@
 import { kvGet, kvSet } from '../../deps.ts';
-import { Cache, ResponseProps } from '../types.ts';
-import { calcExpires } from '../utils.ts';
+import { Cache, CacheSetOptions, ResponseProps } from '../types.ts';
 
 export class DenoKvCache implements Cache {
     constructor(private kv: Promise<Deno.Kv> = Deno.openKv()) {}
@@ -12,14 +11,17 @@ export class DenoKvCache implements Cache {
         return value || null;
     }
 
-    public async set(key: string[], value: ResponseProps): Promise<void> {
-        const expires = calcExpires(value.headers);
+    public async set(
+        key: string[],
+        value: ResponseProps,
+        options?: CacheSetOptions,
+    ): Promise<void> {
         const blob = new TextEncoder().encode(JSON.stringify({
             ...value,
             headers: Object.fromEntries(value.headers.entries()),
         }));
         const settledKv = await this.kv;
-        await kvSet(settledKv, ['cache', ...key], blob, { expireIn: expires });
+        await kvSet(settledKv, ['cache', ...key], blob, options);
     }
 
     public async close(): Promise<void> {
