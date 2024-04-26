@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.18.0](https://github.com/esroyo/systemjs.sh/compare/v1.17.2...v1.18.0) (2024-04-26)
+
+
+### Features
+
+* upgrade to rollup@4.16.4 ([4c51400](https://github.com/esroyo/systemjs.sh/commit/4c514004c0b2448704a01a39683bece5e906157f))
+
 ## [1.17.2](https://github.com/esroyo/systemjs.sh/compare/v1.17.1...v1.17.2) (2024-04-26)
 
 ## [1.17.1](https://github.com/esroyo/systemjs.sh/compare/v1.17.0...v1.17.1) (2024-04-26)
