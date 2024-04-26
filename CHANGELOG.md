@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.17.1](https://github.com/esroyo/systemjs.sh/compare/v1.17.0...v1.17.1) (2024-04-26)
+
+
+### Bug Fixes
+
+* use CACHE_REDIRECT value as the expire time fallback ([ca50324](https://github.com/esroyo/systemjs.sh/commit/ca50324b21df0ae048ad614de67f62f52444f293))
+
 ## [1.17.0](https://github.com/esroyo/systemjs.sh/compare/v1.16.3...v1.17.0) (2024-04-25)
 
 
