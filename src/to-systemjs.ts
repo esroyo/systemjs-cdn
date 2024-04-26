@@ -15,7 +15,7 @@ export const toSystemjsMain = async (
     let rollup = _rollup;
     let rollupVersion = _rollupVersion;
     try {
-        const mod = await import('npm:rollup@4.9.6');
+        const mod = await import('npm:rollup@4.16.4');
         // @ts-ignore
         rollup = mod.rollup;
         rollupVersion = mod.VERSION;
