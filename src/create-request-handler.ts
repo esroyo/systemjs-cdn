@@ -62,9 +62,13 @@ export function createRequestHandler(
             );
             performance.measure('cache-write', 'cache-write');
         }
-        const shouldSetCacheClientRedirect = CACHE_CLIENT_REDIRECT &&
-            isFastPathRedirect;
-        if (shouldSetCacheClientRedirect) {
+        if (
+            CACHE_CLIENT_REDIRECT &&
+            (
+                isFastPathRedirect ||
+                (isActualRedirect && !headers.has('cache-control'))
+            )
+        ) {
             headers.set(
                 'cache-control',
                 `public, max-age=${CACHE_CLIENT_REDIRECT}`,
