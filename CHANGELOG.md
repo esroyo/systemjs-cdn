@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.18.1](https://github.com/esroyo/systemjs.sh/compare/v1.18.0...v1.18.1) (2024-04-26)
+
+
+### Bug Fixes
+
+* add cache-control header on redirects when missing from upstream ([c7b13f4](https://github.com/esroyo/systemjs.sh/commit/c7b13f44609466a3e46c1ae8bb81eb2d938c6f5e))
+
 ## [1.18.0](https://github.com/esroyo/systemjs.sh/compare/v1.17.2...v1.18.0) (2024-04-26)
 
 
