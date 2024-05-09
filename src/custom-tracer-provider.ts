@@ -1,9 +1,8 @@
-import { BasicTracerProvider } from '../deps.ts';
+import { BasicTracerProvider, millisToHrTime } from '../deps.ts';
 
-// @ts-ignore
-export const variableTimeOrigin = () => new Date() - performance.now();
-
-export const getTime = () => variableTimeOrigin() + performance.now();
+export const getTime = () => {
+    return millisToHrTime(performance.now());
+};
 
 export class CustomTracerProvider extends BasicTracerProvider {
     private PATCH_TYPE = Symbol('@@patch');
@@ -38,11 +37,11 @@ export class CustomTracerProvider extends BasicTracerProvider {
                 attributesOrStartTime,
                 startTime,
             ) {
-                const hasStartTime = typeof startTime !== undefined;
+                const missingStartTime = typeof startTime !== undefined;
                 typeof attributesOrStartTime === 'number' ||
                     Array.isArray(attributesOrStartTime) ||
                     attributesOrStartTime instanceof Date;
-                if (hasStartTime) {
+                if (!missingStartTime) {
                     return _addEvent(name, attributesOrStartTime, startTime);
                 }
                 return _addEvent(name, attributesOrStartTime, getTime());

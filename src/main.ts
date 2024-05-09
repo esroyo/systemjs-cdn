@@ -17,6 +17,7 @@ import { RedisCache } from './cache/redis-cache.ts';
 import { createRequestHandler } from './create-request-handler.ts';
 import { CustomTracerProvider } from './custom-tracer-provider.ts';
 import { instrumentRequestHandler } from './instrument-request-handler.ts';
+import { TimeSpanProcessor } from './time-span-processor.ts';
 import { sanitizeBasePath, sanitizeUpstreamOrigin } from './utils.ts';
 
 // Step: resolve config
@@ -50,8 +51,10 @@ const provider = new CustomTracerProvider({
         [SemanticResourceAttributes.TELEMETRY_SDK_LANGUAGE]: 'javascript',
     }),
 });
-const serverTimingExporter = new ServerTimingSpanExporter();
-provider.addSpanProcessor(new SimpleSpanProcessor(serverTimingExporter));
+provider.addSpanProcessor(new TimeSpanProcessor());
+provider.addSpanProcessor(
+    new SimpleSpanProcessor(new ServerTimingSpanExporter()),
+);
 // provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()));
 
 provider.register({

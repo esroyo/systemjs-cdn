@@ -19,12 +19,14 @@ export {
     TraceFlags,
 } from 'npm:@opentelemetry/api@1.8.0';
 export { OTLPTraceExporter } from 'npm:@opentelemetry/exporter-trace-otlp-http@0.51.0';
+export { addHrTimes, millisToHrTime } from 'npm:@opentelemetry/core@1.24.0';
 export {
     BasicTracerProvider,
     BatchSpanProcessor,
     type BufferConfig,
     ConsoleSpanExporter,
     InMemorySpanExporter,
+    NoopSpanProcessor,
     type ReadableSpan,
     SimpleSpanProcessor,
     type SpanExporter,
