@@ -26,8 +26,8 @@ export const instrumentRequestHandler = <T extends Deno.ServeHandler>(
         : [spanProcessor];
     for (const processor of spanProcessors) {
         if (
-            // @ts-ignore private access to SimpleSpanProcessor _exporter prop
             '_exporter' in processor &&
+            // @ts-ignore private access to SimpleSpanProcessor _exporter prop
             'getServerTimingHeader' in processor._exporter
         ) {
             serverTimingExporter = processor

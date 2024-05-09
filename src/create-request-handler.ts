@@ -54,11 +54,15 @@ export function createRequestHandler(
             isActualRedirect;
         const willCache = shouldCache && isCacheable;
         if (willCache) {
+            const cacheKey = [url, buildTarget];
             const cacheWriteSpan = tracer.startSpan('cache-write', {
-                attributes: { 'span.type': 'cache' },
+                attributes: {
+                    'span.type': 'cache',
+                    'systemjs.cache.key': cacheKey,
+                },
             });
             await cache?.set(
-                [url, buildTarget],
+                cacheKey,
                 responseProps,
                 { expireIn: calcExpires(headers, CACHE_REDIRECT) },
             );
@@ -94,13 +98,14 @@ export function createRequestHandler(
         if (!redirectLocation) {
             return response;
         }
+        const cacheKey = [redirectLocation, buildTarget];
         const redirectCacheReadSpan = tracer.startSpan('redirect-cache-read', {
-            attributes: { 'span.type': 'cache' },
+            attributes: {
+                'span.type': 'cache',
+                'systemjs.cache.key': cacheKey,
+            },
         });
-        const cachedValue = await cache?.get([
-            redirectLocation,
-            buildTarget,
-        ]);
+        const cachedValue = await cache?.get(cacheKey);
         redirectCacheReadSpan.addEvent(
             cachedValue ? 'redirect-cache-hit' : 'redirect-cache-miss',
         );
@@ -177,18 +182,19 @@ export function createRequestHandler(
         )
             .toString();
         rootSpan?.setAttributes({
-            'build_target': buildTarget,
+            'esm.build.target': buildTarget,
             'http.route': BASE_PATH,
             'http.url': publicSelfUrl,
         });
         if (CACHE) {
+            const cacheKey = [publicSelfUrl, buildTarget];
             const cacheReadSpan = tracer.startSpan('cache-read', {
-                attributes: { 'span.type': 'cache' },
+                attributes: {
+                    'span.type': 'cache',
+                    'systemjs.cache.key': cacheKey,
+                },
             });
-            const cachedValue = await cache?.get([
-                publicSelfUrl,
-                buildTarget,
-            ]);
+            const cachedValue = await cache?.get(cacheKey);
             cacheReadSpan.addEvent(cachedValue ? 'cache-hit' : 'cache-miss');
             cacheReadSpan.end();
             if (cachedValue) {
