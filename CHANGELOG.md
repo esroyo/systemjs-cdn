@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.18.6](https://github.com/esroyo/systemjs.sh/compare/v1.18.5...v1.18.6) (2024-05-09)
+
+
+### Other
+
+* remove explicit usage passing of start/end time for spans ([c3d0d90](https://github.com/esroyo/systemjs.sh/commit/c3d0d907c70c4772a272dc2f1b44818e46eda2fc))
+
 ## [1.18.5](https://github.com/esroyo/systemjs.sh/compare/v1.18.4...v1.18.5) (2024-05-09)
 
 
