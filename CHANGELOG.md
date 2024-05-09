@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.18.7](https://github.com/esroyo/systemjs.sh/compare/v1.18.6...v1.18.7) (2024-05-09)
+
+
+### Bug Fixes
+
+* complete patch of TracerProvider ([1715d53](https://github.com/esroyo/systemjs.sh/commit/1715d53eac3cdced782ebbf15a5855223d588afe))
+
 ## [1.18.6](https://github.com/esroyo/systemjs.sh/compare/v1.18.5...v1.18.6) (2024-05-09)
 
 
