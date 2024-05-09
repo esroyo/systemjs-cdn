@@ -113,14 +113,6 @@ export const calcExpires = (
     return effectiveMaxAge;
 };
 
-export const buildDebugPerformance = (performance: Performance): string => (
-    performance.getEntriesByType('measure')
-        .map(({ name, duration }) =>
-            `${name}${duration ? `;dur=${duration}` : ''}`
-        )
-        .join(',')
-);
-
 /**
  * Make sure the base path is not empty, starts with "/"
  * and does not end with "/" when length is > 1

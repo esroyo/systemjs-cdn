@@ -1,5 +1,4 @@
 import {
-    buildDebugPerformance,
     calcExpires,
     cloneHeaders,
     denyHeaders,
@@ -11,13 +10,14 @@ import {
     nodeRequest,
 } from './utils.ts';
 import { toSystemjs } from './to-systemjs.ts';
-import { getBuildTargetFromUA, ScopedPerformance } from '../deps.ts';
-import type { Cache, Config, ResponseProps } from './types.ts';
+import { getBuildTargetFromUA, opentelemetry } from '../deps.ts';
+import type { Cache, Config, OpenTelemetry, ResponseProps } from './types.ts';
 
 export function createRequestHandler(
     config: Config,
     cache?: Cache,
     fetch = nodeRequest,
+    otel: OpenTelemetry = opentelemetry,
 ): (request: Request) => Promise<Response> {
     const {
         BASE_PATH,
@@ -29,10 +29,10 @@ export function createRequestHandler(
         OUTPUT_BANNER,
         REDIRECT_FASTPATH,
     } = config;
+    const tracer = otel.trace.getTracer('web');
 
     const createFinalResponse = async (
         responseProps: ResponseProps,
-        performance: Performance,
         buildTarget: string,
         shouldCache: boolean,
         isFastPathRedirect?: boolean,
@@ -54,13 +54,15 @@ export function createRequestHandler(
             isActualRedirect;
         const willCache = shouldCache && isCacheable;
         if (willCache) {
-            performance.mark('cache-write');
+            const cacheWriteSpan = tracer.startSpan('cache-write', {
+                attributes: { 'span.type': 'cache' },
+            });
             await cache?.set(
                 [url, buildTarget],
                 responseProps,
                 { expireIn: calcExpires(headers, CACHE_REDIRECT) },
             );
-            performance.measure('cache-write', 'cache-write');
+            cacheWriteSpan.end();
         }
         if (
             CACHE_CLIENT_REDIRECT &&
@@ -75,15 +77,6 @@ export function createRequestHandler(
             );
         }
 
-        if (isFastPathRedirect) {
-            performance.clearMeasures('total');
-        }
-        performance.measure('total', 'total');
-        headers.set(
-            'server-timing',
-            buildDebugPerformance(performance),
-        );
-
         const response = new Response(body, {
             headers,
             status,
@@ -95,49 +88,37 @@ export function createRequestHandler(
 
     const createFastPathResponse = async (
         response: Response,
-        performance: Performance,
         buildTarget: string,
     ): Promise<Response> => {
         const redirectLocation = response.headers.get('location');
         if (!redirectLocation) {
             return response;
         }
-        performance.mark('redirect-cache-read');
-        const value = await cache?.get([
+        const redirectCacheReadSpan = tracer.startSpan('redirect-cache-read', {
+            attributes: { 'span.type': 'cache' },
+        });
+        const cachedValue = await cache?.get([
             redirectLocation,
             buildTarget,
         ]);
-        performance.measure('redirect-cache-read', 'redirect-cache-read');
-        if (value) {
-            performance.measure('redirect-cache-hit', {
-                start: performance.now(),
-            });
+        redirectCacheReadSpan.addEvent(
+            cachedValue ? 'redirect-cache-hit' : 'redirect-cache-miss',
+        );
+        redirectCacheReadSpan.end();
+        if (cachedValue) {
             return createFinalResponse(
                 {
-                    ...value,
-                    headers: new Headers(value.headers),
+                    ...cachedValue,
+                    headers: new Headers(cachedValue.headers),
                 },
-                performance,
                 buildTarget,
                 false,
                 true,
             );
         }
-        performance.measure('redirect-cache-miss', {
-            start: performance.now(),
-        });
 
-        const rebuildedHeaders = cloneHeaders(response.headers);
-
-        performance.clearMeasures('total');
-        performance.measure('total', 'total');
-
-        rebuildedHeaders.set(
-            'server-timing',
-            buildDebugPerformance(performance),
-        );
         return new Response(response.body, {
-            headers: rebuildedHeaders,
+            headers: cloneHeaders(response.headers),
             status: response.status,
             statusText: response.statusText,
         });
@@ -146,20 +127,13 @@ export function createRequestHandler(
     return async function requestHandler(
         req: Request,
     ): Promise<Response> {
-        const performance = new ScopedPerformance();
-        const disposeReturn = (res: Response) => {
-            performance.clearMarks();
-            performance.clearMeasures();
-            return res;
-        };
-        performance.mark('total');
+        // Step: tracing
+        const rootSpan = otel.trace.getActiveSpan();
         const buildTarget = getBuildTargetFromUA(req.headers.get('user-agent'));
         const selfUrl = new URL(req.url);
         const basePath = BASE_PATH === '/' ? BASE_PATH : `${BASE_PATH}/`;
         if (selfUrl.pathname === BASE_PATH || selfUrl.pathname === basePath) {
-            return disposeReturn(
-                Response.redirect(HOMEPAGE || UPSTREAM_ORIGIN, 302),
-            );
+            return Response.redirect(HOMEPAGE || UPSTREAM_ORIGIN, 302);
         }
         const finalOriginUrl = new URL(
             req.headers.get('x-real-origin') ?? selfUrl,
@@ -202,49 +176,55 @@ export function createRequestHandler(
             req.url.replace(selfUrl.origin, finalOriginUrl.origin),
         )
             .toString();
+        rootSpan?.setAttributes({
+            'build_target': buildTarget,
+            'http.route': BASE_PATH,
+            'http.url': publicSelfUrl,
+        });
         if (CACHE) {
-            performance.mark('cache-read');
-            const value = await cache?.get([
+            const cacheReadSpan = tracer.startSpan('cache-read', {
+                attributes: { 'span.type': 'cache' },
+            });
+            const cachedValue = await cache?.get([
                 publicSelfUrl,
                 buildTarget,
             ]);
-            performance.measure('cache-read', 'cache-read');
-            if (value) {
-                performance.measure('cache-hit', { start: performance.now() });
+            cacheReadSpan.addEvent(cachedValue ? 'cache-hit' : 'cache-miss');
+            cacheReadSpan.end();
+            if (cachedValue) {
                 const response = await createFinalResponse(
                     {
-                        ...value,
-                        headers: new Headers(value.headers),
+                        ...cachedValue,
+                        headers: new Headers(cachedValue.headers),
                     },
-                    performance,
                     buildTarget,
                     false,
                 );
                 if (REDIRECT_FASTPATH && isRedirect(response)) {
                     const fastResponse = await createFastPathResponse(
                         response,
-                        performance,
                         buildTarget,
                     );
-                    return disposeReturn(fastResponse);
+                    return fastResponse;
                 }
-                return disposeReturn(response);
+                return response;
             }
-            performance.measure('cache-miss', { start: performance.now() });
         }
-        performance.mark('upstream');
+        const upstreamSpan = tracer.startSpan('upstream', {
+            attributes: { 'span.type': 'http' },
+        });
         const upstreamResponse = await fetch(upstreamUrl.toString(), {
             headers: cloneHeaders(req.headers, denyHeaders),
             redirect: 'manual',
         });
-        performance.measure('upstream', 'upstream');
         let body = await upstreamResponse.text();
+        upstreamSpan.end();
         if (isJsResponse(upstreamResponse)) {
-            performance.mark('build');
+            const buildSpan = tracer.startSpan('build');
             body = replaceOrigin(
                 await toSystemjs(body, { banner: OUTPUT_BANNER }, config),
             );
-            performance.measure('build', 'build');
+            buildSpan.end();
         } else {
             body = replaceOrigin(body);
         }
@@ -260,18 +240,16 @@ export function createRequestHandler(
                 status: upstreamResponse.status,
                 statusText: upstreamResponse.statusText,
             },
-            performance,
             buildTarget,
             !!(CACHE && (!isRedirect(upstreamResponse) || CACHE_REDIRECT)),
         );
         if (CACHE && REDIRECT_FASTPATH && isRedirect(response)) {
             const fastResponse = await createFastPathResponse(
                 response,
-                performance,
                 buildTarget,
             );
-            return disposeReturn(fastResponse);
+            return fastResponse;
         }
-        return disposeReturn(response);
+        return response;
     };
 }

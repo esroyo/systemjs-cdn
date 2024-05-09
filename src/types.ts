@@ -1,3 +1,5 @@
+import { opentelemetry, type ServerTimingSpanExporter } from '../deps.ts';
+
 export interface HttpZParam {
     name: string;
     value?: string;
@@ -56,9 +58,17 @@ export type Config = {
     CACHE_REDIRECT?: number;
     CACHE_CLIENT_REDIRECT?: number;
     CACHE_REDIS_HOSTNAME?: string;
+    DD_TRACE_ENABLED?: boolean;
     HOMEPAGE?: string;
     OUTPUT_BANNER?: string;
     REDIRECT_FASTPATH?: boolean;
     UPSTREAM_ORIGIN: string;
     WORKER_ENABLE?: boolean;
 };
+
+export type OpenTelemetry = typeof opentelemetry;
+
+export type PartialServerTimingSpanExporter = Pick<
+    ServerTimingSpanExporter,
+    'getServerTimingHeader'
+>;
