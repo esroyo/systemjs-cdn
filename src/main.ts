@@ -4,7 +4,7 @@ import {
     BatchTracedSpanProcessor,
     // ConsoleSpanExporter,
     dotenvLoad,
-    OTLPTraceExporter,
+    // OTLPTraceExporter,
     redis,
     Resource,
     SemanticResourceAttributes,
@@ -16,6 +16,7 @@ import { DenoKvCache } from './cache/deno-kv-cache.ts';
 import { RedisCache } from './cache/redis-cache.ts';
 import { createRequestHandler } from './create-request-handler.ts';
 import { CustomTracerProvider } from './custom-tracer-provider.ts';
+import { CustomOTLPTraceExporter } from './custom-otlp-trace-exporter.ts';
 import { instrumentRequestHandler } from './instrument-request-handler.ts';
 import { TimeSpanProcessor } from './time-span-processor.ts';
 import { sanitizeBasePath, sanitizeUpstreamOrigin } from './utils.ts';
@@ -51,7 +52,7 @@ const provider = new CustomTracerProvider({
         [SemanticResourceAttributes.TELEMETRY_SDK_LANGUAGE]: 'javascript',
     }),
 });
-provider.addSpanProcessor(new TimeSpanProcessor());
+//provider.addSpanProcessor(new TimeSpanProcessor());
 provider.addSpanProcessor(
     new SimpleSpanProcessor(new ServerTimingSpanExporter()),
 );
@@ -73,7 +74,7 @@ if (config.DD_TRACE_ENABLED) {
         // an optional limit on pending requests
         concurrencyLimit: 10,
     };
-    const otlpExporter = new OTLPTraceExporter(collectorOptions);
+    const otlpExporter = new CustomOTLPTraceExporter(collectorOptions);
     const otelProcessor = new BatchTracedSpanProcessor(otlpExporter);
     provider.addSpanProcessor(otelProcessor);
     console.log('OTLP options:', collectorOptions);
