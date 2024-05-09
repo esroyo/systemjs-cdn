@@ -1,9 +1,16 @@
 import { BasicTracerProvider, millisToHrTime } from '../deps.ts';
 
-export const getTime = () => {
-    return millisToHrTime(performance.now());
-};
+export const getTime = () => millisToHrTime(performance.now());
 
+/**
+ * An extension of the stock BasicTracerProvider that patches
+ * the span creation/ending to always inject start and end times.
+ *
+ * The injected start/end times are HrTime from the monotonic clock.
+ *
+ * Usually those times would need to be converted into wall-clock
+ * when exported.
+ */
 export class CustomTracerProvider extends BasicTracerProvider {
     private PATCH_TYPE = Symbol('@@patch');
     getTracer(name: string, version?: string, options?: {

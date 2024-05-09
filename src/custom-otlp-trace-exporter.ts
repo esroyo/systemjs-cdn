@@ -8,9 +8,12 @@ import {
 const LIMIT = new Date('2000-01-01').getTime() / 1000;
 const isMonotonicHrTime = (hrTime: [number, number]): boolean =>
     hrTime[0] < LIMIT;
-// @ts-ignore
-const variableTimeOrigin = () => new Date() - performance.now();
+const variableTimeOrigin = () => Date.now() - performance.now();
 
+/**
+ * An extension of the stock OTLPTraceExporter to convert the
+ * span times from monotonic clock to wall clock.
+ */
 export class CustomOTLPTraceExporter extends OTLPTraceExporter {
     export(spans: ReadableSpan[], resultCallback: (result: any) => void): void {
         // Current timeOrigin
@@ -22,9 +25,9 @@ export class CustomOTLPTraceExporter extends OTLPTraceExporter {
                 return;
             }
             // Convert the times to wall-clock
-            // @ts-ignore
+            // @ts-ignore read-only prop
             span.startTime = addHrTimes(span.startTime, hrTime);
-            // @ts-ignore
+            // @ts-ignore read-only prop
             span.endTime = addHrTimes(span.endTime, hrTime);
             for (const event of span.events) {
                 event.time = addHrTimes(event.time, hrTime);
