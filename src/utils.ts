@@ -143,3 +143,8 @@ export const sanitizeUpstreamOrigin = (
     }
     return `${url.origin}${url.pathname}`;
 };
+
+// @ts-ignore
+export const variableTimeOrigin = () => new Date() - performance.now();
+
+export const getTime = () => variableTimeOrigin() + performance.now();
