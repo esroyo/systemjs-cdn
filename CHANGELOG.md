@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.18.8](https://github.com/esroyo/systemjs.sh/compare/v1.18.7...v1.18.8) (2024-05-09)
+
+
+### Bug Fixes
+
+* use monotonic clock for span times ([39ada10](https://github.com/esroyo/systemjs.sh/commit/39ada1074d8d1537cd83569b5af1e2eecad10e3a))
+
 ## [1.18.7](https://github.com/esroyo/systemjs.sh/compare/v1.18.6...v1.18.7) (2024-05-09)
 
 
