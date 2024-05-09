@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.18.5](https://github.com/esroyo/systemjs.sh/compare/v1.18.4...v1.18.5) (2024-05-09)
+
+
+### Other
+
+* test using hr dates ([15dffcc](https://github.com/esroyo/systemjs.sh/commit/15dffccd7c4df0a29e8a42cbb4a9c1c482731bef))
+
 ## [1.18.4](https://github.com/esroyo/systemjs.sh/compare/v1.18.3...v1.18.4) (2024-05-09)
 
 ## [1.18.3](https://github.com/esroyo/systemjs.sh/compare/v1.18.2...v1.18.3) (2024-05-09)
