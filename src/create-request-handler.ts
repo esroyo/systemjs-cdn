@@ -216,10 +216,14 @@ export function createRequestHandler(
                 return response;
             }
         }
+        const upstreamUrlString = upstreamUrl.toString();
         const upstreamSpan = tracer.startSpan('upstream', {
-            attributes: { 'span.type': 'http' },
+            attributes: {
+                'span.type': 'http',
+                'http.url': upstreamUrlString,
+            },
         });
-        const upstreamResponse = await fetch(upstreamUrl.toString(), {
+        const upstreamResponse = await fetch(upstreamUrlString, {
             headers: cloneHeaders(req.headers, denyHeaders),
             redirect: 'manual',
         });
