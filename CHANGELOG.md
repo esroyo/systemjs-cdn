@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.18.2](https://github.com/esroyo/systemjs.sh/compare/v1.18.1...v1.18.2) (2024-05-09)
+
+
+### Other
+
+* migrate instrumentation to opentelemetry ([96833e5](https://github.com/esroyo/systemjs.sh/commit/96833e594833157d0937b3feee5aa26cb2f56181))
+
 ## [1.18.1](https://github.com/esroyo/systemjs.sh/compare/v1.18.0...v1.18.1) (2024-04-26)
 
 
