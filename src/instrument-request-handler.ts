@@ -8,8 +8,6 @@ import {
     SpanKind,
     SpanProcessor,
 } from '../deps.ts';
-import { getTime } from './utils.ts';
-
 export const instrumentRequestHandler = <T extends Deno.ServeHandler>(
     requestHandler: T,
     otel: OpenTelemetry = opentelemetry,
