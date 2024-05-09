@@ -43,7 +43,6 @@ export const instrumentRequestHandler = <T extends Deno.ServeHandler>(
     ): Promise<Response> => {
         // Create a new root span for this request
         const requestSpan = tracer.startSpan('total', {
-            startTime: getTime(),
             attributes: {
                 'http.client_ip':
                     (req.headers.get('x-forwarded-for') ?? '').split(',')
@@ -77,7 +76,7 @@ export const instrumentRequestHandler = <T extends Deno.ServeHandler>(
         );
 
         requestSpan.setAttribute('http.status_code', response.status);
-        requestSpan.end(getTime());
+        requestSpan.end();
 
         response.headers.set(
             ...serverTimingExporter.getServerTimingHeader(requestSpan),

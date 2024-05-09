@@ -2,7 +2,6 @@ import {
     calcExpires,
     cloneHeaders,
     denyHeaders,
-    getTime,
     isForbidden,
     isJsResponse,
     isNotFound,
@@ -57,7 +56,6 @@ export function createRequestHandler(
         if (willCache) {
             const cacheKey = [url, buildTarget];
             const cacheWriteSpan = tracer.startSpan('cache-write', {
-                startTime: getTime(),
                 attributes: {
                     'span.type': 'cache',
                     'systemjs.cache.key': cacheKey,
@@ -68,7 +66,7 @@ export function createRequestHandler(
                 responseProps,
                 { expireIn: calcExpires(headers, CACHE_REDIRECT) },
             );
-            cacheWriteSpan.end(getTime());
+            cacheWriteSpan.end();
         }
         if (
             CACHE_CLIENT_REDIRECT &&
@@ -102,7 +100,6 @@ export function createRequestHandler(
         }
         const cacheKey = [redirectLocation, buildTarget];
         const redirectCacheReadSpan = tracer.startSpan('redirect-cache-read', {
-            startTime: getTime(),
             attributes: {
                 'span.type': 'cache',
                 'systemjs.cache.key': cacheKey,
@@ -112,7 +109,7 @@ export function createRequestHandler(
         redirectCacheReadSpan.addEvent(
             cachedValue ? 'redirect-cache-hit' : 'redirect-cache-miss',
         );
-        redirectCacheReadSpan.end(getTime());
+        redirectCacheReadSpan.end();
         if (cachedValue) {
             return createFinalResponse(
                 {
@@ -192,7 +189,6 @@ export function createRequestHandler(
         if (CACHE) {
             const cacheKey = [publicSelfUrl, buildTarget];
             const cacheReadSpan = tracer.startSpan('cache-read', {
-                startTime: getTime(),
                 attributes: {
                     'span.type': 'cache',
                     'systemjs.cache.key': cacheKey,
@@ -200,7 +196,7 @@ export function createRequestHandler(
             });
             const cachedValue = await cache?.get(cacheKey);
             cacheReadSpan.addEvent(cachedValue ? 'cache-hit' : 'cache-miss');
-            cacheReadSpan.end(getTime());
+            cacheReadSpan.end();
             if (cachedValue) {
                 const response = await createFinalResponse(
                     {
@@ -222,7 +218,6 @@ export function createRequestHandler(
         }
         const upstreamUrlString = upstreamUrl.toString();
         const upstreamSpan = tracer.startSpan('upstream', {
-            startTime: getTime(),
             attributes: {
                 'span.type': 'http',
                 'http.url': upstreamUrlString,
@@ -233,15 +228,13 @@ export function createRequestHandler(
             redirect: 'manual',
         });
         let body = await upstreamResponse.text();
-        upstreamSpan.end(getTime());
+        upstreamSpan.end();
         if (isJsResponse(upstreamResponse)) {
-            const buildSpan = tracer.startSpan('build', {
-                startTime: getTime(),
-            });
+            const buildSpan = tracer.startSpan('build');
             body = replaceOrigin(
                 await toSystemjs(body, { banner: OUTPUT_BANNER }, config),
             );
-            buildSpan.end(getTime());
+            buildSpan.end();
         } else {
             body = replaceOrigin(body);
         }

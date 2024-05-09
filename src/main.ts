@@ -1,7 +1,6 @@
 import type { Config } from './types.ts';
 import {
     AsyncLocalStorageContextManager,
-    BasicTracerProvider,
     BatchTracedSpanProcessor,
     // ConsoleSpanExporter,
     dotenvLoad,
@@ -16,6 +15,7 @@ import {
 import { DenoKvCache } from './cache/deno-kv-cache.ts';
 import { RedisCache } from './cache/redis-cache.ts';
 import { createRequestHandler } from './create-request-handler.ts';
+import { CustomTracerProvider } from './custom-tracer-provider.ts';
 import { instrumentRequestHandler } from './instrument-request-handler.ts';
 import { sanitizeBasePath, sanitizeUpstreamOrigin } from './utils.ts';
 
@@ -39,7 +39,7 @@ const config: Config = {
 console.log('Config:', config);
 
 // Step: minimal tracing setup
-const provider = new BasicTracerProvider({
+const provider = new CustomTracerProvider({
     resource: new Resource({
         [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]:
             Deno.env.get('ENV') ??
