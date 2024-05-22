@@ -138,7 +138,10 @@ export function createRequestHandler(
         const selfUrl = new URL(req.url);
         const basePath = BASE_PATH === '/' ? BASE_PATH : `${BASE_PATH}/`;
         if (selfUrl.pathname === BASE_PATH || selfUrl.pathname === basePath) {
-            return Response.redirect(HOMEPAGE || UPSTREAM_ORIGIN, 302);
+            return new Response(null, {
+                status: 302,
+                headers: { 'location': HOMEPAGE || UPSTREAM_ORIGIN },
+            });
         }
         const finalOriginUrl = new URL(
             req.headers.get('x-real-origin') ?? selfUrl,
@@ -181,6 +184,7 @@ export function createRequestHandler(
             req.url.replace(selfUrl.origin, finalOriginUrl.origin),
         )
             .toString();
+        const isRawRequest = selfUrl.searchParams.has('raw');
         rootSpan?.setAttributes({
             'esm.build.target': buildTarget,
             'http.route': BASE_PATH,
@@ -229,7 +233,7 @@ export function createRequestHandler(
         });
         let body = await upstreamResponse.text();
         upstreamSpan.end();
-        if (isJsResponse(upstreamResponse)) {
+        if (!isRawRequest && isJsResponse(upstreamResponse)) {
             const buildSpan = tracer.startSpan('build');
             body = replaceOrigin(
                 await toSystemjs(body, { banner: OUTPUT_BANNER }, config),

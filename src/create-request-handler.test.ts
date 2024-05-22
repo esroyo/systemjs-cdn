@@ -159,6 +159,19 @@ Deno.test('should return an string of code in systemjs format', async () => {
     assertEquals(systemjsCode.startsWith('System.register('), true);
 });
 
+Deno.test('should avoid the systemjs transpilation when "raw" param exists', async () => {
+    const fetchMock = spy(() => fetchReturn());
+    const handler = createRequestHandler(
+        baseConfig,
+        undefined,
+        fetchMock,
+    );
+    const req = new Request(`${SELF_ORIGIN}vue?raw`);
+    const res: Response = await handler(req);
+    const systemjsCode = await res.text();
+    assertEquals(systemjsCode.startsWith('System.register('), false);
+});
+
 Deno.test('should return an string of code in systemjs format (WORKER_ENABLE)', async () => {
     const fetchMock = spy(() => fetchReturn());
     const config = {

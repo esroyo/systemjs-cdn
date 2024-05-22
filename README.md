@@ -18,8 +18,8 @@ targeting SystemJS, specially when providing a third-party service.
 
 ## Example case
 
-This is an example case of code distributed by a third-party domain
-`esroyo.github.io`, and executed on a first-party domain `foo.com`. The code
+This is [a live example case](https://systemjs-cdn-examples.netlify.app/) of code distributed by a third-party domain
+`github.io`, and executed on a first-party domain `netlify.app`. The code
 imports modules from the systemjs.sh CDN without any pollution nor creation of
 global variables (aside from `System` itself):
 
@@ -29,38 +29,50 @@ global variables (aside from `System` itself):
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Welcome to foo.com</title>
+  <title>Welcome to netlify.app</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!--
-    My third-party service just needs to load SystemJS.
+    SystemJS could be loaded from any CDN (for instance "https://unpkg.com/systemjs/dist/s.min.js")
     The only global variable defined will be `System`.
   -->
-  <script src="https://unpkg.com/systemjs/dist/s.min.js"></script>
+  <script src="https://systemjs.sh/systemjs/dist/s.min.js?raw"></script>
   <!--
     Once `System` is loaded we can add an importmap with maps that are
     scoped/limited to our third-party domain (for example: esroyo.github.io).
     We are not interferring with other consumers of `System`, if they exist.
   -->
   <script>
-  System.addImportMap({
-    "scopes": {
-      "https://esroyo.github.io/": {
-        // vue will be loaded from the systemjs.sh CDN
+    System.addImportMap({
+      // The first-party code will use vue@latest
+      "imports": {
         "vue": "https://systemjs.sh/vue",
-      }
-    },
-  });
+      },
+      "scopes": {
+        // The third-party code will use vue@3.3
+        "https://esroyo.github.io/systemjs-cdn-examples/": {
+          "vue": "https://systemjs.sh/vue@3.3",
+        }
+      },
+    });
   </script>
   <!--
     Finally, we introduce our third-party service script.
     It will use `System` and the scoped importmap.
-    It will not pollute or collision in any possible way with foo.com
-    Our third-party service format is SystemJS with externals (for example "vue").
+    It will not pollute or collision in any possible way with the netlify.app code.
+    Our third-party service format is SystemJS with externals.
+    The "vue" external of that code will resolve to "https://systemjs.sh/vue@3.3"
   -->
   <script src="https://esroyo.github.io/systemjs.sh-examples/dist/assets/index.js"></script>
 </head>
 <body>
   <div id="app"></div>
+  <script>
+// This first-party code will resolve to "https://systemjs.sh/vue"
+System.import('vue').then((m) => {
+  // Will print the "latest" vue version
+  console.log(`First party code is using vue@${m.version}`);
+});
+  </script>
 </body>
 </html>
 ```
