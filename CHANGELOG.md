@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.19.0](https://github.com/esroyo/systemjs-cdn/compare/v1.18.10...v1.19.0) (2024-05-22)
+
+
+### Features
+
+* allow usage of `?raw` param ([65aac31](https://github.com/esroyo/systemjs-cdn/commit/65aac3104afde4eff83c790a28eb447f32898107))
+
 ## [1.18.10](https://github.com/esroyo/systemjs.sh/compare/v1.18.9...v1.18.10) (2024-05-09)
 
 ## [1.18.9](https://github.com/esroyo/systemjs.sh/compare/v1.18.8...v1.18.9) (2024-05-09)
