@@ -4,20 +4,22 @@
     "specifiers": {
       "jsr:@esroyo/otel-batch-traced-span-processor@1.0.0": "jsr:@esroyo/otel-batch-traced-span-processor@1.0.0",
       "jsr:@esroyo/otel-server-timing-span-exporter@1.1.2": "jsr:@esroyo/otel-server-timing-span-exporter@1.1.2",
+      "jsr:@esroyo/otel-server-timing-span-exporter@1.2.0": "jsr:@esroyo/otel-server-timing-span-exporter@1.2.0",
       "jsr:@kitsonk/kv-toolbox@0.9.0": "jsr:@kitsonk/kv-toolbox@0.9.0",
       "jsr:@std/assert@^0.218.2": "jsr:@std/assert@0.218.2",
       "jsr:@std/assert@^0.224.0": "jsr:@std/assert@0.224.0",
       "jsr:@std/assert@^0.225.1": "jsr:@std/assert@0.225.1",
-      "jsr:@std/async@^0.224.0": "jsr:@std/async@0.224.0",
-      "jsr:@std/cli@^0.224.0": "jsr:@std/cli@0.224.1",
+      "jsr:@std/assert@^0.225.3": "jsr:@std/assert@0.225.3",
+      "jsr:@std/async@^0.224.0": "jsr:@std/async@0.224.1",
+      "jsr:@std/cli@^0.224.0": "jsr:@std/cli@0.224.3",
       "jsr:@std/crypto@0.218": "jsr:@std/crypto@0.218.2",
       "jsr:@std/dotenv@0.218.2": "jsr:@std/dotenv@0.218.2",
-      "jsr:@std/encoding@^0.224.0": "jsr:@std/encoding@0.224.0",
+      "jsr:@std/encoding@^0.224.0": "jsr:@std/encoding@0.224.2",
       "jsr:@std/fmt@^0.224.0": "jsr:@std/fmt@0.224.0",
       "jsr:@std/http@0.224.0": "jsr:@std/http@0.224.0",
-      "jsr:@std/media-types@^0.224.0": "jsr:@std/media-types@0.224.0",
+      "jsr:@std/media-types@^0.224.0": "jsr:@std/media-types@0.224.1",
       "jsr:@std/path@^0.224.0": "jsr:@std/path@0.224.0",
-      "jsr:@std/streams@^0.224.0": "jsr:@std/streams@0.224.0",
+      "jsr:@std/streams@^0.224.0": "jsr:@std/streams@0.224.1",
       "npm:@opentelemetry/api@1.8.0": "npm:@opentelemetry/api@1.8.0",
       "npm:@opentelemetry/context-async-hooks@1.24.0": "npm:@opentelemetry/context-async-hooks@1.24.0_@opentelemetry+api@1.8.0",
       "npm:@opentelemetry/core@1.24.0": "npm:@opentelemetry/core@1.24.0_@opentelemetry+api@1.8.0",
@@ -47,6 +49,14 @@
           "npm:@opentelemetry/sdk-trace-base@1.24.0"
         ]
       },
+      "@esroyo/otel-server-timing-span-exporter@1.2.0": {
+        "integrity": "67f7566c010233965e086bd9c4585e5ed1c8a7bfa15fa60f6a5a5cff5c057296",
+        "dependencies": [
+          "npm:@opentelemetry/api@1.8.0",
+          "npm:@opentelemetry/core@1.24.0",
+          "npm:@opentelemetry/sdk-trace-base@1.24.0"
+        ]
+      },
       "@kitsonk/kv-toolbox@0.9.0": {
         "integrity": "dd370d61fd0d3edf69237d22650f136e314d0896627d7d3fc865f233e3eed090",
         "dependencies": [
@@ -62,13 +72,25 @@
       "@std/assert@0.225.1": {
         "integrity": "7342fa32a6d82c2c7c98ffea566baa9a892d04b22815b9fcf62cedeee5764f9c"
       },
+      "@std/assert@0.225.3": {
+        "integrity": "b3c2847aecf6955b50644cdb9cf072004ea3d1998dd7579fc0acb99dbb23bd4f"
+      },
       "@std/async@0.224.0": {
         "integrity": "b6da423eeafbd0003fe88d950e069368c6a156f8b5293b7adbd9c8903a8f8d66"
+      },
+      "@std/async@0.224.1": {
+        "integrity": "2fda2c8151cc5811a6ca37fe825f1f71c95e02a374abb6ef868e0e19eca814a5"
       },
       "@std/cli@0.224.1": {
         "integrity": "f631d47fc9802541399d00a1f77ac62ac709e7465b6bc52547caa358c486b36e",
         "dependencies": [
           "jsr:@std/assert@^0.225.1"
+        ]
+      },
+      "@std/cli@0.224.3": {
+        "integrity": "54fd879e24b738f6812dcc75bcae1534ba8f014245064ceae1bcfc2996c06d44",
+        "dependencies": [
+          "jsr:@std/assert@^0.225.3"
         ]
       },
       "@std/crypto@0.218.2": {
@@ -82,6 +104,9 @@
       },
       "@std/encoding@0.224.0": {
         "integrity": "efb6dca97d3e9c31392bd5c8cfd9f9fc9decf5a1f4d1f78af7900a493bcf89b5"
+      },
+      "@std/encoding@0.224.2": {
+        "integrity": "bd9ef45d6028296440005804db7fc8fcc86e72fc1a19bb77684fb39c4a613672"
       },
       "@std/fmt@0.224.0": {
         "integrity": "e20e9a2312a8b5393272c26191c0a68eda8d2c4b08b046bad1673148f1d69851"
@@ -102,11 +127,20 @@
       "@std/media-types@0.224.0": {
         "integrity": "5ac87989393f8cb1c81bee02aef6f5d4c8289b416deabc04f9ad25dff292d0b0"
       },
+      "@std/media-types@0.224.1": {
+        "integrity": "9e69a5daed37c5b5c6d3ce4731dc191f80e67f79bed392b0957d1d03b87f11e1"
+      },
       "@std/path@0.224.0": {
         "integrity": "55bca6361e5a6d158b9380e82d4981d82d338ec587de02951e2b7c3a24910ee6"
       },
       "@std/streams@0.224.0": {
         "integrity": "9c21feb45113abfc67dd536029624d1792d56dfbb029b8c1baf4ad5a2c35769e"
+      },
+      "@std/streams@0.224.1": {
+        "integrity": "e8565a376ae3888f60770cd09e480952ec7c349007aed81b8f7165424ce2195f",
+        "dependencies": [
+          "jsr:@std/assert@^0.225.3"
+        ]
       }
     },
     "npm": {
