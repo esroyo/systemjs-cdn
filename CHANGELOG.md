@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.19.1](https://github.com/esroyo/systemjs-cdn/compare/v1.19.0...v1.19.1) (2024-05-23)
+
+
+### Bug Fixes
+
+* do not expose uneeded precison on server-timing ([8d92b89](https://github.com/esroyo/systemjs-cdn/commit/8d92b898a0a6c4bc7e7102f0548aea3645d1bca9))
+
 ## [1.19.0](https://github.com/esroyo/systemjs-cdn/compare/v1.18.10...v1.19.0) (2024-05-22)
 
 
