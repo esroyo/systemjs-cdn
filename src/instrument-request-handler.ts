@@ -77,7 +77,9 @@ export const instrumentRequestHandler = <T extends Deno.ServeHandler>(
         requestSpan.end();
 
         response.headers.set(
-            ...serverTimingExporter.getServerTimingHeader(requestSpan, { precision: 1 }),
+            ...serverTimingExporter.getServerTimingHeader(requestSpan, {
+                precision: 1,
+            }),
         );
 
         return response;
