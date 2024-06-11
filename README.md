@@ -1,6 +1,6 @@
 # [systemjs.sh](https://systemjs.sh)
 
-[![codecov](https://codecov.io/gh/esroyo/systemjs.sh/graph/badge.svg?token=MRNXPM2JNH)](https://codecov.io/gh/esroyo/systemjs.sh)
+[![codecov](https://codecov.io/gh/esroyo/systemjs-cdn/graph/badge.svg?token=MRNXPM2JNH)](https://codecov.io/gh/esroyo/systemjs-cdn)
 
 A fast, smart, &amp; global content delivery network (CDN) for modern(es2015+)
 web development.
