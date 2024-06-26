@@ -35,7 +35,7 @@ export const toSystemjsMain = async (
     const outputOptions: OutputOptions = {
         dir: 'out', // not really used
         format: 'systemjs' as ModuleFormat,
-        sourcemap: !!mod.map,
+        sourcemap: mod.map ? 'inline' : false,
         ...rollupOutputOptions,
         footer: `/* rollup@${rollupVersion}${
             rollupOutputOptions.footer ? ` - ${rollupOutputOptions.footer}` : ''
@@ -47,7 +47,10 @@ export const toSystemjsMain = async (
     await bundle.close();
     return {
         code: output[0].code,
-        map: output[1] && output[1].type === 'asset' && typeof output[1].source === 'string' ? output[1].source : undefined,
+        map: output[1] && output[1].type === 'asset' &&
+                typeof output[1].source === 'string'
+            ? output[1].source
+            : undefined,
     };
 };
 

@@ -1,4 +1,5 @@
 import {
+    buildSourceModule,
     calcExpires,
     cloneHeaders,
     denyHeaders,
@@ -234,8 +235,16 @@ export function createRequestHandler(
         let body = await upstreamResponse.text();
         upstreamSpan.end();
         if (!isRawRequest && isJsResponse(upstreamResponse)) {
+            const sourcemapSpan = tracer.startSpan('sourcemap');
+            const sourceModule = await buildSourceModule(
+                body,
+                upstreamUrlString,
+            );
+            sourcemapSpan.end();
             const buildSpan = tracer.startSpan('build');
-            const buildResult = await toSystemjs(body, { banner: OUTPUT_BANNER }, config);
+            const buildResult = await toSystemjs(sourceModule, {
+                banner: OUTPUT_BANNER,
+            }, config);
             body = replaceOrigin(buildResult.code);
             buildSpan.end();
         } else {

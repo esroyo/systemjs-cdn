@@ -78,9 +78,9 @@ export type PartialServerTimingSpanExporter = Pick<
 >;
 
 export interface SourceDescription {
-	code: string;
-	map?: string | ExistingRawSourceMap;
-};
+    code: string;
+    map?: string | ExistingRawSourceMap;
+}
 
 export interface RollupVirtualOptions {
     [id: string]: string | SourceDescription;

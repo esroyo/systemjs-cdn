@@ -1,17 +1,19 @@
-import { request } from '../deps.ts';
-import type { HttpZResponseModel } from './types.ts';
+import { request, urlDirname, urlJoin } from '../deps.ts';
+import type { HttpZResponseModel, SourceModule } from './types.ts';
 
 export const nodeRequest = async (
     url: string,
-    init: RequestInit,
+    init?: RequestInit,
 ): Promise<Response> => {
     return new Promise<Response>((resolve, reject) => {
-        const headers = Object.fromEntries(new Headers(init.headers).entries());
+        const headers = Object.fromEntries(
+            new Headers(init?.headers ?? {}).entries(),
+        );
         request(
             {
-                method: init.method || 'GET',
+                method: init?.method || 'GET',
                 url,
-                followRedirect: !init.redirect || init.redirect === 'follow',
+                followRedirect: !init?.redirect || init.redirect === 'follow',
                 headers,
             },
             function (
@@ -142,4 +144,43 @@ export const sanitizeUpstreamOrigin = (
         url.pathname = url.pathname.slice(0, -1);
     }
     return `${url.origin}${url.pathname}`;
+};
+
+const sourceMapRegExp = /^\/\/# sourceMappingURL=(\S+)/m;
+export const parseSourceMapUrl = (
+    input: string,
+    baseUrl?: string,
+): string | undefined => {
+    const m = input.match(sourceMapRegExp);
+    if (!m) {
+        return undefined;
+    }
+    if (!baseUrl) {
+        return m[1];
+    }
+    return urlJoin(urlDirname(baseUrl), m[1]).toString();
+};
+
+export const buildSourceModule = async (
+    input: string,
+    baseUrl: string,
+    fetch = nodeRequest,
+): Promise<string | SourceModule> => {
+    try {
+        const sourceMapUrl = parseSourceMapUrl(input, baseUrl);
+        if (!sourceMapUrl) {
+            return input;
+        }
+        const sourceMapResponse = await fetch(sourceMapUrl);
+        if (!sourceMapResponse.ok) {
+            return input;
+        }
+        return {
+            code: input,
+            map: await sourceMapResponse.text(),
+            name: baseUrl,
+        };
+    } catch (_) {
+        return input;
+    }
 };
