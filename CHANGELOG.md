@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.20.0](https://github.com/esroyo/systemjs-cdn/compare/v1.19.1...v1.20.0) (2024-06-26)
+
+
+### Features
+
+* enable systemjs build to accept sourcemaps ([85f75f5](https://github.com/esroyo/systemjs-cdn/commit/85f75f541f320c942a9f3b15021db6059aec252e))
+* initial support for sourcemaps ([371d706](https://github.com/esroyo/systemjs-cdn/commit/371d706e93b6cc57aeaeb70141351669d72771c8))
+
+
+### Other
+
+* remove rollup-plugin-virtual dep ([c6ebd08](https://github.com/esroyo/systemjs-cdn/commit/c6ebd08b1e97d88fc434d4cf4e7ea66828725f38))
+
 ## [1.19.1](https://github.com/esroyo/systemjs-cdn/compare/v1.19.0...v1.19.1) (2024-05-23)
 
 
