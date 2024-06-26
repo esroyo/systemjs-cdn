@@ -7,7 +7,7 @@ const PREFIX = `virtual:`;
 /**
  * A Rollup plugin which loads virtual modules from memory.
  */
-export default function virtual(modules: RollupVirtualOptions): Plugin {
+export default function virtual(modules: RollupVirtualOptions) {
     const resolvedIds = new Map<
         string,
         string | SourceDescription
@@ -20,7 +20,7 @@ export default function virtual(modules: RollupVirtualOptions): Plugin {
     return {
         name: 'virtual',
 
-        resolveId(id: string, importer?: string) {
+        resolveId(this: any, id: string, importer?: string) {
             if (id in modules) return PREFIX + id;
 
             if (importer) {
@@ -34,7 +34,7 @@ export default function virtual(modules: RollupVirtualOptions): Plugin {
             return null;
         },
 
-        load(id: string) {
+        load(this: any, id: string) {
             if (id.startsWith(PREFIX)) {
                 const idNoPrefix = id.slice(PREFIX.length);
 
@@ -45,5 +45,5 @@ export default function virtual(modules: RollupVirtualOptions): Plugin {
 
             return null;
         },
-    };
+    } satisfies Plugin;
 }
