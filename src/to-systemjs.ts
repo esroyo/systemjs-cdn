@@ -5,15 +5,18 @@ import {
     rollup as _rollup,
     rollupVersion as _rollupVersion,
 } from '../deps.ts';
-import type { Config } from './types.ts';
+import type { BuildResult, Config, SourceModule } from './types.ts';
 import rollupPluginVirtual from './rollup-plugin-virtual.ts';
 
 export const toSystemjsMain = async (
-    esmCode: string,
+    sourceModule: string | SourceModule,
     rollupOutputOptions: OutputOptions = {},
-): Promise<string> => {
+): Promise<BuildResult> => {
     let rollup = _rollup;
     let rollupVersion = _rollupVersion;
+    const mod = typeof sourceModule === 'string'
+        ? { code: sourceModule, name: 'code' }
+        : sourceModule;
     try {
         const mod = await import('npm:rollup@4.16.4');
         // @ts-ignore
@@ -22,10 +25,9 @@ export const toSystemjsMain = async (
     } catch (_) {}
     const inputOptions: InputOptions = {
         external: () => true,
-        input: 'esmCode',
+        input: mod.name,
         plugins: [
-            // @ts-ignore untyped
-            rollupPluginVirtual({ esmCode }),
+            rollupPluginVirtual({ [mod.name]: mod }),
         ],
         treeshake: false,
     };
@@ -33,7 +35,7 @@ export const toSystemjsMain = async (
     const outputOptions: OutputOptions = {
         dir: 'out', // not really used
         format: 'systemjs' as ModuleFormat,
-        sourcemap: false,
+        sourcemap: !!mod.map,
         ...rollupOutputOptions,
         footer: `/* rollup@${rollupVersion}${
             rollupOutputOptions.footer ? ` - ${rollupOutputOptions.footer}` : ''
@@ -43,41 +45,44 @@ export const toSystemjsMain = async (
     const bundle = await rollup(inputOptions);
     const { output } = await bundle.generate(outputOptions);
     await bundle.close();
-    return output[0].code;
+    return {
+        code: output[0].code,
+        map: output[1] && output[1].type === 'asset' && typeof output[1].source === 'string' ? output[1].source : undefined,
+    };
 };
 
 export const toSystemjsWorker = async (
-    esmCode: string,
+    sourceModule: string | SourceModule,
     rollupOutputOptions: OutputOptions = {},
-): Promise<string> => {
+): Promise<BuildResult> => {
     const worker = new Worker(import.meta.resolve('./to-systemjs-worker.ts'), {
         type: 'module',
     });
     return new Promise((resolve) => {
         worker.addEventListener(
             'message',
-            (event: MessageEvent<{ code: string }>) => {
+            (event: MessageEvent<{ build: BuildResult }>) => {
                 worker.terminate();
-                resolve(event.data.code);
+                resolve(event.data.build);
             },
             false,
         );
         worker.postMessage({
-            args: [esmCode, rollupOutputOptions],
+            args: [sourceModule, rollupOutputOptions],
         });
     });
 };
 
 export const toSystemjs = async (
-    esmCode: string,
+    sourceModule: string | SourceModule,
     rollupOutputOptions: OutputOptions = {},
     options?: Pick<Config, 'WORKER_ENABLE'>,
-): Promise<string> => {
+): Promise<BuildResult> => {
     if (options?.WORKER_ENABLE && typeof Worker !== 'undefined') {
-        return toSystemjsWorker(esmCode, {
+        return toSystemjsWorker(sourceModule, {
             footer: '(worker)',
             ...rollupOutputOptions,
         });
     }
-    return toSystemjsMain(esmCode, rollupOutputOptions);
+    return toSystemjsMain(sourceModule, rollupOutputOptions);
 };

@@ -235,9 +235,8 @@ export function createRequestHandler(
         upstreamSpan.end();
         if (!isRawRequest && isJsResponse(upstreamResponse)) {
             const buildSpan = tracer.startSpan('build');
-            body = replaceOrigin(
-                await toSystemjs(body, { banner: OUTPUT_BANNER }, config),
-            );
+            const buildResult = await toSystemjs(body, { banner: OUTPUT_BANNER }, config);
+            body = replaceOrigin(buildResult.code);
             buildSpan.end();
         } else {
             body = replaceOrigin(body);

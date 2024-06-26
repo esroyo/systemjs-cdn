@@ -1,6 +1,6 @@
-import type { ExistingRawSourceMap, Plugin } from '../deps.ts';
+import type { Plugin } from '../deps.ts';
 import { dirname, resolve } from '../deps.ts';
-import type { RollupVirtualOptions } from './types.ts';
+import type { RollupVirtualOptions, SourceDescription } from './types.ts';
 
 const PREFIX = `virtual:`;
 
@@ -10,7 +10,7 @@ const PREFIX = `virtual:`;
 export default function virtual(modules: RollupVirtualOptions): Plugin {
     const resolvedIds = new Map<
         string,
-        string | { code: string; map: ExistingRawSourceMap }
+        string | SourceDescription
     >();
 
     Object.keys(modules).forEach((id) => {

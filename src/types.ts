@@ -1,4 +1,8 @@
-import { opentelemetry, type ServerTimingSpanExporter } from '../deps.ts';
+import {
+    type ExistingRawSourceMap,
+    opentelemetry,
+    type ServerTimingSpanExporter,
+} from '../deps.ts';
 
 export interface HttpZParam {
     name: string;
@@ -73,6 +77,18 @@ export type PartialServerTimingSpanExporter = Pick<
     'getServerTimingHeader'
 >;
 
+export interface SourceDescription {
+	code: string;
+	map?: string | ExistingRawSourceMap;
+};
+
 export interface RollupVirtualOptions {
-    [id: string]: string;
+    [id: string]: string | SourceDescription;
 }
+
+export type SourceModule = SourceDescription & { name: string };
+
+export type BuildResult = {
+    code: string;
+    map?: string;
+};
