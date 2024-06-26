@@ -72,3 +72,7 @@ export type PartialServerTimingSpanExporter = Pick<
     ServerTimingSpanExporter,
     'getServerTimingHeader'
 >;
+
+export interface RollupVirtualOptions {
+    [id: string]: string;
+}

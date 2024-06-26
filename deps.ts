@@ -1,12 +1,14 @@
-export { default as rollupPluginVirtual } from 'npm:@rollup/plugin-virtual@3.0.2';
 export type {
+    ExistingRawSourceMap,
     InputOptions,
     ModuleFormat,
     OutputOptions,
+    Plugin,
 } from 'npm:rollup@3.29.4';
 export { rollup, VERSION as rollupVersion } from 'npm:rollup@3.29.4';
 export { loadSync as dotenvLoad } from 'jsr:@std/dotenv@0.218.2';
 export { serve } from 'jsr:@std/http@0.224.0';
+export { dirname, resolve } from 'jsr:@std/path@0.224.0';
 export { default as request } from 'npm:request@2.88.2';
 export { get as kvGet, set as kvSet } from 'jsr:@kitsonk/kv-toolbox@0.9.0/blob';
 export { getBuildTargetFromUA } from 'npm:esm-compat@0.0.2';

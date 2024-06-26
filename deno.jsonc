@@ -7,7 +7,7 @@
     "dev": "deno run --watch --allow-env --allow-read --allow-run --allow-net --allow-sys --allow-ffi --allow-hrtime --unstable-kv src/main.ts",
     "fmt": "deno fmt src/ deps.ts dev_deps.ts",
     "tag-version": "npx commit-and-tag-version && git push --follow-tags origin main",
-    "test": "deno test --unstable-kv --allow-env --allow-read --allow-sys --allow-ffi --allow-hrtime --allow-run"
+    "test": "deno test --unstable-kv --allow-env --allow-read --allow-sys --allow-ffi --allow-hrtime --allow-run --allow-net"
   },
   "fmt": {
     "indentWidth": 4,

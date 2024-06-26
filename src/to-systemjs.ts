@@ -3,10 +3,10 @@ import {
     ModuleFormat,
     OutputOptions,
     rollup as _rollup,
-    rollupPluginVirtual,
     rollupVersion as _rollupVersion,
 } from '../deps.ts';
 import type { Config } from './types.ts';
+import rollupPluginVirtual from './rollup-plugin-virtual.ts';
 
 export const toSystemjsMain = async (
     esmCode: string,
