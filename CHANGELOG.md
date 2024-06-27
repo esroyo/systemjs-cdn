@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.21.2](https://github.com/esroyo/systemjs-cdn/compare/v1.21.1...v1.21.2) (2024-06-27)
+
 ## [1.21.1](https://github.com/esroyo/systemjs-cdn/compare/v1.21.0...v1.21.1) (2024-06-27)
 
 ## [1.21.0](https://github.com/esroyo/systemjs-cdn/compare/v1.20.0...v1.21.0) (2024-06-27)
