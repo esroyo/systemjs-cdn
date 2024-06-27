@@ -173,7 +173,8 @@ export const buildSourceModule = async (
         }
         const sourceMapResponse = await fetch(sourceMapUrl);
         if (!sourceMapResponse.ok) {
-            console.log('fetching sourcemap failed', sourceMapResponse);
+            console.log('fetching sourcemap failed', { baseUrl, sourceMapUrl });
+            console.log('fetching sourcemap response', sourceMapResponse);
             return input;
         }
         return {
