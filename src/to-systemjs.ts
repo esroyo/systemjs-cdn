@@ -35,7 +35,6 @@ export const toSystemjsMain = async (
     const outputOptions: OutputOptions = {
         dir: 'out', // not really used
         format: 'systemjs' as ModuleFormat,
-        sourcemap: mod.map ? 'inline' : false,
         ...rollupOutputOptions,
         footer: `/* rollup@${rollupVersion}${
             rollupOutputOptions.footer ? ` - ${rollupOutputOptions.footer}` : ''

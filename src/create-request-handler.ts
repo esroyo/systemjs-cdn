@@ -11,7 +11,7 @@ import {
     nodeRequest,
 } from './utils.ts';
 import { toSystemjs } from './to-systemjs.ts';
-import { getBuildTargetFromUA, opentelemetry } from '../deps.ts';
+import { getBuildTargetFromUA, opentelemetry, urlBasename } from '../deps.ts';
 import type { Cache, Config, OpenTelemetry, ResponseProps } from './types.ts';
 
 export function createRequestHandler(
@@ -186,13 +186,23 @@ export function createRequestHandler(
         )
             .toString();
         const isRawRequest = selfUrl.searchParams.has('raw');
+        const isMapRequest = publicSelfUrl.endsWith('.map');
         rootSpan?.setAttributes({
             'esm.build.target': buildTarget,
             'http.route': BASE_PATH,
             'http.url': publicSelfUrl,
         });
+        if (isMapRequest && !CACHE) {
+            // Sourcemaps are only enabled with CACHE
+            // otherwise they are served as inlined data uris
+            // thus it is not possible to receive a sourcemap request when !CACHE
+            return new Response(null, { status: 404 });
+        }
         if (CACHE) {
-            const cacheKey = [publicSelfUrl, buildTarget];
+            const cacheKey = [
+                isMapRequest ? publicSelfUrl.slice(0, -4) : publicSelfUrl,
+                buildTarget,
+            ];
             const cacheReadSpan = tracer.startSpan('cache-read', {
                 attributes: {
                     'span.type': 'cache',
@@ -202,6 +212,23 @@ export function createRequestHandler(
             const cachedValue = await cache?.get(cacheKey);
             cacheReadSpan.addEvent(cachedValue ? 'cache-hit' : 'cache-miss');
             cacheReadSpan.end();
+            if (isMapRequest) {
+                // A sourcemap request always should come after the original JS module
+                // thus, it MUST be already in the cache of the original JS module URL
+                // or we just return an 404
+                if (cachedValue && cachedValue.map) {
+                    return new Response(cachedValue.map, {
+                        headers: {
+                            'access-control-allow-methods': '*',
+                            'access-control-allow-origin': '*',
+                            'cache-control':
+                                'public, max-age=31536000, immutable',
+                            'content-type': 'application/json; charset=utf-8',
+                        },
+                    });
+                }
+                return new Response(null, { status: 404 });
+            }
             if (cachedValue) {
                 const response = await createFinalResponse(
                     {
@@ -233,6 +260,7 @@ export function createRequestHandler(
             redirect: 'manual',
         });
         let body = await upstreamResponse.text();
+        let map: string | undefined = undefined;
         upstreamSpan.end();
         if (!isRawRequest && isJsResponse(upstreamResponse)) {
             const sourcemapSpan = tracer.startSpan('sourcemap');
@@ -240,12 +268,25 @@ export function createRequestHandler(
                 body,
                 upstreamUrlString,
             );
+            const canGenerateSourcemap =
+                !!(typeof sourceModule === 'object' && sourceModule.map);
+            const sourcemap = canGenerateSourcemap
+                ? (CACHE ? true : 'inline')
+                : false;
+            const sourcemapFileNames = sourcemap === true
+                ? `${urlBasename(publicSelfUrl)}.map`
+                : undefined;
             sourcemapSpan.end();
             const buildSpan = tracer.startSpan('build');
             const buildResult = await toSystemjs(sourceModule, {
                 banner: OUTPUT_BANNER,
+                sourcemap,
+                sourcemapFileNames,
             }, config);
             body = replaceOrigin(buildResult.code);
+            if (sourcemap === true) {
+                map = buildResult.map;
+            }
             buildSpan.end();
         } else {
             body = replaceOrigin(body);
@@ -259,6 +300,7 @@ export function createRequestHandler(
                     denyHeaders,
                     replaceOriginHeaders,
                 ),
+                map,
                 status: upstreamResponse.status,
                 statusText: upstreamResponse.statusText,
             },

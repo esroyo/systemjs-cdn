@@ -37,6 +37,7 @@ export interface HttpZResponseModel {
 export type ResponseProps = {
     url: string;
     body: string;
+    map?: string;
     headers: Headers;
     status: number;
     statusText: string;
