@@ -166,12 +166,17 @@ export const buildSourceModule = async (
     fetch = nodeRequest,
 ): Promise<string | SourceModule> => {
     try {
+        let attempts = 20;
         const sourceMapUrl = parseSourceMapUrl(input, baseUrl);
         if (!sourceMapUrl) {
             console.log('parsing sourcemap url failed for', baseUrl);
             return input;
         }
-        const sourceMapResponse = await fetch(sourceMapUrl);
+        let sourceMapResponse = await fetch(sourceMapUrl);
+        while (!sourceMapResponse.ok && attempts) {
+            sourceMapResponse = await fetch(sourceMapUrl);
+            attempts -= 1;
+        }
         if (!sourceMapResponse.ok) {
             console.log('fetching sourcemap failed', { baseUrl, sourceMapUrl });
             console.log('fetching sourcemap response', sourceMapResponse);
