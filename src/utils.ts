@@ -146,12 +146,11 @@ export const sanitizeUpstreamOrigin = (
     return `${url.origin}${url.pathname}`;
 };
 
-const sourceMapRegExp = /^\/\/# sourceMappingURL=(\S+)/m;
 export const parseSourceMapUrl = (
     input: string,
     baseUrl?: string,
 ): string | undefined => {
-    const m = input.match(sourceMapRegExp);
+    const m = input.match(/^\/\/# sourceMappingURL=(\S+)/m);
     if (!m) {
         return undefined;
     }
@@ -169,10 +168,12 @@ export const buildSourceModule = async (
     try {
         const sourceMapUrl = parseSourceMapUrl(input, baseUrl);
         if (!sourceMapUrl) {
+            console.log('parsing sourcemap url failed for', baseUrl);
             return input;
         }
         const sourceMapResponse = await fetch(sourceMapUrl);
         if (!sourceMapResponse.ok) {
+            console.log('fetching sourcemap failed', sourceMapResponse);
             return input;
         }
         return {
@@ -180,7 +181,9 @@ export const buildSourceModule = async (
             map: await sourceMapResponse.text(),
             name: baseUrl,
         };
-    } catch (_) {
+    } catch (reason) {
+        console.log('build sourcemap exception:');
+        console.error(reason);
         return input;
     }
 };
