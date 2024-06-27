@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.21.0](https://github.com/esroyo/systemjs-cdn/compare/v1.20.0...v1.21.0) (2024-06-27)
+
+
+### Features
+
+* add suport for sourcemaps as URL (if CACHE enabled) ([4f2e2dd](https://github.com/esroyo/systemjs-cdn/commit/4f2e2ddf1db1331c382c0dabd11c95f2474ec1e8))
+
 ## [1.20.0](https://github.com/esroyo/systemjs-cdn/compare/v1.19.1...v1.20.0) (2024-06-26)
 
 
