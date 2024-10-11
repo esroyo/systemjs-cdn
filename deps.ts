@@ -4,8 +4,8 @@ export type {
     ModuleFormat,
     OutputOptions,
     Plugin,
-} from 'npm:rollup@3.29.4';
-export { rollup, VERSION as rollupVersion } from 'npm:rollup@3.29.4';
+} from 'npm:rollup@3.29.5';
+export { rollup, VERSION as rollupVersion } from 'npm:rollup@3.29.5';
 export { loadSync as dotenvLoad } from 'jsr:@std/dotenv@0.218.2';
 export { serve } from 'jsr:@std/http@0.224.0';
 export { dirname, resolve } from 'jsr:@std/path@0.224.0';
