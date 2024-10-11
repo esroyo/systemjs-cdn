@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.22.0](https://github.com/esroyo/systemjs-cdn/compare/v1.21.3...v1.22.0) (2024-10-11)
+
+
+### Features
+
+* add cache pool ([a7977a9](https://github.com/esroyo/systemjs-cdn/commit/a7977a95aeaccbcfe17bd266a78e7dd545c00f80))
+
 ## [1.21.3](https://github.com/esroyo/systemjs-cdn/compare/v1.21.2...v1.21.3) (2024-06-27)
 
 
