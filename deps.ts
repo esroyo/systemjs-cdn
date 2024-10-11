@@ -42,3 +42,8 @@ export { Resource } from 'npm:@opentelemetry/resources@1.24.0';
 export { SemanticResourceAttributes } from 'npm:@opentelemetry/semantic-conventions@1.24.0';
 export { ServerTimingSpanExporter } from 'jsr:@esroyo/otel-server-timing-span-exporter@1.2.0';
 export { BatchTracedSpanProcessor } from 'jsr:@esroyo/otel-batch-traced-span-processor@1.0.0';
+export {
+    default as genericPool,
+    type Options,
+    type Pool,
+} from 'npm:generic-pool@3.9.0';

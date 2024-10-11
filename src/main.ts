@@ -3,15 +3,13 @@ import {
     AsyncLocalStorageContextManager,
     BatchTracedSpanProcessor,
     dotenvLoad,
-    redis,
     Resource,
     SemanticResourceAttributes,
     serve,
     ServerTimingSpanExporter,
     SimpleSpanProcessor,
 } from '../deps.ts';
-import { DenoKvCache } from './cache/deno-kv-cache.ts';
-import { RedisCache } from './cache/redis-cache.ts';
+import { createCachePool } from './create-cache-pool.ts';
 import { createRequestHandler } from './create-request-handler.ts';
 import { CustomTracerProvider } from './custom-tracer-provider.ts';
 import { CustomOTLPTraceExporter } from './custom-otlp-trace-exporter.ts';
@@ -75,11 +73,7 @@ if (config.DD_TRACE_ENABLED) {
 }
 
 // Step: cache service
-const cache = config.CACHE_REDIS_HOSTNAME
-    ? new RedisCache(
-        redis.createLazyClient({ hostname: config.CACHE_REDIS_HOSTNAME }),
-    )
-    : new DenoKvCache();
+const cache = createCachePool(config);
 
 serve(
     instrumentRequestHandler(createRequestHandler(config, cache)),

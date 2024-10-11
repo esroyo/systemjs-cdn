@@ -6,6 +6,7 @@ import {
 } from '../dev_deps.ts';
 import { dotenvLoad } from '../deps.ts';
 
+import { createCachePool } from './create-cache-pool.ts';
 import { createRequestHandler } from './create-request-handler.ts';
 import { Config, ResponseProps } from './types.ts';
 
@@ -468,12 +469,18 @@ Deno.test(
             })),
             set: spy(async () => {}),
         };
+        const config = {
+            ...baseConfig,
+            CACHE: true,
+        };
+        const cachePoolMock = createCachePool(
+            config,
+            undefined,
+            () => cacheMock,
+        );
         const handler = createRequestHandler(
-            {
-                ...baseConfig,
-                CACHE: true,
-            },
-            cacheMock,
+            config,
+            cachePoolMock,
             fetchMock,
         );
         const req = new Request(`${SELF_ORIGIN}foo?bundle`);
@@ -508,12 +515,18 @@ Deno.test(
             get: spy(async () => null),
             set: spy(async (_key: string[], _res: ResponseProps) => {}),
         };
+        const config = {
+            ...baseConfig,
+            CACHE: true,
+        };
+        const cachePoolMock = createCachePool(
+            config,
+            undefined,
+            () => cacheMock,
+        );
         const handler = createRequestHandler(
-            {
-                ...baseConfig,
-                CACHE: true,
-            },
-            cacheMock,
+            config,
+            cachePoolMock,
             fetchMock,
         );
         const req = new Request(`${SELF_ORIGIN}foo?bundle`);
@@ -560,13 +573,19 @@ Deno.test(
             }),
             set: spy(async () => {}),
         };
+        const config = {
+            ...baseConfig,
+            CACHE: true,
+            REDIRECT_FASTPATH: true,
+        };
+        const cachePoolMock = createCachePool(
+            config,
+            undefined,
+            () => cacheMock,
+        );
         const handler = createRequestHandler(
-            {
-                ...baseConfig,
-                CACHE: true,
-                REDIRECT_FASTPATH: true,
-            },
-            cacheMock,
+            config,
+            cachePoolMock,
             fetchMock,
         );
         const req = new Request(`${SELF_ORIGIN}foo?bundle`);
@@ -611,13 +630,19 @@ Deno.test(
             }),
             set: spy(async () => {}),
         };
+        const config = {
+            ...baseConfig,
+            CACHE: true,
+            REDIRECT_FASTPATH: true,
+        };
+        const cachePoolMock = createCachePool(
+            config,
+            undefined,
+            () => cacheMock,
+        );
         const handler = createRequestHandler(
-            {
-                ...baseConfig,
-                CACHE: true,
-                REDIRECT_FASTPATH: true,
-            },
-            cacheMock,
+            config,
+            cachePoolMock,
             fetchMock,
         );
         const req = new Request(`${SELF_ORIGIN}foo?bundle`);
@@ -663,13 +688,19 @@ Deno.test(
             }),
             set: spy(async () => {}),
         };
+        const config = {
+            ...baseConfig,
+            CACHE: true,
+            CACHE_CLIENT_REDIRECT: 600,
+        };
+        const cachePoolMock = createCachePool(
+            config,
+            undefined,
+            () => cacheMock,
+        );
         const handler = createRequestHandler(
-            {
-                ...baseConfig,
-                CACHE: true,
-                CACHE_CLIENT_REDIRECT: 600,
-            },
-            cacheMock,
+            config,
+            cachePoolMock,
             fetchMock,
         );
         const req = new Request(`${SELF_ORIGIN}foo?bundle`);
@@ -728,14 +759,20 @@ Deno.test(
             }),
             set: spy(async () => {}),
         };
+        const config = {
+            ...baseConfig,
+            CACHE: true,
+            CACHE_REDIRECT: 600,
+            REDIRECT_FASTPATH: true,
+        };
+        const cachePoolMock = createCachePool(
+            config,
+            undefined,
+            () => cacheMock,
+        );
         const handler = createRequestHandler(
-            {
-                ...baseConfig,
-                CACHE: true,
-                CACHE_REDIRECT: 600,
-                REDIRECT_FASTPATH: true,
-            },
-            cacheMock,
+            config,
+            cachePoolMock,
             fetchMock,
         );
         const req = new Request(`${SELF_ORIGIN}foo?bundle`);

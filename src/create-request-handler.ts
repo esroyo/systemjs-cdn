@@ -3,6 +3,7 @@ import {
     calcExpires,
     cloneHeaders,
     denyHeaders,
+    filterUpstreamHeaders,
     isForbidden,
     isJsResponse,
     isNotFound,
@@ -11,12 +12,17 @@ import {
     nodeRequest,
 } from './utils.ts';
 import { toSystemjs } from './to-systemjs.ts';
-import { getBuildTargetFromUA, opentelemetry, urlBasename } from '../deps.ts';
+import {
+    getBuildTargetFromUA,
+    opentelemetry,
+    type Pool,
+    urlBasename,
+} from '../deps.ts';
 import type { Cache, Config, OpenTelemetry, ResponseProps } from './types.ts';
 
 export function createRequestHandler(
     config: Config,
-    cache?: Cache,
+    cachePool?: Pool<Cache>,
     fetch = nodeRequest,
     otel: OpenTelemetry = opentelemetry,
 ): (request: Request) => Promise<Response> {
@@ -55,6 +61,7 @@ export function createRequestHandler(
             isActualRedirect;
         const willCache = shouldCache && isCacheable;
         if (willCache) {
+            const cache = await cachePool?.acquire();
             const cacheKey = [url, buildTarget];
             const cacheWriteSpan = tracer.startSpan('cache-write', {
                 attributes: {
@@ -67,6 +74,9 @@ export function createRequestHandler(
                 responseProps,
                 { expireIn: calcExpires(headers, CACHE_REDIRECT) },
             );
+            if (cache) {
+                await cachePool?.release(cache);
+            }
             cacheWriteSpan.end();
         }
         if (
@@ -95,6 +105,7 @@ export function createRequestHandler(
         response: Response,
         buildTarget: string,
     ): Promise<Response> => {
+        const cache = await cachePool?.acquire();
         const redirectLocation = response.headers.get('location');
         if (!redirectLocation) {
             return response;
@@ -107,6 +118,9 @@ export function createRequestHandler(
             },
         });
         const cachedValue = await cache?.get(cacheKey);
+        if (cache) {
+            await cachePool?.release(cache);
+        }
         redirectCacheReadSpan.addEvent(
             cachedValue ? 'redirect-cache-hit' : 'redirect-cache-miss',
         );
@@ -199,6 +213,7 @@ export function createRequestHandler(
             return new Response(null, { status: 404 });
         }
         if (CACHE) {
+            const cache = await cachePool?.acquire();
             const cacheKey = [
                 isMapRequest ? publicSelfUrl.slice(0, -4) : publicSelfUrl,
                 buildTarget,
@@ -210,6 +225,9 @@ export function createRequestHandler(
                 },
             });
             const cachedValue = await cache?.get(cacheKey);
+            if (cache) {
+                await cachePool?.release(cache);
+            }
             cacheReadSpan.addEvent(cachedValue ? 'cache-hit' : 'cache-miss');
             cacheReadSpan.end();
             if (isMapRequest) {
@@ -256,7 +274,11 @@ export function createRequestHandler(
             },
         });
         const upstreamResponse = await fetch(upstreamUrlString, {
-            headers: cloneHeaders(req.headers, denyHeaders),
+            headers: cloneHeaders(
+                req.headers,
+                denyHeaders,
+                filterUpstreamHeaders,
+            ),
             redirect: 'manual',
         });
         let body = await upstreamResponse.text();

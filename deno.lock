@@ -32,6 +32,7 @@
       "npm:@rollup/plugin-virtual@3.0.2": "npm:@rollup/plugin-virtual@3.0.2_rollup@3.29.4",
       "npm:@types/node": "npm:@types/node@18.16.19",
       "npm:esm-compat@0.0.2": "npm:esm-compat@0.0.2",
+      "npm:generic-pool@3.9.0": "npm:generic-pool@3.9.0",
       "npm:request@2.88.2": "npm:request@2.88.2",
       "npm:rollup@3.29.4": "npm:rollup@3.29.4",
       "npm:rollup@4.16.4": "npm:rollup@4.16.4"
@@ -428,6 +429,10 @@
       },
       "fsevents@2.3.3": {
         "integrity": "sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==",
+        "dependencies": {}
+      },
+      "generic-pool@3.9.0": {
+        "integrity": "sha512-hymDOu5B53XvN4QT9dBmZxPX4CWhBPPLguTZ9MMFeFa/Kg0xWVfylOVNlJji/E7yTZWFd/q9GO5TxDLq156D7g==",
         "dependencies": {}
       },
       "getpass@0.1.7": {
