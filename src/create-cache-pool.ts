@@ -5,9 +5,15 @@ import { RedisCache } from './cache/redis-cache.ts';
 
 export function createCachePool(
     config: Config,
-    options: Options = { max: 20, min: 4 },
+    options: Options = {},
     factory?: () => Cache,
 ) {
+    if (!options.max) {
+        options.max = config.CACHE_CONN_MAX;
+    }
+    if (!options.min) {
+        options.min = config.CACHE_CONN_MIN;
+    }
     const poolFactory = {
         async create(): Promise<Cache> {
             if (factory) {

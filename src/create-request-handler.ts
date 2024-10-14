@@ -61,7 +61,9 @@ export function createRequestHandler(
             isActualRedirect;
         const willCache = shouldCache && isCacheable;
         if (willCache) {
+            const cacheAcquireSpan = tracer.startSpan('cache-acquire');
             const cache = await cachePool?.acquire();
+            cacheAcquireSpan.end();
             const cacheKey = [url, buildTarget];
             const cacheWriteSpan = tracer.startSpan('cache-write', {
                 attributes: {
@@ -105,7 +107,9 @@ export function createRequestHandler(
         response: Response,
         buildTarget: string,
     ): Promise<Response> => {
+        const cacheAcquireSpan = tracer.startSpan('cache-acquire');
         const cache = await cachePool?.acquire();
+        cacheAcquireSpan.end();
         const redirectLocation = response.headers.get('location');
         if (!redirectLocation) {
             return response;
@@ -213,7 +217,9 @@ export function createRequestHandler(
             return new Response(null, { status: 404 });
         }
         if (CACHE) {
+            const cacheAcquireSpan = tracer.startSpan('cache-acquire');
             const cache = await cachePool?.acquire();
+            cacheAcquireSpan.end();
             const cacheKey = [
                 isMapRequest ? publicSelfUrl.slice(0, -4) : publicSelfUrl,
                 buildTarget,
