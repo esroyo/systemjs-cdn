@@ -611,7 +611,7 @@ Deno.test(
 );
 
 Deno.test(
-    'When the cached response is a redirect > should return the redirect as-is if those do not exist in cache',
+    'When the cached response is a redirect > should make a fresh fetch from upstream if those do not exist in cache',
     async (t) => {
         const cacheReturns = [{
             url: `${SELF_ORIGIN}foo?bundle`,
@@ -622,7 +622,7 @@ Deno.test(
             status: 302,
             statusText: 'Redirect',
         }];
-        const fetchMock = spy(() => fetchReturn());
+        const fetchMock = spy(() => fetchReturn('/* fresh */'));
         const cacheMock = {
             close: spy(async () => {}),
             get: spy(async () => {
@@ -633,6 +633,7 @@ Deno.test(
         const config = {
             ...baseConfig,
             CACHE: true,
+            CACHE_CLIENT_REDIRECT: 60,
             REDIRECT_FASTPATH: true,
         };
         const cachePoolMock = createCachePool(
@@ -650,22 +651,26 @@ Deno.test(
         await t.step('should try to get from the cache', async () => {
             assertSpyCalls(cacheMock.get, 2);
         });
+        await t.step('should fetch $UPSTREAM_ORIGIN', async () => {
+            assertSpyCalls(fetchMock, 1);
+        });
         await t.step(
-            'should respond with the redirect as-is',
+            'should respond with the fresh contents',
             async () => {
-                assertEquals(res.status, 302);
-                assertEquals(res.statusText, 'Redirect');
+                assertEquals((await res.text()).includes('/* fresh */'), true);
+            },
+        );
+        await t.step(
+            'should overwritte cache-control with $CACHE_CLIENT_REDIRECT',
+            async () => {
                 assertEquals(
-                    res.headers.get('location'),
-                    `${SELF_ORIGIN}foo@2?bundle`,
+                    res.headers.get('cache-control'),
+                    `public, max-age=${config.CACHE_CLIENT_REDIRECT}`,
                 );
             },
         );
-        await t.step('should not fetch $UPSTREAM_ORIGIN', async () => {
-            assertSpyCalls(fetchMock, 0);
-        });
-        await t.step('should not set anything in the cache', async () => {
-            assertSpyCalls(cacheMock.set, 0);
+        await t.step('should set the fresh content in the cache', async () => {
+            assertSpyCalls(cacheMock.set, 1);
         });
     },
 );

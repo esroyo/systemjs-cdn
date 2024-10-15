@@ -42,7 +42,6 @@ export function createRequestHandler(
         responseProps: ResponseProps,
         buildTarget: string,
         shouldCache: boolean,
-        isFastPathRedirect?: boolean,
     ): Promise<Response> => {
         const {
             url,
@@ -54,8 +53,7 @@ export function createRequestHandler(
         if (!headers.has('access-control-allow-origin')) {
             headers.set('access-control-allow-origin', '*');
         }
-        const isActualRedirect = isRedirect(responseProps) &&
-            !isFastPathRedirect;
+        const isActualRedirect = isRedirect(responseProps);
         const isCacheable = isForbidden(responseProps) ||
             isNotFound(responseProps) || isOk(responseProps) ||
             isActualRedirect;
@@ -82,11 +80,8 @@ export function createRequestHandler(
             cacheWriteSpan.end();
         }
         if (
-            CACHE_CLIENT_REDIRECT &&
-            (
-                isFastPathRedirect ||
-                (isActualRedirect && !headers.has('cache-control'))
-            )
+            CACHE_CLIENT_REDIRECT && isActualRedirect &&
+            !headers.has('cache-control')
         ) {
             headers.set(
                 'cache-control',
@@ -103,54 +98,37 @@ export function createRequestHandler(
         return response;
     };
 
-    const createFastPathResponse = async (
-        response: Response,
-        buildTarget: string,
-    ): Promise<Response> => {
-        const cacheAcquireSpan = tracer.startSpan('cache-acquire');
-        const cache = await cachePool?.acquire();
-        cacheAcquireSpan.end();
-        const redirectLocation = response.headers.get('location');
-        if (!redirectLocation) {
-            return response;
-        }
-        const cacheKey = [redirectLocation, buildTarget];
-        const redirectCacheReadSpan = tracer.startSpan('redirect-cache-read', {
-            attributes: {
-                'span.type': 'cache',
-                'systemjs.cache.key': cacheKey,
-            },
-        });
-        const cachedValue = await cache?.get(cacheKey);
-        if (cache) {
-            await cachePool?.release(cache);
-        }
-        redirectCacheReadSpan.addEvent(
-            cachedValue ? 'redirect-cache-hit' : 'redirect-cache-miss',
-        );
-        redirectCacheReadSpan.end();
-        if (cachedValue) {
-            return createFinalResponse(
-                {
-                    ...cachedValue,
-                    headers: new Headers(cachedValue.headers),
-                },
-                buildTarget,
-                false,
-                true,
-            );
-        }
-
-        return new Response(response.body, {
-            headers: cloneHeaders(response.headers),
-            status: response.status,
-            statusText: response.statusText,
-        });
-    };
-
     return async function requestHandler(
         req: Request,
     ): Promise<Response> {
+        const createFastPathResponse = async (
+            response: Response,
+        ): Promise<Response> => {
+            const location = response.headers.get('location');
+            if (!location) {
+                return response;
+            }
+            return tracer.startActiveSpan(
+                'redirect-fastpath',
+                async (span) => {
+                    const fastResponse = await requestHandler(
+                        new Request(location, { headers: req.headers }),
+                    );
+                    const headers = new Headers(fastResponse.headers);
+                    headers.set(
+                        'cache-control',
+                        `public, max-age=${CACHE_CLIENT_REDIRECT}`,
+                    );
+                    span.end();
+                    return new Response(fastResponse.body, {
+                        headers,
+                        status: fastResponse.status,
+                        statusText: fastResponse.statusText,
+                    });
+                },
+            );
+        };
+
         // Step: tracing
         const rootSpan = otel.trace.getActiveSpan();
         const buildTarget = getBuildTargetFromUA(req.headers.get('user-agent'));
@@ -263,11 +241,7 @@ export function createRequestHandler(
                     false,
                 );
                 if (REDIRECT_FASTPATH && isRedirect(response)) {
-                    const fastResponse = await createFastPathResponse(
-                        response,
-                        buildTarget,
-                    );
-                    return fastResponse;
+                    return createFastPathResponse(response);
                 }
                 return response;
             }
@@ -335,12 +309,8 @@ export function createRequestHandler(
             buildTarget,
             !!(CACHE && (!isRedirect(upstreamResponse) || CACHE_REDIRECT)),
         );
-        if (CACHE && REDIRECT_FASTPATH && isRedirect(response)) {
-            const fastResponse = await createFastPathResponse(
-                response,
-                buildTarget,
-            );
-            return fastResponse;
+        if (REDIRECT_FASTPATH && isRedirect(response)) {
+            return createFastPathResponse(response);
         }
         return response;
     };
