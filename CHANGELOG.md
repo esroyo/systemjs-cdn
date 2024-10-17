@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.24.0](https://github.com/esroyo/systemjs-cdn/compare/v1.23.3...v1.24.0) (2024-10-17)
+
+
+### Features
+
+* add more Redis connection options ([e0597b5](https://github.com/esroyo/systemjs-cdn/commit/e0597b5ae96a471f9564974f0e899d8d07185360))
+* add option SOURCEMAP_MAX_RETRY ([c678bd9](https://github.com/esroyo/systemjs-cdn/commit/c678bd96c036bcc09f5dcfc7732507e6df07b596))
+
+
+### Other
+
+* split global instrumentation into a module ([df3ea30](https://github.com/esroyo/systemjs-cdn/commit/df3ea30f69bd12ab1abcd395eed108356cedf358))
+
 ## [1.23.3](https://github.com/esroyo/systemjs-cdn/compare/v1.23.2...v1.23.3) (2024-10-17)
 
 ## [1.23.2](https://github.com/esroyo/systemjs-cdn/compare/v1.23.1...v1.23.2) (2024-10-16)
