@@ -1,3 +1,4 @@
+import opentelemetry from '@opentelemetry/api';
 import {
     buildSourceModule,
     calcExpires,
@@ -12,12 +13,9 @@ import {
     nodeRequest,
 } from './utils.ts';
 import { toSystemjs } from './to-systemjs.ts';
-import {
-    getBuildTargetFromUA,
-    opentelemetry,
-    type Pool,
-    urlBasename,
-} from '../deps.ts';
+import { type Pool } from 'generic-pool';
+import { getBuildTargetFromUA } from 'esm-compat';
+import { basename } from '@std/url';
 import type { Cache, Config, OpenTelemetry, ResponseProps } from './types.ts';
 
 export function createRequestHandler(
@@ -276,7 +274,7 @@ export function createRequestHandler(
                 ? (CACHE ? true : 'inline')
                 : false;
             const sourcemapFileNames = sourcemap === true
-                ? `${urlBasename(publicSelfUrl)}.map`
+                ? `${basename(publicSelfUrl)}.map`
                 : undefined;
             sourcemapSpan.end();
             const buildSpan = tracer.startSpan('build');

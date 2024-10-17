@@ -1,4 +1,5 @@
-import { BasicTracerProvider, millisToHrTime } from '../deps.ts';
+import { BasicTracerProvider } from '@opentelemetry/sdk-trace-base';
+import { millisToHrTime } from '@opentelemetry/core';
 
 export const getTime = () => millisToHrTime(performance.now());
 
@@ -13,7 +14,7 @@ export const getTime = () => millisToHrTime(performance.now());
  */
 export class CustomTracerProvider extends BasicTracerProvider {
     private PATCH_TYPE = Symbol('@@patch');
-    getTracer(name: string, version?: string, options?: {
+    override getTracer(name: string, version?: string, options?: {
         schemaUrl?: string;
     }) {
         const tracer = super.getTracer(name, version, options);
@@ -44,7 +45,7 @@ export class CustomTracerProvider extends BasicTracerProvider {
                 attributesOrStartTime,
                 startTime,
             ) {
-                const missingStartTime = typeof startTime !== undefined;
+                const missingStartTime = typeof startTime !== 'undefined';
                 typeof attributesOrStartTime === 'number' ||
                     Array.isArray(attributesOrStartTime) ||
                     attributesOrStartTime instanceof Date;

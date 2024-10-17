@@ -2,12 +2,11 @@ import type {
     OpenTelemetry,
     PartialServerTimingSpanExporter,
 } from './types.ts';
-import {
-    BasicTracerProvider,
-    opentelemetry,
-    SpanKind,
-    SpanProcessor,
-} from '../deps.ts';
+import opentelemetry from '@opentelemetry/api';
+import { SpanKind } from '@opentelemetry/api';
+import { type BasicTracerProvider } from '@opentelemetry/sdk-trace-base';
+import { type SpanProcessor } from '@opentelemetry/sdk-trace-base';
+
 export const instrumentRequestHandler = <T extends Deno.ServeHandler>(
     requestHandler: T,
     otel: OpenTelemetry = opentelemetry,

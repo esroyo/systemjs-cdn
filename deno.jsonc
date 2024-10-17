@@ -4,13 +4,36 @@
     "coverage": "rm -rf coverage && deno task test --reporter=dot --coverage=coverage && deno coverage --lcov --output=coverage.lcov coverage && genhtml -o coverage/report coverage.lcov",
     "deploy-prod": "deployctl deploy --prod --project=systemjs-sh --entrypoint src/main.ts --exclude=coverage",
     "deploy": "deployctl deploy --project=systemjs-sh --entrypoint src/main.ts --exclude=coverage",
-    "dev": "deno run --inspect --watch --allow-env --allow-read --allow-run --allow-net --allow-sys --allow-ffi --allow-hrtime --unstable-kv src/main.ts",
+    "dev": "deno run --inspect --watch --allow-env --allow-read --allow-net --allow-sys --allow-ffi --unstable-kv src/main.ts",
     "fmt": "deno fmt src/ deps.ts dev_deps.ts",
     "tag-version": "npx commit-and-tag-version && git push --follow-tags origin main",
-    "test": "deno test --unstable-kv --allow-env --allow-read --allow-sys --allow-ffi --allow-hrtime --allow-run --allow-net"
+    "test": "deno test --unstable-kv --allow-env --allow-read --allow-sys --allow-ffi --allow-net"
   },
   "fmt": {
     "indentWidth": 4,
     "singleQuote": true
+  },
+  "imports": {
+    "@esroyo/otel-server-timing-span-exporter": "jsr:@esroyo/otel-server-timing-span-exporter@2.1.0",
+    "@esroyo/otel-batch-traced-span-processor": "jsr:@esroyo/otel-batch-traced-span-processor@1.0.0",
+    "@kitsonk/kv-toolbox": "jsr:@kitsonk/kv-toolbox@0.21.0",
+    "@opentelemetry/api": "npm:@opentelemetry/api@1.8.0",
+    "@opentelemetry/context-async-hooks": "npm:@opentelemetry/context-async-hooks@1.24.0",
+    "@opentelemetry/core": "npm:@opentelemetry/core@1.24.0",
+    "@opentelemetry/resources": "npm:@opentelemetry/resources@1.24.0",
+    "@opentelemetry/sdk-trace-base": "npm:@opentelemetry/sdk-trace-base@1.24.0",
+    "@opentelemetry/semantic-conventions": "npm:@opentelemetry/semantic-conventions@1.24.0",
+    "@opentelemetry/exporter-trace-otlp-http": "npm:@opentelemetry/exporter-trace-otlp-http@0.51.0",
+
+    "@std/assert": "jsr:@std/assert@1.0.6",
+    "@std/dotenv": "jsr:@std/dotenv@0.225.2",
+    "@std/path": "jsr:@std/path@1.0.6",
+    "@std/testing": "jsr:@std/testing@1.0.3",
+    "@std/url": "jsr:@std/url@0.225.1",
+    "esm-compat": "npm:esm-compat@0.2.2",
+    "generic-pool": "npm:generic-pool@3.9.0",
+    "redis": "https://deno.land/x/redis@v0.32.4/mod.ts",
+    "request": "npm:request@2.88.2",
+    "rollup": "npm:rollup@3.29.5"
   }
 }

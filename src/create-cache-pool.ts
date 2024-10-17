@@ -1,4 +1,5 @@
-import { genericPool, type Options, redis } from '../deps.ts';
+import genericPool, { type Options } from 'generic-pool';
+import * as redis from 'redis';
 import { Cache, Config } from './types.ts';
 import { DenoKvCache } from './cache/deno-kv-cache.ts';
 import { RedisCache } from './cache/redis-cache.ts';

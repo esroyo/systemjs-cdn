@@ -1,4 +1,5 @@
-import { request, urlDirname, urlJoin } from '../deps.ts';
+import request from 'request';
+import { dirname, join } from '@std/url';
 import type { HttpZResponseModel, SourceModule } from './types.ts';
 
 export const nodeRequest = async (
@@ -167,7 +168,7 @@ export const parseSourceMapUrl = (
     if (!baseUrl) {
         return m[1];
     }
-    return urlJoin(urlDirname(baseUrl), m[1]).toString();
+    return join(dirname(baseUrl), m[1]).toString();
 };
 
 export const buildSourceModule = async (

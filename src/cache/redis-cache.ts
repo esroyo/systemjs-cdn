@@ -1,4 +1,4 @@
-import { Redis } from '../../deps.ts';
+import { type Redis } from 'redis';
 import { Cache, CacheSetOptions, ResponseProps } from '../types.ts';
 
 export class RedisCache implements Cache {

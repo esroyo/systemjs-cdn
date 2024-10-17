@@ -1,8 +1,6 @@
-import {
-    type ExistingRawSourceMap,
-    opentelemetry,
-    type ServerTimingSpanExporter,
-} from '../deps.ts';
+import { type ExistingRawSourceMap } from 'rollup';
+import opentelemetry from '@opentelemetry/api';
+import { type ServerTimingSpanExporter } from '@esroyo/otel-server-timing-span-exporter';
 
 export interface HttpZParam {
     name: string;

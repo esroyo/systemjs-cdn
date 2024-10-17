@@ -1,5 +1,5 @@
-import type { Plugin } from '../deps.ts';
-import { dirname, resolve } from '../deps.ts';
+import { dirname, resolve } from '@std/path';
+import { type Plugin } from 'rollup';
 import type { RollupVirtualOptions, SourceDescription } from './types.ts';
 
 const PREFIX = `virtual:`;

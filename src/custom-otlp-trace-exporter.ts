@@ -1,9 +1,6 @@
-import {
-    addHrTimes,
-    millisToHrTime,
-    OTLPTraceExporter,
-    ReadableSpan,
-} from '../deps.ts';
+import { addHrTimes, millisToHrTime } from '@opentelemetry/core';
+import { type ReadableSpan } from '@opentelemetry/sdk-trace-base';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 
 const LIMIT = new Date('2000-01-01').getTime() / 1000;
 const isMonotonicHrTime = (hrTime: [number, number]): boolean =>
@@ -15,7 +12,10 @@ const variableTimeOrigin = () => Date.now() - performance.now();
  * span times from monotonic clock to wall clock.
  */
 export class CustomOTLPTraceExporter extends OTLPTraceExporter {
-    export(spans: ReadableSpan[], resultCallback: (result: any) => void): void {
+    override export(
+        spans: ReadableSpan[],
+        resultCallback: (result: any) => void,
+    ): void {
         // Current timeOrigin
         const hrTime = millisToHrTime(variableTimeOrigin());
         // Just before exporting

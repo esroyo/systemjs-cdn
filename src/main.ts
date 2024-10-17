@@ -1,14 +1,11 @@
 import type { Config } from './types.ts';
-import {
-    AsyncLocalStorageContextManager,
-    BatchTracedSpanProcessor,
-    dotenvLoad,
-    Resource,
-    SemanticResourceAttributes,
-    serve,
-    ServerTimingSpanExporter,
-    SimpleSpanProcessor,
-} from '../deps.ts';
+import { BatchTracedSpanProcessor } from '@esroyo/otel-batch-traced-span-processor';
+import { ServerTimingSpanExporter } from '@esroyo/otel-server-timing-span-exporter';
+import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks';
+import { Resource } from '@opentelemetry/resources';
+import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
+import { loadSync as dotenvLoad } from '@std/dotenv';
 import { createCachePool } from './create-cache-pool.ts';
 import { createRequestHandler } from './create-request-handler.ts';
 import { CustomTracerProvider } from './custom-tracer-provider.ts';
@@ -20,20 +17,22 @@ import { sanitizeBasePath, sanitizeUpstreamOrigin } from './utils.ts';
 dotenvLoad({ export: true });
 
 const config: Config = {
-    BASE_PATH: sanitizeBasePath(Deno.env.get('BASE_PATH')),
+    BASE_PATH: sanitizeBasePath(Deno.env.get('BASE_PATH') ?? '/'),
     CACHE: Deno.env.get('CACHE') === 'true',
     CACHE_CONN_MAX: Number(Deno.env.get('CACHE_CONN_MAX')) || 20,
     CACHE_CONN_MIN: Number(Deno.env.get('CACHE_CONN_MIN')) || 2,
-    CACHE_REDIRECT: Number(Deno.env.get('CACHE_REDIRECT') as string) || 0,
+    CACHE_REDIRECT: Number(Deno.env.get('CACHE_REDIRECT') as string) || 600,
     CACHE_CLIENT_REDIRECT:
-        Number(Deno.env.get('CACHE_CLIENT_REDIRECT') as string) || 0,
+        Number(Deno.env.get('CACHE_CLIENT_REDIRECT') as string) || 600,
     CACHE_REDIS_HOSTNAME: Deno.env.get('CACHE_REDIS_HOSTNAME') ?? '',
-    DD_TRACE_ENABLED: Deno.env.get('DD_TRACE_ENABLED') !== 'false',
+    DD_TRACE_ENABLED: Deno.env.get('DD_TRACE_ENABLED') === 'true', // default false
     HOMEPAGE: Deno.env.get('HOMEPAGE') ?? '',
     OUTPUT_BANNER: Deno.env.get('OUTPUT_BANNER') ?? '',
-    REDIRECT_FASTPATH: Deno.env.get('REDIRECT_FASTPATH') === 'true',
-    UPSTREAM_ORIGIN: sanitizeUpstreamOrigin(Deno.env.get('UPSTREAM_ORIGIN')),
-    WORKER_ENABLE: Deno.env.get('WORKER_ENABLE') === 'true',
+    REDIRECT_FASTPATH: Deno.env.get('REDIRECT_FASTPATH') !== 'false', // default true
+    UPSTREAM_ORIGIN: sanitizeUpstreamOrigin(
+        Deno.env.get('UPSTREAM_ORIGIN') ?? 'https://esm.sh',
+    ),
+    WORKER_ENABLE: Deno.env.get('WORKER_ENABLE') === 'true', // default false
 };
 console.log('Config:', config);
 
@@ -77,7 +76,7 @@ if (config.DD_TRACE_ENABLED) {
 // Step: cache service
 const cache = createCachePool(config);
 
-serve(
-    instrumentRequestHandler(createRequestHandler(config, cache)),
+Deno.serve(
     { port: 8000 },
+    instrumentRequestHandler(createRequestHandler(config, cache)),
 );

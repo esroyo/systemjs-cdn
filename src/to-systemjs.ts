@@ -3,8 +3,8 @@ import {
     ModuleFormat,
     OutputOptions,
     rollup as _rollup,
-    rollupVersion as _rollupVersion,
-} from '../deps.ts';
+    VERSION as _rollupVersion,
+} from 'rollup';
 import type { BuildResult, Config, SourceModule } from './types.ts';
 import rollupPluginVirtual from './rollup-plugin-virtual.ts';
 
@@ -22,7 +22,7 @@ export const toSystemjsMain = async (
         // @ts-ignore
         rollup = mod.rollup;
         rollupVersion = mod.VERSION;
-    } catch (_) {}
+    } catch { /* empty */ }
     const inputOptions: InputOptions = {
         external: () => true,
         input: mod.name,

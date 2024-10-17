@@ -1,5 +1,5 @@
-import { resolve } from '../deps.ts';
-import { assertEquals } from '../dev_deps.ts';
+import { resolve } from '@std/path';
+import { assertEquals } from '@std/assert';
 import virtual from './rollup-plugin-virtual.ts';
 
 Deno.test('loads a bare module ID from memory', (t) => {

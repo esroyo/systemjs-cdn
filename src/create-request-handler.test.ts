@@ -1,10 +1,6 @@
-import {
-    assertEquals,
-    assertSpyCallArg,
-    assertSpyCalls,
-    spy,
-} from '../dev_deps.ts';
-import { dotenvLoad } from '../deps.ts';
+import { assertEquals } from '@std/assert';
+import { assertSpyCallArg, assertSpyCalls, spy } from '@std/testing/mock';
+import { loadSync as dotenvLoad } from '@std/dotenv';
 
 import { createCachePool } from './create-cache-pool.ts';
 import { createRequestHandler } from './create-request-handler.ts';
