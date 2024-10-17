@@ -26,6 +26,7 @@ export const config: Config = {
     HOMEPAGE: Deno.env.get('HOMEPAGE') ?? '',
     OUTPUT_BANNER: Deno.env.get('OUTPUT_BANNER') ?? '',
     REDIRECT_FASTPATH: Deno.env.get('REDIRECT_FASTPATH') !== 'false', // default true
+    SOURCEMAP_MAX_RETRY: Number(Deno.env.get('SOURCEMAP_MAX_RETRY')) || 1,
     UPSTREAM_ORIGIN: sanitizeUpstreamOrigin(
         Deno.env.get('UPSTREAM_ORIGIN') ?? 'https://esm.sh',
     ),
@@ -35,7 +36,7 @@ export const config: Config = {
 const isMainProcess = 'Window' in globalThis;
 
 if (isMainProcess) {
-  console.log(`Config:`, config);
+    console.log(`Config:`, config);
 }
 
 // Step: minimal tracing setup
@@ -73,6 +74,6 @@ if (config.DD_TRACE_ENABLED) {
     const otelProcessor = new BatchTracedSpanProcessor(otlpExporter);
     provider.addSpanProcessor(otelProcessor);
     if (isMainProcess) {
-      console.log('OTLP options:', collectorOptions);
+        console.log('OTLP options:', collectorOptions);
     }
 }

@@ -33,6 +33,7 @@ export function createRequestHandler(
         HOMEPAGE,
         OUTPUT_BANNER,
         REDIRECT_FASTPATH,
+        SOURCEMAP_MAX_RETRY,
     } = config;
     const tracer = otel.trace.getTracer('web');
 
@@ -267,6 +268,7 @@ export function createRequestHandler(
             const sourceModule = await buildSourceModule(
                 body,
                 upstreamUrlString,
+                SOURCEMAP_MAX_RETRY,
             );
             const canGenerateSourcemap =
                 !!(typeof sourceModule === 'object' && sourceModule.map);
