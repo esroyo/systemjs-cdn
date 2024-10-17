@@ -22,6 +22,10 @@ export const config: Config = {
     CACHE_CLIENT_REDIRECT:
         Number(Deno.env.get('CACHE_CLIENT_REDIRECT') as string) || 600,
     CACHE_REDIS_HOSTNAME: Deno.env.get('CACHE_REDIS_HOSTNAME') ?? '',
+    CACHE_REDIS_USERNAME: Deno.env.get('CACHE_REDIS_USERNAME') ?? '',
+    CACHE_REDIS_PORT: Deno.env.get('CACHE_REDIS_PORT') ?? '6379',
+    CACHE_REDIS_PASSWORD: Deno.env.get('CACHE_REDIS_PASSWORD') ?? '',
+    CACHE_REDIS_TLS: Deno.env.get('CACHE_REDIS_TLS') === 'true', // default false
     DD_TRACE_ENABLED: Deno.env.get('DD_TRACE_ENABLED') === 'true', // default false
     HOMEPAGE: Deno.env.get('HOMEPAGE') ?? '',
     OUTPUT_BANNER: Deno.env.get('OUTPUT_BANNER') ?? '',

@@ -21,14 +21,21 @@ export function createCachePool(
                 return factory();
             }
             // Step: cache service
-            const cache = config.CACHE_REDIS_HOSTNAME
-                ? new RedisCache(
-                    redis.createLazyClient({
-                        hostname: config.CACHE_REDIS_HOSTNAME,
-                    }),
-                )
-                : new DenoKvCache();
-            return cache;
+            if (config.CACHE_REDIS_HOSTNAME) {
+                const options: redis.RedisConnectOptions = {
+                    hostname: config.CACHE_REDIS_HOSTNAME,
+                    tls: config.CACHE_REDIS_TLS,
+                    port: config.CACHE_REDIS_PORT,
+                };
+                if (config.CACHE_REDIS_PASSWORD) {
+                    options.password = config.CACHE_REDIS_PASSWORD;
+                }
+                if (config.CACHE_REDIS_USERNAME) {
+                    options.username = config.CACHE_REDIS_USERNAME;
+                }
+                return new RedisCache(redis.createLazyClient(options));
+            }
+            return new DenoKvCache();
         },
         async destroy(cache: Cache): Promise<void> {
             await cache.close();

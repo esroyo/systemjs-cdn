@@ -63,6 +63,10 @@ export type Config = {
     CACHE_REDIRECT?: number;
     CACHE_CLIENT_REDIRECT?: number;
     CACHE_REDIS_HOSTNAME?: string;
+    CACHE_REDIS_PORT?: string;
+    CACHE_REDIS_USERNAME?: string;
+    CACHE_REDIS_PASSWORD?: string;
+    CACHE_REDIS_TLS?: boolean;
     DD_TRACE_ENABLED?: boolean;
     HOMEPAGE?: string;
     OUTPUT_BANNER?: string;
