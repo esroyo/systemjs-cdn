@@ -16,7 +16,7 @@ export {
 } from 'jsr:@std/url@0.224.0';
 export { default as request } from 'npm:request@2.88.2';
 export { get as kvGet, set as kvSet } from 'jsr:@kitsonk/kv-toolbox@0.9.0/blob';
-export { getBuildTargetFromUA } from 'npm:esm-compat@0.0.2';
+export { getBuildTargetFromUA } from 'npm:esm-compat@0.2.2';
 export * as redis from 'https://deno.land/x/redis@v0.32.1/mod.ts';
 export type { Redis } from 'https://deno.land/x/redis@v0.32.1/mod.ts';
 export {
