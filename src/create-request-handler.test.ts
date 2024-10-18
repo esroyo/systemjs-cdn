@@ -68,6 +68,44 @@ Deno.test('should forward the request to $UPSTREAM_ORIGIN keeping the parameters
     );
 });
 
+Deno.test('should replace the user-agent when requesting to $UPSTREAM_ORIGIN if browser is unknown', async () => {
+    const fetchMock = spy((() => fetchReturn()) as typeof globalThis.fetch);
+    const handler = createRequestHandler(
+        baseConfig,
+        undefined,
+        fetchMock,
+    );
+    const req = new Request(`${SELF_ORIGIN}foo?bundle`, {
+        headers: { 'user-agent': 'potato' },
+    });
+    await handler(req);
+    assertEquals(
+        // @ts-ignore
+        (fetchMock.calls?.[0]?.args?.[1]?.headers as Headers).get('user-agent'),
+        'HeadlessChrome/51',
+    );
+});
+
+Deno.test('should NOT replace the user-agent when requesting to $UPSTREAM_ORIGIN if browser is known', async () => {
+    const fetchMock = spy((() => fetchReturn()) as typeof globalThis.fetch);
+    const handler = createRequestHandler(
+        baseConfig,
+        undefined,
+        fetchMock,
+    );
+    const chromeUserAgent =
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.0.0 Safari/537.36';
+    const req = new Request(`${SELF_ORIGIN}foo?bundle`, {
+        headers: { 'user-agent': chromeUserAgent },
+    });
+    await handler(req);
+    assertEquals(
+        // @ts-ignore
+        (fetchMock.calls?.[0]?.args?.[1]?.headers as Headers).get('user-agent'),
+        chromeUserAgent,
+    );
+});
+
 Deno.test('should handle $UPSTREAM_ORIGIN with ending slash', async () => {
     const UPSTREAM_ORIGIN = 'https://esm.sh/';
     const fetchMock = spy(() => fetchReturn());

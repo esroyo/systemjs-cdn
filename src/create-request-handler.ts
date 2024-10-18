@@ -5,6 +5,7 @@ import {
     cloneHeaders,
     denyHeaders,
     filterUpstreamHeaders,
+    getBuildTarget,
     isForbidden,
     isJsResponse,
     isNotFound,
@@ -14,7 +15,6 @@ import {
 } from './utils.ts';
 import { toSystemjs } from './to-systemjs.ts';
 import { type Pool } from 'generic-pool';
-import { getBuildTargetFromUA } from 'esm-compat';
 import { basename } from '@std/url';
 import type { Cache, Config, OpenTelemetry, ResponseProps } from './types.ts';
 
@@ -130,7 +130,10 @@ export function createRequestHandler(
 
         // Step: tracing
         const rootSpan = otel.trace.getActiveSpan();
-        const buildTarget = getBuildTargetFromUA(req.headers.get('user-agent'));
+        const originalUserAgent = req.headers.get('user-agent') ?? '';
+        const [buildTarget, upstreamUserAgent] = getBuildTarget(
+            originalUserAgent,
+        );
         const selfUrl = new URL(req.url);
         const basePath = BASE_PATH === '/' ? BASE_PATH : `${BASE_PATH}/`;
         if (selfUrl.pathname === BASE_PATH || selfUrl.pathname === basePath) {
@@ -257,6 +260,11 @@ export function createRequestHandler(
                 req.headers,
                 denyHeaders,
                 filterUpstreamHeaders,
+                (
+                    pair: [string, string] | null,
+                ) => (pair && pair[0] === 'user-agent'
+                    ? [pair[0], upstreamUserAgent]
+                    : pair),
             ),
             redirect: 'manual',
         });

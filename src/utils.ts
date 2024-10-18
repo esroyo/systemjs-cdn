@@ -1,5 +1,6 @@
 import request from 'request';
 import { dirname, join } from '@std/url';
+import { getEsmaVersionFromUA } from 'esm-compat';
 import type { HttpZResponseModel, SourceModule } from './types.ts';
 
 export const nodeRequest = async (
@@ -203,4 +204,13 @@ export const buildSourceModule = async (
         console.error(reason);
         return input;
     }
+};
+
+export const getBuildTarget = (userAgent: string): [string, string] => {
+    const esmBuildTarget = getEsmaVersionFromUA(userAgent);
+    if (esmBuildTarget === 'esnext') {
+        // this is the default for unknown browsers
+        return ['es2015', 'HeadlessChrome/51'];
+    }
+    return [esmBuildTarget, userAgent];
 };
