@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.24.1](https://github.com/esroyo/systemjs-cdn/compare/v1.24.0...v1.24.1) (2024-10-18)
+
+
+### Bug Fixes
+
+* default to pesimistic build es2015 ([f722243](https://github.com/esroyo/systemjs-cdn/commit/f72224328305469f8fd2dbbcdfe7a33109d9a2b5))
+
 ## [1.24.0](https://github.com/esroyo/systemjs-cdn/compare/v1.23.3...v1.24.0) (2024-10-17)
 
 
