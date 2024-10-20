@@ -1,3 +1,4 @@
+import opentelemetry from '@opentelemetry/api';
 import { type Pool } from 'generic-pool';
 import {
     InputOptions,
@@ -60,7 +61,11 @@ export const toSystemjsWorker = async (
     sourceModule: string | SourceModule,
     rollupOutputOptions: OutputOptions = {},
 ): Promise<BuildResult> => {
+    const tracer = opentelemetry.trace.getTracer('web');
+    const workerAcquireSpan = tracer.startSpan('worker-acquire');
     const worker = await workerPool.acquire();
+    workerAcquireSpan.end();
+
     return new Promise((resolve) => {
         worker.addEventListener(
             'message',
