@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.25.0](https://github.com/esroyo/systemjs-cdn/compare/v1.24.2...v1.25.0) (2024-10-20)
+
+
+### Features
+
+* add max and min workers support ([34e87ba](https://github.com/esroyo/systemjs-cdn/commit/34e87baa6f42017c3a37611062654e95a40acf61))
+
 ## [1.24.2](https://github.com/esroyo/systemjs-cdn/compare/v1.24.1...v1.24.2) (2024-10-18)
 
 ## [1.24.1](https://github.com/esroyo/systemjs-cdn/compare/v1.24.0...v1.24.1) (2024-10-18)
