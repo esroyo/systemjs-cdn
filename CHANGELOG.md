@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.25.1](https://github.com/esroyo/systemjs-cdn/compare/v1.25.0...v1.25.1) (2024-10-20)
+
+
+### Bug Fixes
+
+* add tracing to workers acquire ([1822e0f](https://github.com/esroyo/systemjs-cdn/commit/1822e0f3502dfd39509f34e4902815c88ab84549))
+
+
+### Other
+
+* fix lineending ([1ac908d](https://github.com/esroyo/systemjs-cdn/commit/1ac908d55654ae99a42981e3e361b4814f996fca))
+
 ## [1.25.0](https://github.com/esroyo/systemjs-cdn/compare/v1.24.2...v1.25.0) (2024-10-20)
 
 
