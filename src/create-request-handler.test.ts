@@ -236,7 +236,7 @@ Deno.test('should return an string of code in systemjs format (WORKER_ENABLE)', 
     const res: Response = await handler(req);
     const systemjsCode = await res.text();
     assertEquals(systemjsCode.startsWith('System.register('), true);
-    assertEquals(systemjsCode.endsWith(' - (worker) */\n'), true);
+    assertEquals(systemjsCode.endsWith(' - (worker) */'), true);
 });
 
 Deno.test('should replace the $UPSTREAM_ORIGIN by the self host', async () => {
