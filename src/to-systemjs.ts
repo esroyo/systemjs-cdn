@@ -1,3 +1,4 @@
+import { type Pool } from 'generic-pool';
 import {
     InputOptions,
     ModuleFormat,
@@ -5,7 +6,7 @@ import {
     rollup as _rollup,
     VERSION as _rollupVersion,
 } from 'rollup';
-import type { BuildResult, Config, SourceModule } from './types.ts';
+import type { BuildResult, SourceModule } from './types.ts';
 import rollupPluginVirtual from './rollup-plugin-virtual.ts';
 
 export const toSystemjsMain = async (
@@ -35,6 +36,7 @@ export const toSystemjsMain = async (
     const outputOptions: OutputOptions = {
         dir: 'out', // not really used
         format: 'systemjs' as ModuleFormat,
+        compact: true,
         ...rollupOutputOptions,
         footer: `/* rollup@${rollupVersion}${
             rollupOutputOptions.footer ? ` - ${rollupOutputOptions.footer}` : ''
@@ -54,17 +56,17 @@ export const toSystemjsMain = async (
 };
 
 export const toSystemjsWorker = async (
+    workerPool: Pool<Worker>,
     sourceModule: string | SourceModule,
     rollupOutputOptions: OutputOptions = {},
 ): Promise<BuildResult> => {
-    const worker = new Worker(import.meta.resolve('./to-systemjs-worker.ts'), {
-        type: 'module',
-    });
+    const worker = await workerPool.acquire();
     return new Promise((resolve) => {
         worker.addEventListener(
             'message',
-            (event: MessageEvent<{ build: BuildResult }>) => {
-                worker.terminate();
+            async function end(event: MessageEvent<{ build: BuildResult }>) {
+                worker.removeEventListener('message', end);
+                await workerPool.release(worker);
                 resolve(event.data.build);
             },
             false,
@@ -78,13 +80,17 @@ export const toSystemjsWorker = async (
 export const toSystemjs = async (
     sourceModule: string | SourceModule,
     rollupOutputOptions: OutputOptions = {},
-    options?: Pick<Config, 'WORKER_ENABLE'>,
+    workerPool?: Pool<Worker>,
 ): Promise<BuildResult> => {
-    if (options?.WORKER_ENABLE && typeof Worker !== 'undefined') {
-        return toSystemjsWorker(sourceModule, {
-            footer: '(worker)',
-            ...rollupOutputOptions,
-        });
+    if (workerPool) {
+        return toSystemjsWorker(
+            workerPool,
+            sourceModule,
+            {
+                footer: '(worker)',
+                ...rollupOutputOptions,
+            },
+        );
     }
     return toSystemjsMain(sourceModule, rollupOutputOptions);
 };

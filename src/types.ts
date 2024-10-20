@@ -74,6 +74,8 @@ export type Config = {
     SOURCEMAP_MAX_RETRY?: number;
     UPSTREAM_ORIGIN: string;
     WORKER_ENABLE?: boolean;
+    WORKER_MAX?: number;
+    WORKER_MIN?: number;
 };
 
 export type OpenTelemetry = typeof opentelemetry;

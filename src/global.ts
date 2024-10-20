@@ -34,7 +34,10 @@ export const config: Config = {
     UPSTREAM_ORIGIN: sanitizeUpstreamOrigin(
         Deno.env.get('UPSTREAM_ORIGIN') ?? 'https://esm.sh',
     ),
-    WORKER_ENABLE: Deno.env.get('WORKER_ENABLE') === 'true', // default false
+    WORKER_ENABLE: Deno.env.get('WORKER_ENABLE') === 'true' && // default to false
+        typeof Worker !== 'undefined',
+    WORKER_MAX: Number(Deno.env.get('WORKER_MAX')) || 4,
+    WORKER_MIN: Number(Deno.env.get('WORKER_MIN')) || 2,
 };
 
 const isMainProcess = 'Window' in globalThis;

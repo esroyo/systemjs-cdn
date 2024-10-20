@@ -21,6 +21,7 @@ import type { Cache, Config, OpenTelemetry, ResponseProps } from './types.ts';
 export function createRequestHandler(
     config: Config,
     cachePool?: Pool<Cache>,
+    workerPool?: Pool<Worker>,
     fetch = nodeRequest,
     otel: OpenTelemetry = opentelemetry,
 ): (request: Request) => Promise<Response> {
@@ -292,7 +293,7 @@ export function createRequestHandler(
                 banner: OUTPUT_BANNER,
                 sourcemap,
                 sourcemapFileNames,
-            }, config);
+            }, workerPool);
             body = replaceOrigin(buildResult.code);
             if (sourcemap === true) {
                 map = buildResult.map;

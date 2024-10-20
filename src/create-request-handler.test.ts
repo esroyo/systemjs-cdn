@@ -5,6 +5,7 @@ import { loadSync as dotenvLoad } from '@std/dotenv';
 import { createCachePool } from './create-cache-pool.ts';
 import { createRequestHandler } from './create-request-handler.ts';
 import { Config, ResponseProps } from './types.ts';
+import { createWorkerPool } from './create-worker-pool.ts';
 
 dotenvLoad({ export: true });
 
@@ -14,6 +15,8 @@ const baseConfig: Config = {
     HOMEPAGE: 'https://home/page',
     UPSTREAM_ORIGIN: 'https://esm.sh/',
     OUTPUT_BANNER: '',
+    WORKER_MAX: 4,
+    WORKER_MIN: 2,
 };
 const SELF_ORIGIN = 'https://systemjs.test/';
 
@@ -56,6 +59,7 @@ Deno.test('should forward the request to $UPSTREAM_ORIGIN keeping the parameters
     const handler = createRequestHandler(
         baseConfig,
         undefined,
+        undefined,
         fetchMock,
     );
     const req = new Request(`${SELF_ORIGIN}foo?bundle`);
@@ -72,6 +76,7 @@ Deno.test('should replace the user-agent when requesting to $UPSTREAM_ORIGIN if 
     const fetchMock = spy((() => fetchReturn()) as typeof globalThis.fetch);
     const handler = createRequestHandler(
         baseConfig,
+        undefined,
         undefined,
         fetchMock,
     );
@@ -90,6 +95,7 @@ Deno.test('should NOT replace the user-agent when requesting to $UPSTREAM_ORIGIN
     const fetchMock = spy((() => fetchReturn()) as typeof globalThis.fetch);
     const handler = createRequestHandler(
         baseConfig,
+        undefined,
         undefined,
         fetchMock,
     );
@@ -115,6 +121,7 @@ Deno.test('should handle $UPSTREAM_ORIGIN with ending slash', async () => {
             UPSTREAM_ORIGIN,
         },
         undefined,
+        undefined,
         fetchMock,
     );
     const req = new Request(`${SELF_ORIGIN}foo?bundle`);
@@ -130,6 +137,7 @@ Deno.test('should forward the request to $UPSTREAM_ORIGIN removing the $BASE_PAT
             ...baseConfig,
             BASE_PATH,
         },
+        undefined,
         undefined,
         fetchMock,
     );
@@ -152,6 +160,7 @@ Deno.test('should take into account that `X-Real-Origin` and the current request
             BASE_PATH,
         },
         undefined,
+        undefined,
         fetchMock,
     );
     const req = new Request(`${SELF_ORIGIN}sub-dir/foo?bundle`, {
@@ -173,6 +182,7 @@ Deno.test(
         const handler = createRequestHandler(
             baseConfig,
             undefined,
+            undefined,
             fetchMock,
         );
         const req = new Request(`${SELF_ORIGIN}vue`);
@@ -186,6 +196,7 @@ Deno.test('should return an string of code in systemjs format', async () => {
     const handler = createRequestHandler(
         baseConfig,
         undefined,
+        undefined,
         fetchMock,
     );
     const req = new Request(`${SELF_ORIGIN}vue`);
@@ -198,6 +209,7 @@ Deno.test('should avoid the systemjs transpilation when "raw" param exists', asy
     const fetchMock = spy(() => fetchReturn());
     const handler = createRequestHandler(
         baseConfig,
+        undefined,
         undefined,
         fetchMock,
     );
@@ -213,9 +225,11 @@ Deno.test('should return an string of code in systemjs format (WORKER_ENABLE)', 
         ...baseConfig,
         WORKER_ENABLE: true,
     };
+    const workerPool = createWorkerPool(config);
     const handler = createRequestHandler(
         config,
         undefined,
+        workerPool,
         fetchMock,
     );
     const req = new Request(`${SELF_ORIGIN}vue`);
@@ -229,6 +243,7 @@ Deno.test('should replace the $UPSTREAM_ORIGIN by the self host', async () => {
     const fetchMock = spy(() => fetchReturn());
     const handler = createRequestHandler(
         baseConfig,
+        undefined,
         undefined,
         fetchMock,
     );
@@ -254,6 +269,7 @@ Deno.test('should replace the $UPSTREAM_ORIGIN by the X-Real-Origin host if exis
     const handler = createRequestHandler(
         baseConfig,
         undefined,
+        undefined,
         fetchMock,
     );
     const res = await handler(req);
@@ -276,6 +292,7 @@ Deno.test(
                 ...baseConfig,
                 BASE_PATH,
             },
+            undefined,
             undefined,
             fetchMock,
         );
@@ -310,6 +327,7 @@ export * from "/stable/vue@3.3.4/es2022/vue.mjs";
                 ...baseConfig,
                 BASE_PATH,
             },
+            undefined,
             undefined,
             fetchMock,
         );
@@ -384,6 +402,7 @@ export * from "/stable/vue@3.3.4/es2022/vue.mjs";
                 BASE_PATH,
             },
             undefined,
+            undefined,
             fetchMock,
         );
         const req = new Request(`${SELF_ORIGIN}vue`);
@@ -423,6 +442,7 @@ Deno.test(
                 BASE_PATH,
             },
             undefined,
+            undefined,
             fetchMock,
         );
         const res = await handler(req);
@@ -455,6 +475,7 @@ Deno.test(
         const handler = createRequestHandler(
             baseConfig,
             undefined,
+            undefined,
             fetchMock,
         );
         const req = new Request(`${SELF_ORIGIN}vue`);
@@ -478,6 +499,7 @@ Deno.test(
         const fetchMock = spy(async () => new Response('', { status: 404 }));
         const handler = createRequestHandler(
             baseConfig,
+            undefined,
             undefined,
             fetchMock,
         );
@@ -515,6 +537,7 @@ Deno.test(
         const handler = createRequestHandler(
             config,
             cachePoolMock,
+            undefined,
             fetchMock,
         );
         const req = new Request(`${SELF_ORIGIN}foo?bundle`);
@@ -561,6 +584,7 @@ Deno.test(
         const handler = createRequestHandler(
             config,
             cachePoolMock,
+            undefined,
             fetchMock,
         );
         const req = new Request(`${SELF_ORIGIN}foo?bundle`);
@@ -620,6 +644,7 @@ Deno.test(
         const handler = createRequestHandler(
             config,
             cachePoolMock,
+            undefined,
             fetchMock,
         );
         const req = new Request(`${SELF_ORIGIN}foo?bundle`);
@@ -678,6 +703,7 @@ Deno.test(
         const handler = createRequestHandler(
             config,
             cachePoolMock,
+            undefined,
             fetchMock,
         );
         const req = new Request(`${SELF_ORIGIN}foo?bundle`);
@@ -740,6 +766,7 @@ Deno.test(
         const handler = createRequestHandler(
             config,
             cachePoolMock,
+            undefined,
             fetchMock,
         );
         const req = new Request(`${SELF_ORIGIN}foo?bundle`);
@@ -812,6 +839,7 @@ Deno.test(
         const handler = createRequestHandler(
             config,
             cachePoolMock,
+            undefined,
             fetchMock,
         );
         const req = new Request(`${SELF_ORIGIN}foo?bundle`);
