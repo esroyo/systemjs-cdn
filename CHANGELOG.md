@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [2.0.0](https://github.com/esroyo/systemjs-cdn/compare/v1.25.1...v2.0.0) (2024-10-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove SOURCEMAP_MAX_RETRY config
+
+### Bug Fixes
+
+* remove SOURCEMAP_MAX_RETRY config ([e96995c](https://github.com/esroyo/systemjs-cdn/commit/e96995ca2524fd4a9b86dc5ed4895a4ce073c5ef))
+
 ## [1.25.1](https://github.com/esroyo/systemjs-cdn/compare/v1.25.0...v1.25.1) (2024-10-20)
 
 
