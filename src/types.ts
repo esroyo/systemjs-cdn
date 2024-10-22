@@ -71,7 +71,6 @@ export type Config = {
     HOMEPAGE?: string;
     OUTPUT_BANNER?: string;
     REDIRECT_FASTPATH?: boolean;
-    SOURCEMAP_MAX_RETRY?: number;
     UPSTREAM_ORIGIN: string;
     WORKER_ENABLE?: boolean;
     WORKER_MAX?: number;

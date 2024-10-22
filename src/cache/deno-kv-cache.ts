@@ -10,7 +10,9 @@ export class DenoKvCache implements Cache {
 
     public async get(key: string[]): Promise<ResponseProps | null> {
         const settledKv = await this._kv;
-        const blob = await kvGet(settledKv, ['cache', ...key]);
+        const blob = await kvGet(settledKv, ['cache', ...key], {
+            consistency: 'eventual',
+        });
         const value = blob?.value &&
             JSON.parse(this._decoder.decode(blob.value));
         return value || null;
