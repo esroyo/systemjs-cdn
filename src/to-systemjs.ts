@@ -41,7 +41,7 @@ export const toSystemjsMain = async (
         ...rollupOutputOptions,
         footer: `/* rollup@${rollupVersion}${
             rollupOutputOptions.footer ? ` - ${rollupOutputOptions.footer}` : ''
-        } */`,
+        } */\n`,
     };
 
     const bundle = await rollup(inputOptions);
