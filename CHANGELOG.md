@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [2.0.1](https://github.com/esroyo/systemjs-cdn/compare/v2.0.0...v2.0.1) (2024-11-05)
+
+
+### Bug Fixes
+
+* introduce a new line after rollup output to protect sourcemap URL ([21870ff](https://github.com/esroyo/systemjs-cdn/commit/21870ff1a5537426be5f4ee93b9f363151cd4f65))
+
 ## [2.0.0](https://github.com/esroyo/systemjs-cdn/compare/v1.25.1...v2.0.0) (2024-10-22)
 
 
