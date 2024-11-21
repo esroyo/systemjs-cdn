@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [2.0.2](https://github.com/esroyo/systemjs-cdn/compare/v2.0.1...v2.0.2) (2024-11-21)
+
+
+### Bug Fixes
+
+* handle impossible routes (shorter than BASE_PATH) ([de17d82](https://github.com/esroyo/systemjs-cdn/commit/de17d8249cf3cb99de838eb076670745ba077b8b))
+
 ## [2.0.1](https://github.com/esroyo/systemjs-cdn/compare/v2.0.0...v2.0.1) (2024-11-05)
 
 
