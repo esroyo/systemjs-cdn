@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [2.0.3](https://github.com/esroyo/systemjs-cdn/compare/v2.0.2...v2.0.3) (2024-11-21)
+
+
+### Other
+
+* extract url parsing/replace in util ([fca806c](https://github.com/esroyo/systemjs-cdn/commit/fca806cc9230c68c41c7b47fb09493e62c6609b0))
+* move routing out of the main handler ([f4bf9d2](https://github.com/esroyo/systemjs-cdn/commit/f4bf9d2258a2c90c360550d449fc47997c154609))
+
 ## [2.0.2](https://github.com/esroyo/systemjs-cdn/compare/v2.0.1...v2.0.2) (2024-11-21)
 
 
