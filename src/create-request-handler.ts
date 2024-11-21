@@ -12,6 +12,7 @@ import {
     isOk,
     isRedirect,
     nodeRequest,
+    parseRequestUrl,
 } from './utils.ts';
 import { toSystemjs } from './to-systemjs.ts';
 import { type Pool } from 'generic-pool';
@@ -134,64 +135,44 @@ export function createRequestHandler(
         const [buildTarget, upstreamUserAgent] = getBuildTarget(
             originalUserAgent,
         );
-        const selfUrl = new URL(req.url);
-        const basePath = BASE_PATH === '/' ? BASE_PATH : `${BASE_PATH}/`;
+        const {
+            actualUrl,
+            publicUrl: _publicUrl,
+            replaceUrls,
+            upstreamUrl,
+        } = parseRequestUrl({
+            url: req.url,
+            basePath: BASE_PATH,
+            realOrigin: req.headers.get('x-real-origin') ?? undefined,
+            upstreamOrigin: UPSTREAM_ORIGIN,
+        });
+        const publicUrl = _publicUrl.toString();
+
+        const basePathWithSlash = BASE_PATH === '/'
+            ? BASE_PATH
+            : `${BASE_PATH}/`;
         if (
-            selfUrl.pathname === BASE_PATH || selfUrl.pathname === basePath ||
-            selfUrl.pathname.length < basePath.length
+            actualUrl.pathname === BASE_PATH ||
+            actualUrl.pathname === basePathWithSlash ||
+            actualUrl.pathname.length < basePathWithSlash.length
         ) {
             return new Response(null, {
                 status: 302,
                 headers: { 'location': HOMEPAGE || UPSTREAM_ORIGIN },
             });
         }
-        const finalOriginUrl = new URL(
-            req.headers.get('x-real-origin') ?? selfUrl,
-        );
-        const selfOriginActual = `${selfUrl.origin}${basePath}`;
-        const selfOriginFinal = `${finalOriginUrl.origin}${basePath}`;
-        const upstreamUrl = new URL(
-            req.url.replace(selfOriginActual, ''),
-            UPSTREAM_ORIGIN,
-        );
-        const replaceOrigin = (() => {
-            const upstreamOriginRegExp = new RegExp(UPSTREAM_ORIGIN, 'ig');
-            const registerRegExp =
-                /(?:register|import)\(\[?(?:['"][^'"]+['"](?:,\s*)?)*\]?/gm;
-            const absolutePathRegExp = /['"][^'"]+['"]/gm;
-            const absolutePathReplaceRegExp = /^(['"])\//;
-            return (str: string): string => {
-                return str.replace(upstreamOriginRegExp, selfOriginFinal)
-                    .replace(registerRegExp, (registerMatch) => {
-                        return registerMatch.replace(
-                            absolutePathRegExp,
-                            (absolutePathMatch) => {
-                                return absolutePathMatch.replace(
-                                    absolutePathReplaceRegExp,
-                                    `$1${basePath}`,
-                                );
-                            },
-                        );
-                    });
-            };
-        })();
+
         const replaceOriginHeaders = (
             pair: [string, string] | null,
         ):
             | [string, string]
-            | null => (pair === null
-                ? pair
-                : [pair[0], replaceOrigin(pair[1])]);
-        const publicSelfUrl = new URL(
-            req.url.replace(selfUrl.origin, finalOriginUrl.origin),
-        )
-            .toString();
-        const isRawRequest = selfUrl.searchParams.has('raw');
-        const isMapRequest = publicSelfUrl.endsWith('.map');
+            | null => (pair === null ? pair : [pair[0], replaceUrls(pair[1])]);
+        const isRawRequest = actualUrl.searchParams.has('raw');
+        const isMapRequest = publicUrl.endsWith('.map');
         rootSpan?.setAttributes({
             'esm.build.target': buildTarget,
             'http.route': BASE_PATH,
-            'http.url': publicSelfUrl,
+            'http.url': publicUrl,
         });
         if (isMapRequest && !CACHE) {
             // Sourcemaps are only enabled with CACHE
@@ -204,7 +185,7 @@ export function createRequestHandler(
             const cache = await cachePool?.acquire();
             cacheAcquireSpan.end();
             const cacheKey = [
-                isMapRequest ? publicSelfUrl.slice(0, -4) : publicSelfUrl,
+                isMapRequest ? publicUrl.slice(0, -4) : publicUrl,
                 buildTarget,
             ];
             const cacheReadSpan = tracer.startSpan('cache-read', {
@@ -286,7 +267,7 @@ export function createRequestHandler(
                 ? (CACHE ? true : 'inline')
                 : false;
             const sourcemapFileNames = sourcemap === true
-                ? `${basename(publicSelfUrl)}.map`
+                ? `${basename(publicUrl)}.map`
                 : undefined;
             sourcemapSpan.end();
             const buildSpan = tracer.startSpan('build');
@@ -295,17 +276,17 @@ export function createRequestHandler(
                 sourcemap,
                 sourcemapFileNames,
             }, workerPool);
-            body = replaceOrigin(buildResult.code);
+            body = replaceUrls(buildResult.code);
             if (sourcemap === true) {
                 map = buildResult.map;
             }
             buildSpan.end();
         } else {
-            body = replaceOrigin(body);
+            body = replaceUrls(body);
         }
         const response = await createFinalResponse(
             {
-                url: publicSelfUrl,
+                url: publicUrl,
                 body,
                 headers: cloneHeaders(
                     upstreamResponse.headers,

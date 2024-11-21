@@ -178,3 +178,165 @@ console.log('foo');
         },
     );
 });
+
+Deno.test('parseRequestUrl', async (t) => {
+    const { parseRequestUrl } = await import('./utils.ts');
+
+    await t.step('should return the correct upstreamUrl', async (t) => {
+        await t.step('when there is a basePath', async () => {
+            const { upstreamUrl } = parseRequestUrl({
+                url: 'http://0.0.0.0:8000/sjs/vue',
+                basePath: '/sjs',
+                upstreamOrigin: 'https://esm.sh/',
+            });
+            assertEquals(
+                upstreamUrl.toString(),
+                'https://esm.sh/vue',
+            );
+        });
+
+        await t.step('when there is not a basePath', async () => {
+            const { upstreamUrl } = parseRequestUrl({
+                url: 'http://0.0.0.0:8000/vue',
+                basePath: '/',
+                upstreamOrigin: 'https://esm.sh/',
+            });
+            assertEquals(
+                upstreamUrl.toString(),
+                'https://esm.sh/vue',
+            );
+        });
+    });
+
+    await t.step('should return the correct publicUrl', async (t) => {
+        await t.step('when there is a realOrigin', async () => {
+            const { publicUrl } = parseRequestUrl({
+                url: 'http://0.0.0.0:8000/sjs/vue',
+                basePath: '/sjs',
+                realOrigin: 'https://systemjs.sh',
+                upstreamOrigin: 'https://esm.sh/',
+            });
+            assertEquals(
+                publicUrl.toString(),
+                'https://systemjs.sh/sjs/vue',
+            );
+        });
+
+        await t.step('when there is not a realOrigin', async () => {
+            const { publicUrl } = parseRequestUrl({
+                url: 'http://0.0.0.0:8000/sjs/vue',
+                basePath: '/sjs',
+                // realOrigin: 'https://systemjs.sh',
+                upstreamOrigin: 'https://esm.sh/',
+            });
+            assertEquals(
+                publicUrl.toString(),
+                'http://0.0.0.0:8000/sjs/vue',
+            );
+        });
+    });
+
+    await t.step('should return a replaceOrigin fn that', async (t) => {
+        await t.step(
+            'should replace the upstream origin with the public url',
+            async (t) => {
+                const { replaceUrls } = parseRequestUrl({
+                    url: 'http://0.0.0.0:8000/sjs/vue',
+                    basePath: '/sjs',
+                    realOrigin: 'https://systemjs.sh',
+                    upstreamOrigin: 'https://esm.sh/',
+                });
+                assertEquals(
+                    replaceUrls(
+                        'System.register(["https://esm.sh/stable/vue@3.3.2/es2022/vue.mjs","https://esm.sh/stable/vue@3.3.2/es2022/vue.mjs"],(function(exports){}));',
+                    ),
+                    'System.register(["https://systemjs.sh/sjs/stable/vue@3.3.2/es2022/vue.mjs","https://systemjs.sh/sjs/stable/vue@3.3.2/es2022/vue.mjs"],(function(exports){}));',
+                );
+            },
+        );
+
+        await t.step(
+            'should add the basePath to the absolute paths',
+            async (t) => {
+                const { replaceUrls } = parseRequestUrl({
+                    url: 'http://0.0.0.0:8000/sjs/vue',
+                    basePath: '/sjs',
+                    realOrigin: 'https://systemjs.sh',
+                    upstreamOrigin: 'https://esm.sh/',
+                });
+
+                const input = `
+System.register(['/stable/@vue/runtime-dom@3.3.4/es2022/runtime-dom.mjs', '/stable/vue@3.3.4/es2022/vue.mjs'], (function (exports, module) {
+	return {
+		execute: (function () {
+
+			const foo = exports("foo", () => module.import('/stable/monaco-editor@0.45.0/es2022/monaco-editor.css'));
+			const bar = exports("bar", () => module.import('https://unpkg.com/systemjs/dist/s.js'));
+
+		})
+	};
+}));
+`;
+                const expected = `
+System.register(['/sjs/stable/@vue/runtime-dom@3.3.4/es2022/runtime-dom.mjs', '/sjs/stable/vue@3.3.4/es2022/vue.mjs'], (function (exports, module) {
+	return {
+		execute: (function () {
+
+			const foo = exports("foo", () => module.import('/sjs/stable/monaco-editor@0.45.0/es2022/monaco-editor.css'));
+			const bar = exports("bar", () => module.import('https://unpkg.com/systemjs/dist/s.js'));
+
+		})
+	};
+}));
+`;
+
+                assertEquals(
+                    replaceUrls(input),
+                    expected,
+                );
+            },
+        );
+
+        await t.step(
+            'should do nothing to absolute paths if basePath is "empty"',
+            async (t) => {
+                const { replaceUrls } = parseRequestUrl({
+                    url: 'http://0.0.0.0:8000/sjs/vue',
+                    basePath: '/',
+                    realOrigin: 'https://systemjs.sh',
+                    upstreamOrigin: 'https://esm.sh/',
+                });
+
+                const input = `
+System.register(['/stable/@vue/runtime-dom@3.3.4/es2022/runtime-dom.mjs', '/stable/vue@3.3.4/es2022/vue.mjs'], (function (exports, module) {
+	return {
+		execute: (function () {
+
+			const foo = exports("foo", () => module.import('/stable/monaco-editor@0.45.0/es2022/monaco-editor.css'));
+			const bar = exports("bar", () => module.import('https://unpkg.com/systemjs/dist/s.js'));
+
+		})
+	};
+}));
+`;
+                const expected = `
+System.register(['/stable/@vue/runtime-dom@3.3.4/es2022/runtime-dom.mjs', '/stable/vue@3.3.4/es2022/vue.mjs'], (function (exports, module) {
+	return {
+		execute: (function () {
+
+			const foo = exports("foo", () => module.import('/stable/monaco-editor@0.45.0/es2022/monaco-editor.css'));
+			const bar = exports("bar", () => module.import('https://unpkg.com/systemjs/dist/s.js'));
+
+		})
+	};
+}));
+`;
+
+                assertEquals(
+                    replaceUrls(input),
+                    expected,
+                );
+            },
+        );
+    });
+});

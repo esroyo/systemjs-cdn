@@ -1,7 +1,7 @@
 import request from 'request';
 import { dirname, join } from '@std/url';
 import { getEsmaVersionFromUA } from 'esm-compat';
-import type { HttpZResponseModel, SourceModule } from './types.ts';
+import type { Config, HttpZResponseModel, SourceModule } from './types.ts';
 
 export const nodeRequest = async (
     url: string,
@@ -208,4 +208,84 @@ export const getBuildTarget = (userAgent: string): [string, string] => {
         return ['es2015', 'HeadlessChrome/51'];
     }
     return [esmBuildTarget, userAgent];
+};
+
+const registerRegExp =
+    /(?:register|import)\(\[?(?:['"][^'"]+['"](?:,\s*)?)*\]?/gm;
+const absolutePathRegExp = /['"][^'"]+['"]/gm;
+const absolutePathReplaceRegExp = /^(['"])\//;
+export const parseRequestUrl = (
+    { url, realOrigin, basePath, upstreamOrigin }: {
+        url: string;
+        realOrigin?: string;
+        basePath: string;
+        upstreamOrigin: string;
+    },
+) => {
+    if (!upstreamOrigin.endsWith('/')) {
+        throw new TypeError(
+            `Upstream origin must have a path: "${upstreamOrigin}"`,
+        );
+    }
+
+    if (!basePath) {
+        throw new TypeError('Base path is required');
+    }
+
+    if (basePath.length === 1 && basePath !== '/') {
+        throw new TypeError(`Bad base path: "${basePath}`);
+    }
+
+    if (basePath.length > 1 && basePath.endsWith('/')) {
+        throw new TypeError(`Base path must not end with slash: "${basePath}"`);
+    }
+
+    // "http://0.0.0.0:8000/sjs/vue"
+    const actualUrl = new URL(url);
+
+    // "/sjs/"
+    const basePathWithSlash = basePath === '/' ? basePath : `${basePath}/`;
+
+    // "https://systemjs.sh/"
+    const finalOriginUrl = realOrigin ? new URL(realOrigin) : actualUrl;
+
+    // "http://0.0.0.0:8000/sjs/"
+    const selfOriginActual = `${actualUrl.origin}${basePathWithSlash}`;
+
+    // "https://systemjs.sh/sjs/"
+    const selfOriginFinal = `${finalOriginUrl.origin}${basePathWithSlash}`;
+
+    // "https://esm.sh/vue"
+    const upstreamUrl = new URL(
+        url.replace(selfOriginActual, ''),
+        upstreamOrigin,
+    );
+
+    // "https://systemjs.sh/sjs/vue"
+    const publicUrl = new URL(
+        url.replace(actualUrl.origin, finalOriginUrl.origin),
+    );
+
+    const upstreamOriginRegExp = new RegExp(upstreamOrigin, 'ig');
+    const replaceUrls = (str: string): string => {
+        return str.replace(upstreamOriginRegExp, selfOriginFinal)
+            .replace(registerRegExp, (registerMatch) => {
+                return registerMatch.replace(
+                    absolutePathRegExp,
+                    (absolutePathMatch) => {
+                        return absolutePathMatch.replace(
+                            absolutePathReplaceRegExp,
+                            `$1${basePathWithSlash}`,
+                        );
+                    },
+                );
+            });
+    };
+
+    return {
+        actualUrl,
+        publicUrl,
+        replaceUrls,
+        upstreamUrl,
+    };
 };
