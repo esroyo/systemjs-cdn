@@ -42,6 +42,30 @@ Deno.test('should redirect to $HOMEPAGE on request empty', async () => {
     assertEquals(res.headers.get('location'), baseConfig.HOMEPAGE);
 });
 
+Deno.test('should redirect to $HOMEPAGE on request empty (with BASE_PATH)', async () => {
+    const config = {
+        ...baseConfig,
+        BASE_PATH: '/sub-dir',
+    };
+    const handler = createRequestHandler(config);
+    const req = new Request(`${SELF_ORIGIN}sub-dir`);
+    const res = await handler(req);
+    assertEquals(res.status, 302);
+    assertEquals(res.headers.get('location'), baseConfig.HOMEPAGE);
+});
+
+Deno.test('should redirect to $HOMEPAGE on request out of BASE_PATH (less than empty)', async () => {
+    const config = {
+        ...baseConfig,
+        BASE_PATH: '/sub-dir',
+    };
+    const handler = createRequestHandler(config);
+    const req = new Request(SELF_ORIGIN);
+    const res = await handler(req);
+    assertEquals(res.status, 302);
+    assertEquals(res.headers.get('location'), baseConfig.HOMEPAGE);
+});
+
 Deno.test('should redirect to bare $UPSTREAM_ORIGIN on request empty if $HOMEPAGE is falsy', async () => {
     const config = {
         ...baseConfig,
@@ -296,7 +320,7 @@ Deno.test(
             undefined,
             fetchMock,
         );
-        const req = new Request(`${SELF_ORIGIN}vue`);
+        const req = new Request(`${SELF_ORIGIN}sub-dir/234/vue`);
         const res = await handler(req);
         const systemjsCode = await res.text();
         assertEquals(
@@ -331,7 +355,7 @@ export * from "/stable/vue@3.3.4/es2022/vue.mjs";
             undefined,
             fetchMock,
         );
-        const req = new Request(`${SELF_ORIGIN}vue`);
+        const req = new Request(`${SELF_ORIGIN}sub-dir/234/vue`);
         const res = await handler(req);
         const systemjsCode = await res.text();
         await t.step(
@@ -433,7 +457,7 @@ Deno.test(
         const BASE_PATH = '/sub-dir/234';
         const fetchMock = spy(() => fetchReturn());
         const realOrigin = 'https://public.proxy.com/';
-        const req = new Request(`${SELF_ORIGIN}vue`, {
+        const req = new Request(`${SELF_ORIGIN}sub-dir/234/vue`, {
             headers: { 'X-Real-Origin': realOrigin },
         });
         const handler = createRequestHandler(

@@ -136,7 +136,10 @@ export function createRequestHandler(
         );
         const selfUrl = new URL(req.url);
         const basePath = BASE_PATH === '/' ? BASE_PATH : `${BASE_PATH}/`;
-        if (selfUrl.pathname === BASE_PATH || selfUrl.pathname === basePath) {
+        if (
+            selfUrl.pathname === BASE_PATH || selfUrl.pathname === basePath ||
+            selfUrl.pathname.length < basePath.length
+        ) {
             return new Response(null, {
                 status: 302,
                 headers: { 'location': HOMEPAGE || UPSTREAM_ORIGIN },
