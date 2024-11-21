@@ -17,7 +17,11 @@ export async function createServeDefault(
         ? config.BASE_PATH
         : `${config.BASE_PATH}/`;
 
-    const homeHandler = () => new Response(null, { status: 302, headers: { 'location': config.HOMEPAGE } });
+    const homeHandler = () =>
+        new Response(null, {
+            status: 302,
+            headers: { 'location': config.HOMEPAGE },
+        });
     const mainHandler = createMainHandler(config, cachePool, workerPool);
 
     // Step: define the routes and handlers

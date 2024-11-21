@@ -149,7 +149,10 @@ export function createMainHandler(
         const publicUrl = _publicUrl.toString();
 
         if (upstreamUrl.toString() === UPSTREAM_ORIGIN) {
-            return new Response(null, { status: 302, headers: { 'location': HOMEPAGE } });
+            return new Response(null, {
+                status: 302,
+                headers: { 'location': HOMEPAGE },
+            });
         }
 
         const replaceOriginHeaders = (
