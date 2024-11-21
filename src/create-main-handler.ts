@@ -19,7 +19,7 @@ import { type Pool } from 'generic-pool';
 import { basename } from '@std/url';
 import type { Cache, Config, OpenTelemetry, ResponseProps } from './types.ts';
 
-export function createRequestHandler(
+export function createMainHandler(
     config: Config,
     cachePool?: Pool<Cache>,
     workerPool?: Pool<Worker>,
@@ -31,8 +31,8 @@ export function createRequestHandler(
         CACHE,
         CACHE_CLIENT_REDIRECT,
         CACHE_REDIRECT,
-        UPSTREAM_ORIGIN,
         HOMEPAGE,
+        UPSTREAM_ORIGIN,
         OUTPUT_BANNER,
         REDIRECT_FASTPATH,
     } = config;
@@ -148,18 +148,8 @@ export function createRequestHandler(
         });
         const publicUrl = _publicUrl.toString();
 
-        const basePathWithSlash = BASE_PATH === '/'
-            ? BASE_PATH
-            : `${BASE_PATH}/`;
-        if (
-            actualUrl.pathname === BASE_PATH ||
-            actualUrl.pathname === basePathWithSlash ||
-            actualUrl.pathname.length < basePathWithSlash.length
-        ) {
-            return new Response(null, {
-                status: 302,
-                headers: { 'location': HOMEPAGE || UPSTREAM_ORIGIN },
-            });
+        if (upstreamUrl.toString() === UPSTREAM_ORIGIN) {
+            return new Response(null, { status: 302, headers: { 'location': HOMEPAGE } });
         }
 
         const replaceOriginHeaders = (

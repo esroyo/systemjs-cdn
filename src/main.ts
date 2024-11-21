@@ -1,15 +1,9 @@
 import { config } from './global.ts'; // First always, and only once per process
-import { createCachePool } from './create-cache-pool.ts';
-import { createWorkerPool } from './create-worker-pool.ts';
-import { createRequestHandler } from './create-request-handler.ts';
-import { instrumentRequestHandler } from './instrument-request-handler.ts';
+import { createServeDefault } from './create-serve-default.ts';
 
-const cachePool = config.CACHE ? createCachePool(config) : undefined;
-const workerPool = config.WORKER_ENABLE ? createWorkerPool(config) : undefined;
+const serveDefault = await createServeDefault(config);
 
 Deno.serve(
     { port: 8000 },
-    instrumentRequestHandler(
-        createRequestHandler(config, cachePool, workerPool),
-    ),
+    serveDefault.fetch,
 );

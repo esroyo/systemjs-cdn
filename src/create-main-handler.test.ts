@@ -3,7 +3,7 @@ import { assertSpyCallArg, assertSpyCalls, spy } from '@std/testing/mock';
 import { loadSync as dotenvLoad } from '@std/dotenv';
 
 import { createCachePool } from './create-cache-pool.ts';
-import { createRequestHandler } from './create-request-handler.ts';
+import { createMainHandler } from './create-main-handler.ts';
 import { Config, ResponseProps } from './types.ts';
 import { createWorkerPool } from './create-worker-pool.ts';
 
@@ -34,53 +34,45 @@ const fetchReturn = (
     )
 );
 
-Deno.test('should redirect to $HOMEPAGE on request empty', async () => {
-    const handler = createRequestHandler(baseConfig);
-    const req = new Request(SELF_ORIGIN);
-    const res = await handler(req);
-    assertEquals(res.status, 302);
-    assertEquals(res.headers.get('location'), baseConfig.HOMEPAGE);
-});
-
-Deno.test('should redirect to $HOMEPAGE on request empty (with BASE_PATH)', async () => {
+Deno.test('should return 302 to HOMEPAGE when the request is empty (with BASE_PATH)', async () => {
     const config = {
         ...baseConfig,
         BASE_PATH: '/sub-dir',
     };
-    const handler = createRequestHandler(config);
-    const req = new Request(`${SELF_ORIGIN}sub-dir`);
-    const res = await handler(req);
-    assertEquals(res.status, 302);
-    assertEquals(res.headers.get('location'), baseConfig.HOMEPAGE);
+    const handler = createMainHandler(config);
+    {
+        const req = new Request(`${SELF_ORIGIN}sub-dir//`);
+        const res = await handler(req);
+        assertEquals(res.status, 302);
+        assertEquals(res.headers.get('location'), baseConfig.HOMEPAGE);
+    }
+    {
+        const req = new Request(`${SELF_ORIGIN}sub-dir/`);
+        const res = await handler(req);
+        assertEquals(res.status, 302);
+        assertEquals(res.headers.get('location'), baseConfig.HOMEPAGE);
+    }
 });
 
-Deno.test('should redirect to $HOMEPAGE on request out of BASE_PATH (less than empty)', async () => {
-    const config = {
-        ...baseConfig,
-        BASE_PATH: '/sub-dir',
-    };
-    const handler = createRequestHandler(config);
-    const req = new Request(SELF_ORIGIN);
-    const res = await handler(req);
-    assertEquals(res.status, 302);
-    assertEquals(res.headers.get('location'), baseConfig.HOMEPAGE);
-});
-
-Deno.test('should redirect to bare $UPSTREAM_ORIGIN on request empty if $HOMEPAGE is falsy', async () => {
-    const config = {
-        ...baseConfig,
-        HOMEPAGE: '',
-    };
-    const handler = createRequestHandler(config);
-    const req = new Request(SELF_ORIGIN);
-    const res = await handler(req);
-    assertEquals(res.status, 302);
-    assertEquals(res.headers.get('location'), baseConfig.UPSTREAM_ORIGIN);
+Deno.test('should return 302 to HOMEPAGE when the request is empty (without BASE_PATH)', async () => {
+    const handler = createMainHandler(baseConfig);
+    {
+        const req = new Request(`${SELF_ORIGIN}/`);
+        const res = await handler(req);
+        assertEquals(res.status, 302);
+        assertEquals(res.headers.get('location'), baseConfig.HOMEPAGE);
+    }
+    {
+        const req = new Request(`${SELF_ORIGIN}`);
+        const res = await handler(req);
+        assertEquals(res.status, 302);
+        assertEquals(res.headers.get('location'), baseConfig.HOMEPAGE);
+    }
 });
 
 Deno.test('should forward the request to $UPSTREAM_ORIGIN keeping the parameters', async () => {
     const fetchMock = spy(() => fetchReturn());
-    const handler = createRequestHandler(
+    const handler = createMainHandler(
         baseConfig,
         undefined,
         undefined,
@@ -98,7 +90,7 @@ Deno.test('should forward the request to $UPSTREAM_ORIGIN keeping the parameters
 
 Deno.test('should replace the user-agent when requesting to $UPSTREAM_ORIGIN if browser is unknown', async () => {
     const fetchMock = spy((() => fetchReturn()) as typeof globalThis.fetch);
-    const handler = createRequestHandler(
+    const handler = createMainHandler(
         baseConfig,
         undefined,
         undefined,
@@ -117,7 +109,7 @@ Deno.test('should replace the user-agent when requesting to $UPSTREAM_ORIGIN if 
 
 Deno.test('should NOT replace the user-agent when requesting to $UPSTREAM_ORIGIN if browser is known', async () => {
     const fetchMock = spy((() => fetchReturn()) as typeof globalThis.fetch);
-    const handler = createRequestHandler(
+    const handler = createMainHandler(
         baseConfig,
         undefined,
         undefined,
@@ -139,7 +131,7 @@ Deno.test('should NOT replace the user-agent when requesting to $UPSTREAM_ORIGIN
 Deno.test('should handle $UPSTREAM_ORIGIN with ending slash', async () => {
     const UPSTREAM_ORIGIN = 'https://esm.sh/';
     const fetchMock = spy(() => fetchReturn());
-    const handler = createRequestHandler(
+    const handler = createMainHandler(
         {
             ...baseConfig,
             UPSTREAM_ORIGIN,
@@ -156,7 +148,7 @@ Deno.test('should handle $UPSTREAM_ORIGIN with ending slash', async () => {
 Deno.test('should forward the request to $UPSTREAM_ORIGIN removing the $BASE_PATH', async () => {
     const BASE_PATH = '/sub-dir';
     const fetchMock = spy(() => fetchReturn());
-    const handler = createRequestHandler(
+    const handler = createMainHandler(
         {
             ...baseConfig,
             BASE_PATH,
@@ -178,7 +170,7 @@ Deno.test('should forward the request to $UPSTREAM_ORIGIN removing the $BASE_PAT
 Deno.test('should take into account that `X-Real-Origin` and the current request URL may differ in origin', async () => {
     const BASE_PATH = '/sub-dir';
     const fetchMock = spy(() => fetchReturn());
-    const handler = createRequestHandler(
+    const handler = createMainHandler(
         {
             ...baseConfig,
             BASE_PATH,
@@ -203,7 +195,7 @@ Deno.test(
     'should forward the upstream response CORS headers back to the client',
     async () => {
         const fetchMock = spy(() => fetchReturn());
-        const handler = createRequestHandler(
+        const handler = createMainHandler(
             baseConfig,
             undefined,
             undefined,
@@ -217,7 +209,7 @@ Deno.test(
 
 Deno.test('should return an string of code in systemjs format', async () => {
     const fetchMock = spy(() => fetchReturn());
-    const handler = createRequestHandler(
+    const handler = createMainHandler(
         baseConfig,
         undefined,
         undefined,
@@ -231,7 +223,7 @@ Deno.test('should return an string of code in systemjs format', async () => {
 
 Deno.test('should avoid the systemjs transpilation when "raw" param exists', async () => {
     const fetchMock = spy(() => fetchReturn());
-    const handler = createRequestHandler(
+    const handler = createMainHandler(
         baseConfig,
         undefined,
         undefined,
@@ -250,7 +242,7 @@ Deno.test('should return an string of code in systemjs format (WORKER_ENABLE)', 
         WORKER_ENABLE: true,
     };
     const workerPool = createWorkerPool(config);
-    const handler = createRequestHandler(
+    const handler = createMainHandler(
         config,
         undefined,
         workerPool,
@@ -265,7 +257,7 @@ Deno.test('should return an string of code in systemjs format (WORKER_ENABLE)', 
 
 Deno.test('should replace the $UPSTREAM_ORIGIN by the self host', async () => {
     const fetchMock = spy(() => fetchReturn());
-    const handler = createRequestHandler(
+    const handler = createMainHandler(
         baseConfig,
         undefined,
         undefined,
@@ -290,7 +282,7 @@ Deno.test('should replace the $UPSTREAM_ORIGIN by the X-Real-Origin host if exis
     const req = new Request(`${SELF_ORIGIN}vue`, {
         headers: { 'X-Real-Origin': realOrigin },
     });
-    const handler = createRequestHandler(
+    const handler = createMainHandler(
         baseConfig,
         undefined,
         undefined,
@@ -311,7 +303,7 @@ Deno.test(
     async () => {
         const BASE_PATH = '/sub-dir/234';
         const fetchMock = spy(() => fetchReturn());
-        const handler = createRequestHandler(
+        const handler = createMainHandler(
             {
                 ...baseConfig,
                 BASE_PATH,
@@ -346,7 +338,7 @@ export const bar = () => import("https://unpkg.com/systemjs/dist/s.js");
 export * from "/stable/vue@3.3.4/es2022/vue.mjs";
 `)
         );
-        const handler = createRequestHandler(
+        const handler = createMainHandler(
             {
                 ...baseConfig,
                 BASE_PATH,
@@ -420,7 +412,7 @@ import "/stable/@vue/runtime-dom@3.3.4/es2022/runtime-dom.mjs";
 export * from "/stable/vue@3.3.4/es2022/vue.mjs";
 `)
         );
-        const handler = createRequestHandler(
+        const handler = createMainHandler(
             {
                 ...baseConfig,
                 BASE_PATH,
@@ -460,7 +452,7 @@ Deno.test(
         const req = new Request(`${SELF_ORIGIN}sub-dir/234/vue`, {
             headers: { 'X-Real-Origin': realOrigin },
         });
-        const handler = createRequestHandler(
+        const handler = createMainHandler(
             {
                 ...baseConfig,
                 BASE_PATH,
@@ -496,7 +488,7 @@ Deno.test(
                 },
             )
         );
-        const handler = createRequestHandler(
+        const handler = createMainHandler(
             baseConfig,
             undefined,
             undefined,
@@ -521,7 +513,7 @@ Deno.test(
     'should return the original reponse "as-is" when $UPSTREAM_ORIGIN responds with a !ok status other than >= 300 < 400',
     async () => {
         const fetchMock = spy(async () => new Response('', { status: 404 }));
-        const handler = createRequestHandler(
+        const handler = createMainHandler(
             baseConfig,
             undefined,
             undefined,
@@ -558,7 +550,7 @@ Deno.test(
             undefined,
             () => cacheMock,
         );
-        const handler = createRequestHandler(
+        const handler = createMainHandler(
             config,
             cachePoolMock,
             undefined,
@@ -605,7 +597,7 @@ Deno.test(
             undefined,
             () => cacheMock,
         );
-        const handler = createRequestHandler(
+        const handler = createMainHandler(
             config,
             cachePoolMock,
             undefined,
@@ -665,7 +657,7 @@ Deno.test(
             undefined,
             () => cacheMock,
         );
-        const handler = createRequestHandler(
+        const handler = createMainHandler(
             config,
             cachePoolMock,
             undefined,
@@ -724,7 +716,7 @@ Deno.test(
             undefined,
             () => cacheMock,
         );
-        const handler = createRequestHandler(
+        const handler = createMainHandler(
             config,
             cachePoolMock,
             undefined,
@@ -787,7 +779,7 @@ Deno.test(
             undefined,
             () => cacheMock,
         );
-        const handler = createRequestHandler(
+        const handler = createMainHandler(
             config,
             cachePoolMock,
             undefined,
@@ -860,7 +852,7 @@ Deno.test(
             undefined,
             () => cacheMock,
         );
-        const handler = createRequestHandler(
+        const handler = createMainHandler(
             config,
             cachePoolMock,
             undefined,

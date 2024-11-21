@@ -68,7 +68,7 @@ export type Config = {
     CACHE_REDIS_PASSWORD?: string;
     CACHE_REDIS_TLS?: boolean;
     DD_TRACE_ENABLED?: boolean;
-    HOMEPAGE?: string;
+    HOMEPAGE: string;
     OUTPUT_BANNER?: string;
     REDIRECT_FASTPATH?: boolean;
     UPSTREAM_ORIGIN: string;

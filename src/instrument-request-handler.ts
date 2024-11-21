@@ -44,6 +44,7 @@ export const instrumentRequestHandler = <T extends Deno.ServeHandler>(
                 'http.client_ip':
                     (req.headers.get('x-forwarded-for') ?? '').split(',')
                         .shift() ??
+                        // @ts-ignore
                         info.remoteAddr?.hostname ?? '',
                 'http.method': req.method,
                 'http.useragent': req.headers.get('user-agent') ?? '',

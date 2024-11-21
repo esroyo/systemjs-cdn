@@ -7,13 +7,21 @@
     "jsr:@std/assert@1.0.6": "1.0.6",
     "jsr:@std/assert@^1.0.6": "1.0.6",
     "jsr:@std/bytes@1": "1.0.4",
+    "jsr:@std/cli@^1.0.6": "1.0.6",
     "jsr:@std/crypto@1": "1.0.3",
     "jsr:@std/dotenv@0.225.2": "0.225.2",
     "jsr:@std/encoding@1": "1.0.5",
+    "jsr:@std/encoding@^1.0.5": "1.0.5",
+    "jsr:@std/fmt@^1.0.2": "1.0.3",
+    "jsr:@std/http@1.0.7": "1.0.7",
     "jsr:@std/internal@^1.0.4": "1.0.5",
     "jsr:@std/media-types@1": "1.1.0",
+    "jsr:@std/media-types@^1.0.3": "1.1.0",
+    "jsr:@std/net@^1.0.4": "1.0.4",
     "jsr:@std/path@1.0.6": "1.0.6",
     "jsr:@std/path@^1.0.4": "1.0.6",
+    "jsr:@std/path@^1.0.6": "1.0.6",
+    "jsr:@std/streams@^1.0.6": "1.0.8",
     "jsr:@std/testing@1.0.3": "1.0.3",
     "jsr:@std/url@0.225.1": "0.225.1",
     "npm:@opentelemetry/api@1.8.0": "1.8.0",
@@ -51,8 +59,8 @@
       "dependencies": [
         "jsr:@std/bytes",
         "jsr:@std/crypto",
-        "jsr:@std/encoding",
-        "jsr:@std/media-types"
+        "jsr:@std/encoding@1",
+        "jsr:@std/media-types@1"
       ]
     },
     "@std/assert@1.0.6": {
@@ -64,6 +72,9 @@
     "@std/bytes@1.0.4": {
       "integrity": "11a0debe522707c95c7b7ef89b478c13fb1583a7cfb9a85674cd2cc2e3a28abc"
     },
+    "@std/cli@1.0.6": {
+      "integrity": "d22d8b38c66c666d7ad1f2a66c5b122da1704f985d3c47f01129f05abb6c5d3d"
+    },
     "@std/crypto@1.0.3": {
       "integrity": "a2a32f51ddef632d299e3879cd027c630dcd4d1d9a5285d6e6788072f4e51e7f"
     },
@@ -73,14 +84,35 @@
     "@std/encoding@1.0.5": {
       "integrity": "ecf363d4fc25bd85bd915ff6733a7e79b67e0e7806334af15f4645c569fefc04"
     },
+    "@std/fmt@1.0.3": {
+      "integrity": "97765c16aa32245ff4e2204ecf7d8562496a3cb8592340a80e7e554e0bb9149f"
+    },
+    "@std/http@1.0.7": {
+      "integrity": "9b904fc256678a5c9759f1a53a24a3fdcc59d83dc62099bb472683b6f819194c",
+      "dependencies": [
+        "jsr:@std/cli",
+        "jsr:@std/encoding@^1.0.5",
+        "jsr:@std/fmt",
+        "jsr:@std/media-types@^1.0.3",
+        "jsr:@std/net",
+        "jsr:@std/path@^1.0.6",
+        "jsr:@std/streams"
+      ]
+    },
     "@std/internal@1.0.5": {
       "integrity": "54a546004f769c1ac9e025abd15a76b6671ddc9687e2313b67376125650dc7ba"
     },
     "@std/media-types@1.1.0": {
       "integrity": "c9d093f0c05c3512932b330e3cc1fe1d627b301db33a4c2c2185c02471d6eaa4"
     },
+    "@std/net@1.0.4": {
+      "integrity": "2f403b455ebbccf83d8a027d29c5a9e3a2452fea39bb2da7f2c04af09c8bc852"
+    },
     "@std/path@1.0.6": {
       "integrity": "ab2c55f902b380cf28e0eec501b4906e4c1960d13f00e11cfbcd21de15f18fed"
+    },
+    "@std/streams@1.0.8": {
+      "integrity": "b41332d93d2cf6a82fe4ac2153b930adf1a859392931e2a19d9fabfb6f154fb3"
     },
     "@std/testing@1.0.3": {
       "integrity": "f98c2bee53860a5916727d7e7d3abe920dd6f9edace022e2d059f00d05c2cf42",
@@ -1681,6 +1713,7 @@
       "jsr:@kitsonk/kv-toolbox@0.21.0",
       "jsr:@std/assert@1.0.6",
       "jsr:@std/dotenv@0.225.2",
+      "jsr:@std/http@1.0.7",
       "jsr:@std/path@1.0.6",
       "jsr:@std/testing@1.0.3",
       "jsr:@std/url@0.225.1",
