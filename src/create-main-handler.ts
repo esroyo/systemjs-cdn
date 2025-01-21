@@ -195,22 +195,27 @@ export function createMainHandler(
                 ? `${basename(publicUrl)}.map`
                 : undefined;
             sourcemapSpan.end();
-            const buildSpan = tracer.startSpan('build');
-            const buildResult = await toSystemjs(
-                sourceModule,
-                {
-                    banner: OUTPUT_BANNER,
-                    sourcemap,
-                    sourcemapFileNames,
+
+            await tracer.startActiveSpan(
+                'build',
+                async (span) => {
+                    const buildResult = await toSystemjs(
+                        sourceModule,
+                        {
+                            banner: OUTPUT_BANNER,
+                            sourcemap,
+                            sourcemapFileNames,
+                        },
+                        workerPool,
+                        request.signal,
+                    );
+                    body = replaceUrls(buildResult.code);
+                    if (sourcemap === true) {
+                        mapBody = buildResult.map;
+                    }
+                    span.end();
                 },
-                workerPool,
-                request.signal,
             );
-            body = replaceUrls(buildResult.code);
-            if (sourcemap === true) {
-                mapBody = buildResult.map;
-            }
-            buildSpan.end();
         } else {
             body = replaceUrls(body);
         }
