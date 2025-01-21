@@ -13,7 +13,10 @@ import rollupPluginVirtual from './rollup-plugin-virtual.ts';
 export const toSystemjsMain = async (
     sourceModule: string | SourceModule,
     rollupOutputOptions: OutputOptions = {},
+    signal?: AbortSignal,
 ): Promise<BuildResult> => {
+    signal?.throwIfAborted();
+
     let rollup = _rollup;
     let rollupVersion = _rollupVersion;
     const mod = typeof sourceModule === 'string'
@@ -28,6 +31,7 @@ export const toSystemjsMain = async (
     const inputOptions: InputOptions = {
         external: () => true,
         input: mod.name,
+        makeAbsoluteExternalsRelative: false,
         plugins: [
             rollupPluginVirtual({ [mod.name]: mod }),
         ],
@@ -44,9 +48,18 @@ export const toSystemjsMain = async (
         } */\n`,
     };
 
+    signal?.throwIfAborted();
+
     const bundle = await rollup(inputOptions);
+
+    signal?.throwIfAborted();
+
     const { output } = await bundle.generate(outputOptions);
+
+    signal?.throwIfAborted();
+
     await bundle.close();
+
     return {
         code: output[0].code,
         map: output[1] && output[1].type === 'asset' &&
@@ -60,17 +73,28 @@ export const toSystemjsWorker = async (
     workerPool: Pool<Worker>,
     sourceModule: string | SourceModule,
     rollupOutputOptions: OutputOptions = {},
+    signal?: AbortSignal,
 ): Promise<BuildResult> => {
     const tracer = opentelemetry.trace.getTracer('web');
     const workerAcquireSpan = tracer.startSpan('worker-acquire');
     const worker = await workerPool.acquire();
     workerAcquireSpan.end();
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
+        const onAbort = async (ev: Event) => {
+            await workerPool.destroy(worker);
+            const reason = (ev.target as AbortSignal).reason;
+            const error = reason instanceof Error
+                ? reason
+                : new DOMException(reason ?? 'AbortError', 'AbortError');
+            reject(error);
+        };
+        signal?.addEventListener('abort', onAbort);
         worker.addEventListener(
             'message',
             async function end(event: MessageEvent<{ build: BuildResult }>) {
                 worker.removeEventListener('message', end);
+                signal?.removeEventListener('abort', onAbort);
                 await workerPool.release(worker);
                 resolve(event.data.build);
             },
@@ -86,6 +110,7 @@ export const toSystemjs = async (
     sourceModule: string | SourceModule,
     rollupOutputOptions: OutputOptions = {},
     workerPool?: Pool<Worker>,
+    signal?: AbortSignal,
 ): Promise<BuildResult> => {
     if (workerPool) {
         return toSystemjsWorker(
@@ -95,7 +120,8 @@ export const toSystemjs = async (
                 footer: '(worker)',
                 ...rollupOutputOptions,
             },
+            signal,
         );
     }
-    return toSystemjsMain(sourceModule, rollupOutputOptions);
+    return toSystemjsMain(sourceModule, rollupOutputOptions, signal);
 };

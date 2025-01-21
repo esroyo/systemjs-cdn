@@ -130,7 +130,12 @@ console.log('foo');
 //# sourceMappingURL=rumtime-dom.js.map
 `;
             assertEquals(
-                await buildSourceModule(moduleCode, moduleUrl, fetchMock),
+                await buildSourceModule(
+                    moduleCode,
+                    moduleUrl,
+                    undefined,
+                    fetchMock,
+                ),
                 { code: moduleCode, map: sourceMapContent, name: moduleUrl },
             );
         },
@@ -151,7 +156,12 @@ console.log('foo');
 //# sourceMappingURL=rumtime-dom.js.map
 `;
             assertEquals(
-                await buildSourceModule(moduleCode, moduleUrl, fetchMock),
+                await buildSourceModule(
+                    moduleCode,
+                    moduleUrl,
+                    undefined,
+                    fetchMock,
+                ),
                 moduleCode,
             );
         },
@@ -172,7 +182,12 @@ console.log('foo');
 //# sourceMappingURL=rumtime-dom.js.map
 `;
             assertEquals(
-                await buildSourceModule(moduleCode, moduleUrl, fetchMock),
+                await buildSourceModule(
+                    moduleCode,
+                    moduleUrl,
+                    undefined,
+                    fetchMock,
+                ),
                 moduleCode,
             );
         },

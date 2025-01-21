@@ -1,10 +1,9 @@
-import { assertEquals } from '@std/assert';
+import { assertEquals, assertInstanceOf } from '@std/assert';
 import { assertSpyCallArg, assertSpyCalls, spy } from '@std/testing/mock';
 import { loadSync as dotenvLoad } from '@std/dotenv';
 
-import { createCachePool } from './create-cache-pool.ts';
 import { createMainHandler } from './create-main-handler.ts';
-import { Config, ResponseProps } from './types.ts';
+import { Config } from './types.ts';
 import { createWorkerPool } from './create-worker-pool.ts';
 
 dotenvLoad({ export: true });
@@ -86,6 +85,40 @@ Deno.test('should forward the request to $UPSTREAM_ORIGIN keeping the parameters
         0,
         `${baseConfig.UPSTREAM_ORIGIN}foo?bundle`,
     );
+});
+
+Deno.test('should abort the upstream fetch when the request is aborted', async () => {
+    // This fetch will never resolve, will reject when the input signal is aborted
+    const fetchMock = spy((_url: string, init?: RequestInit) => {
+        const deferred = Promise.withResolvers<Response>();
+        init?.signal?.addEventListener('abort', async (ev: Event) => {
+            deferred.reject((ev.target as AbortSignal).reason);
+        });
+        return deferred.promise;
+    });
+    const handler = createMainHandler(
+        baseConfig,
+        undefined,
+        undefined,
+        fetchMock,
+    );
+    const abortController = new AbortController();
+    const req = new Request(`${SELF_ORIGIN}foo?bundle`, {
+        signal: abortController.signal,
+    });
+    const handlerResultPromise = handler(req);
+    assertSpyCallArg(
+        fetchMock,
+        0,
+        0,
+        `${baseConfig.UPSTREAM_ORIGIN}foo?bundle`,
+    );
+    assertInstanceOf(fetchMock.calls[0]?.args[1]?.signal, AbortSignal);
+    abortController.abort(new Error('Foobar'));
+    // abortController.abort(new DOMException('The request has been cancelled.', 'AbortError'));
+    await handlerResultPromise.catch((reason) => {
+        assertEquals(reason.message, 'Foobar');
+    });
 });
 
 Deno.test('should replace the user-agent when requesting to $UPSTREAM_ORIGIN if browser is unknown', async () => {
@@ -531,35 +564,29 @@ Deno.test(
     async (t) => {
         const fetchMock = spy(() => fetchReturn());
         const cacheMock = {
-            close: spy(async () => {}),
-            get: spy(async () => ({
-                url: `${SELF_ORIGIN}foo?bundle`,
-                body: '/* cached */',
-                headers: new Headers(),
-                status: 200,
-                statusText: 'OKIE',
-            })),
-            set: spy(async () => {}),
+            delete: spy(async (_req: Request) => true),
+            match: spy(async (_req: Request) =>
+                new Response('/* cached */', {
+                    status: 200,
+                    statusText: 'OKIE',
+                })
+            ),
+            put: spy(async (_req: Request, _res: Response) => undefined),
         };
         const config = {
             ...baseConfig,
             CACHE: true,
         };
-        const cachePoolMock = createCachePool(
-            config,
-            undefined,
-            () => cacheMock,
-        );
         const handler = createMainHandler(
             config,
-            cachePoolMock,
+            cacheMock,
             undefined,
             fetchMock,
         );
         const req = new Request(`${SELF_ORIGIN}foo?bundle`);
         const res = await handler(req);
         await t.step('should try to get from the cache', async () => {
-            assertSpyCalls(cacheMock.get, 1);
+            assertSpyCalls(cacheMock.match, 1);
         });
         await t.step(
             'should build the response based on the cached value',
@@ -573,7 +600,7 @@ Deno.test(
             assertSpyCalls(fetchMock, 0);
         });
         await t.step('should not set anything in the cache', async () => {
-            assertSpyCalls(cacheMock.set, 0);
+            assertSpyCalls(cacheMock.put, 0);
         });
     },
 );
@@ -584,39 +611,38 @@ Deno.test(
         const upstreamBody = 'export const foobar = 1;';
         const fetchMock = spy(() => fetchReturn(upstreamBody));
         const cacheMock = {
-            close: spy(async () => {}),
-            get: spy(async () => null),
-            set: spy(async (_key: string[], _res: ResponseProps) => {}),
+            delete: spy(async (_req: Request) => true),
+            match: spy(async (_req: Request) => undefined),
+            put: spy(async (_req: Request, _res: Response) => undefined),
         };
         const config = {
             ...baseConfig,
             CACHE: true,
         };
-        const cachePoolMock = createCachePool(
-            config,
-            undefined,
-            () => cacheMock,
-        );
         const handler = createMainHandler(
             config,
-            cachePoolMock,
+            cacheMock,
             undefined,
             fetchMock,
         );
         const req = new Request(`${SELF_ORIGIN}foo?bundle`);
         await handler(req);
         await t.step('should try to get from the cache', async () => {
-            assertSpyCalls(cacheMock.get, 1);
+            assertSpyCalls(cacheMock.match, 1);
         });
         await t.step('should fetch $UPSTREAM_ORIGIN', async () => {
             assertSpyCalls(fetchMock, 1);
         });
         await t.step('should set the response in the cache', async () => {
-            assertSpyCalls(cacheMock.set, 1);
-            const spyCall = cacheMock.set.calls[0];
-            const secondArg = spyCall && spyCall.args[1];
-            assertEquals(secondArg.url, `${SELF_ORIGIN}foo?bundle`);
-            assertEquals(secondArg.body.includes('const foobar'), true);
+            assertSpyCalls(cacheMock.put, 1);
+            const spyCall = cacheMock.put.calls[0];
+            const firstArg = spyCall && spyCall.args[0];
+            const secondArg = spyCall && spyCall.args[1]; // && spyCall.args[1].clone();
+            assertEquals(firstArg.url, `${SELF_ORIGIN}foo?bundle`);
+            assertEquals(
+                (await secondArg.text()).includes('const foobar'),
+                true,
+            );
         });
     },
 );
@@ -624,49 +650,44 @@ Deno.test(
 Deno.test(
     'When the cached response is a redirect > should fast-path the contents of the redirect location if those exist in cache',
     async (t) => {
-        const cacheReturns = [{
-            url: `${SELF_ORIGIN}foo?bundle`,
-            body: '',
-            headers: new Headers({
-                location: `${SELF_ORIGIN}foo@2?bundle`,
+        const cacheReturns = [
+            // url: `${SELF_ORIGIN}foo?bundle`,
+            new Response('', {
+                headers: {
+                    location: `${SELF_ORIGIN}foo@2?bundle`,
+                },
+                status: 302,
+                statusText: 'Redirect',
             }),
-            status: 302,
-            statusText: 'Redirect',
-        }, {
-            url: `${SELF_ORIGIN}foo@2?bundle`,
-            body: '/* cached */',
-            headers: new Headers(),
-            status: 200,
-            statusText: 'OKIE',
-        }];
+            // url: `${SELF_ORIGIN}foo@2?bundle`,
+            new Response('/* cached */', {
+                status: 200,
+                statusText: 'OKIE',
+            }),
+        ];
         const fetchMock = spy(() => fetchReturn());
         const cacheMock = {
-            close: spy(async () => {}),
-            get: spy(async () => {
-                return cacheReturns.shift() || null;
+            delete: spy(async (_req: Request) => true),
+            match: spy(async (_req: Request) => {
+                return cacheReturns.shift() || undefined;
             }),
-            set: spy(async () => {}),
+            put: spy(async (_req: Request, _res: Response) => undefined),
         };
         const config = {
             ...baseConfig,
             CACHE: true,
             REDIRECT_FASTPATH: true,
         };
-        const cachePoolMock = createCachePool(
-            config,
-            undefined,
-            () => cacheMock,
-        );
         const handler = createMainHandler(
             config,
-            cachePoolMock,
+            cacheMock,
             undefined,
             fetchMock,
         );
         const req = new Request(`${SELF_ORIGIN}foo?bundle`);
         const res = await handler(req);
         await t.step('should try to get from the cache', async () => {
-            assertSpyCalls(cacheMock.get, 2);
+            assertSpyCalls(cacheMock.match, 2);
         });
         await t.step(
             'should build the response based on the cached value',
@@ -680,7 +701,7 @@ Deno.test(
             assertSpyCalls(fetchMock, 0);
         });
         await t.step('should not set anything in the cache', async () => {
-            assertSpyCalls(cacheMock.set, 0);
+            assertSpyCalls(cacheMock.put, 0);
         });
     },
 );
@@ -688,22 +709,23 @@ Deno.test(
 Deno.test(
     'When the cached response is a redirect > should make a fresh fetch from upstream if those do not exist in cache',
     async (t) => {
-        const cacheReturns = [{
-            url: `${SELF_ORIGIN}foo?bundle`,
-            body: '',
-            headers: new Headers({
-                location: `${SELF_ORIGIN}foo@2?bundle`,
+        const cacheReturns = [
+            // url: `${SELF_ORIGIN}foo?bundle`,
+            new Response('', {
+                headers: {
+                    location: `${SELF_ORIGIN}foo@2?bundle`,
+                },
+                status: 302,
+                statusText: 'Redirect',
             }),
-            status: 302,
-            statusText: 'Redirect',
-        }];
+        ];
         const fetchMock = spy(() => fetchReturn('/* fresh */'));
         const cacheMock = {
-            close: spy(async () => {}),
-            get: spy(async () => {
-                return cacheReturns.shift() || null;
+            delete: spy(async (_req: Request) => true),
+            match: spy(async (_req: Request) => {
+                return cacheReturns.shift() || undefined;
             }),
-            set: spy(async () => {}),
+            put: spy(async (_req: Request, _res: Response) => undefined),
         };
         const config = {
             ...baseConfig,
@@ -711,21 +733,16 @@ Deno.test(
             CACHE_CLIENT_REDIRECT: 60,
             REDIRECT_FASTPATH: true,
         };
-        const cachePoolMock = createCachePool(
-            config,
-            undefined,
-            () => cacheMock,
-        );
         const handler = createMainHandler(
             config,
-            cachePoolMock,
+            cacheMock,
             undefined,
             fetchMock,
         );
         const req = new Request(`${SELF_ORIGIN}foo?bundle`);
         const res = await handler(req);
         await t.step('should try to get from the cache', async () => {
-            assertSpyCalls(cacheMock.get, 2);
+            assertSpyCalls(cacheMock.match, 2);
         });
         await t.step('should fetch $UPSTREAM_ORIGIN', async () => {
             assertSpyCalls(fetchMock, 1);
@@ -746,7 +763,7 @@ Deno.test(
             },
         );
         await t.step('should set the fresh content in the cache', async () => {
-            assertSpyCalls(cacheMock.set, 1);
+            assertSpyCalls(cacheMock.put, 1);
         });
     },
 );
@@ -754,41 +771,36 @@ Deno.test(
 Deno.test(
     'When the cached response is a redirect > should return the redirect as-is if Location response header is missing',
     async (t) => {
-        const cacheReturns = [{
-            url: `${SELF_ORIGIN}foo?bundle`,
-            body: '',
-            headers: new Headers(),
-            status: 302,
-            statusText: 'Redirect',
-        }];
+        const cacheReturns = [
+            // url: `${SELF_ORIGIN}foo?bundle`,
+            new Response('', {
+                status: 302,
+                statusText: 'Redirect',
+            }),
+        ];
         const fetchMock = spy(() => fetchReturn());
         const cacheMock = {
-            close: spy(async () => {}),
-            get: spy(async () => {
-                return cacheReturns.shift() || null;
+            delete: spy(async (_req: Request) => true),
+            match: spy(async (_req: Request) => {
+                return cacheReturns.shift() || undefined;
             }),
-            set: spy(async () => {}),
+            put: spy(async (_req: Request, _res: Response) => undefined),
         };
         const config = {
             ...baseConfig,
             CACHE: true,
             CACHE_CLIENT_REDIRECT: 600,
         };
-        const cachePoolMock = createCachePool(
-            config,
-            undefined,
-            () => cacheMock,
-        );
         const handler = createMainHandler(
             config,
-            cachePoolMock,
+            cacheMock,
             undefined,
             fetchMock,
         );
         const req = new Request(`${SELF_ORIGIN}foo?bundle`);
         const res = await handler(req);
         await t.step('should try to get from the cache', async () => {
-            assertSpyCalls(cacheMock.get, 1);
+            assertSpyCalls(cacheMock.match, 1);
         });
         await t.step(
             'should respond with the redirect as-is',
@@ -805,7 +817,7 @@ Deno.test(
             assertSpyCalls(fetchMock, 0);
         });
         await t.step('should not set anything in the cache', async () => {
-            assertSpyCalls(cacheMock.set, 0);
+            assertSpyCalls(cacheMock.put, 0);
         });
     },
 );
@@ -814,14 +826,12 @@ Deno.test(
     'when $UPSTREAM_ORIGIN response is a redirect > should fast-path the contents of the redirect location if those exist in cache',
     async (t) => {
         const cacheReturns = [
-            null,
-            {
-                url: `${SELF_ORIGIN}foo@2?bundle`,
-                body: '/* cached */',
-                headers: new Headers(),
+            undefined,
+            // url: `${SELF_ORIGIN}foo@2?bundle`,
+            new Response('/* cached */', {
                 status: 200,
                 statusText: 'OKIE',
-            },
+            }),
         ];
         const fetchMock = spy(() =>
             Promise.resolve(
@@ -835,11 +845,11 @@ Deno.test(
             )
         );
         const cacheMock = {
-            close: spy(async () => {}),
-            get: spy(async () => {
-                return cacheReturns.shift() || null;
+            delete: spy(async (_req: Request) => true),
+            match: spy(async (_req: Request) => {
+                return cacheReturns.shift() || undefined;
             }),
-            set: spy(async () => {}),
+            put: spy(async (_req: Request, _res: Response) => undefined),
         };
         const config = {
             ...baseConfig,
@@ -847,14 +857,9 @@ Deno.test(
             CACHE_REDIRECT: 600,
             REDIRECT_FASTPATH: true,
         };
-        const cachePoolMock = createCachePool(
-            config,
-            undefined,
-            () => cacheMock,
-        );
         const handler = createMainHandler(
             config,
-            cachePoolMock,
+            cacheMock,
             undefined,
             fetchMock,
         );
@@ -863,7 +868,7 @@ Deno.test(
         await t.step(
             'should try to get from the cache a total of two times',
             async () => {
-                assertSpyCalls(cacheMock.get, 2);
+                assertSpyCalls(cacheMock.match, 2);
             },
         );
         await t.step(
@@ -881,7 +886,7 @@ Deno.test(
             },
         );
         await t.step('should set in the cache 1 time', async () => {
-            assertSpyCalls(cacheMock.set, 1);
+            assertSpyCalls(cacheMock.put, 1);
         });
     },
 );

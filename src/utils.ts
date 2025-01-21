@@ -1,7 +1,8 @@
 import request from 'request';
 import { dirname, join } from '@std/url';
+import { memoize } from '@std/cache';
 import { getEsmaVersionFromUA } from 'esm-compat';
-import type { Config, HttpZResponseModel, SourceModule } from './types.ts';
+import type { HttpZResponseModel, SourceModule } from './types.ts';
 
 export const nodeRequest = async (
     url: string,
@@ -11,7 +12,15 @@ export const nodeRequest = async (
         const headers = Object.fromEntries(
             new Headers(init?.headers ?? {}).entries(),
         );
-        request(
+        const onAbort = (ev: Event) => {
+            req.abort();
+            const reason = (ev.target as AbortSignal).reason;
+            const error = reason instanceof Error
+                ? reason
+                : new DOMException(reason ?? 'AbortError', 'AbortError');
+            reject(error);
+        };
+        const req = request(
             {
                 method: init?.method || 'GET',
                 url,
@@ -23,6 +32,7 @@ export const nodeRequest = async (
                 response: HttpZResponseModel,
                 body: string,
             ) {
+                init?.signal?.removeEventListener('abort', onAbort);
                 if (error) {
                     return reject(error);
                 }
@@ -35,6 +45,7 @@ export const nodeRequest = async (
                 );
             },
         );
+        init?.signal?.addEventListener('abort', onAbort);
     });
 };
 
@@ -114,19 +125,6 @@ export const isForbidden = ({ status }: { status: number }): boolean => {
     return status === 403;
 };
 
-export const calcExpires = (
-    headers: Headers,
-    DEFAULT = 600,
-): number => {
-    const cacheControl = Object.fromEntries(
-        (headers.get('cache-control') ?? '').split(/\s*,\s*/g).map((part) =>
-            part.split('=')
-        ),
-    );
-    const effectiveMaxAge = Number(cacheControl['max-age'] || DEFAULT) * 1000;
-    return effectiveMaxAge;
-};
-
 /**
  * Make sure the base path is not empty, starts with "/"
  * and does not end with "/" when length is > 1
@@ -175,6 +173,7 @@ export const parseSourceMapUrl = (
 export const buildSourceModule = async (
     input: string,
     baseUrl: string,
+    signal?: AbortSignal,
     fetch = nodeRequest,
 ): Promise<string | SourceModule> => {
     try {
@@ -183,7 +182,7 @@ export const buildSourceModule = async (
             console.log('parsing sourcemap url failed for', baseUrl);
             return input;
         }
-        let sourceMapResponse = await fetch(sourceMapUrl);
+        let sourceMapResponse = await fetch(sourceMapUrl, { signal });
         if (!sourceMapResponse.ok) {
             console.log('fetching sourcemap failed', { baseUrl, sourceMapUrl });
             console.log('fetching sourcemap response', sourceMapResponse);
@@ -201,14 +200,14 @@ export const buildSourceModule = async (
     }
 };
 
-export const getBuildTarget = (userAgent: string): [string, string] => {
+export const getBuildTarget = memoize((userAgent: string): [string, string] => {
     const esmBuildTarget = getEsmaVersionFromUA(userAgent);
     if (esmBuildTarget === 'esnext') {
         // this is the default for unknown browsers
         return ['es2015', 'HeadlessChrome/51'];
     }
     return [esmBuildTarget, userAgent];
-};
+});
 
 const registerRegExp =
     /(?:register|import)\(\[?(?:['"][^'"]+['"](?:,\s*)?)*\]?/gm;
@@ -289,3 +288,27 @@ export const parseRequestUrl = (
         upstreamUrl,
     };
 };
+
+export function cloneRequest(
+    req: Request,
+    overwrite: RequestInit & { url?: URL | string } = {},
+): Request {
+    return new Request(
+        overwrite.url || req.url,
+        {
+            // body
+            cache: overwrite.cache ?? req.cache,
+            credentials: overwrite.credentials ?? req.credentials,
+            headers: overwrite.headers ?? req.headers,
+            integrity: overwrite.integrity ?? req.integrity,
+            keepalive: overwrite.keepalive ?? req.keepalive,
+            method: overwrite.method ?? req.method,
+            mode: overwrite.mode ?? req.mode,
+            redirect: overwrite.redirect ?? req.redirect,
+            referrer: overwrite.referrer ?? req.referrer,
+            referrerPolicy: overwrite.referrerPolicy ?? req.referrerPolicy,
+            // signal
+            // window
+        },
+    );
+}

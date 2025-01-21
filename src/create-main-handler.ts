@@ -1,8 +1,8 @@
 import opentelemetry from '@opentelemetry/api';
 import {
     buildSourceModule,
-    calcExpires,
     cloneHeaders,
+    cloneRequest,
     denyHeaders,
     filterUpstreamHeaders,
     getBuildTarget,
@@ -17,11 +17,54 @@ import {
 import { toSystemjs } from './to-systemjs.ts';
 import { type Pool } from 'generic-pool';
 import { basename } from '@std/url';
-import type { Cache, Config, OpenTelemetry, ResponseProps } from './types.ts';
+import type { Config, OpenTelemetry } from './types.ts';
+
+const finalizeFastPathResponse = (
+    config: Config,
+    response: Response,
+): Response => {
+    if (config.CACHE_CLIENT_REDIRECT) {
+        // Overwritte this values only for the clients, never cache
+        response.headers.delete('age');
+        response.headers.set(
+            'cache-control',
+            `public, max-age=${config.CACHE_CLIENT_REDIRECT}`,
+        );
+    }
+    return response;
+};
+const createFastPathResponse = async (
+    config: Config,
+    response: Response,
+    originalRequest: Request,
+    originalRequestHandler: (req: Request) => Promise<Response>,
+    tracer: opentelemetry.Tracer,
+): Promise<Response> => {
+    if (!config.REDIRECT_FASTPATH) {
+        return finalizeFastPathResponse(config, response);
+    }
+    const location = response.headers.get('location');
+    if (!location) {
+        return finalizeFastPathResponse(config, response);
+    }
+    return tracer.startActiveSpan(
+        'redirect-fastpath',
+        async (span) => {
+            const fastResponse = await originalRequestHandler(
+                new Request(location, {
+                    headers: originalRequest.headers,
+                    signal: originalRequest.signal,
+                }),
+            );
+            span.end();
+            return finalizeFastPathResponse(config, fastResponse);
+        },
+    );
+};
 
 export function createMainHandler(
     config: Config,
-    cachePool?: Pool<Cache>,
+    cache?: Cache,
     workerPool?: Pool<Worker>,
     fetch = nodeRequest,
     otel: OpenTelemetry = opentelemetry,
@@ -29,109 +72,20 @@ export function createMainHandler(
     const {
         BASE_PATH,
         CACHE,
-        CACHE_CLIENT_REDIRECT,
         CACHE_REDIRECT,
         HOMEPAGE,
         UPSTREAM_ORIGIN,
         OUTPUT_BANNER,
-        REDIRECT_FASTPATH,
     } = config;
     const tracer = otel.trace.getTracer('web');
 
-    const createFinalResponse = async (
-        responseProps: ResponseProps,
-        buildTarget: string,
-        shouldCache: boolean,
-    ): Promise<Response> => {
-        const {
-            url,
-            body,
-            headers,
-            status,
-            statusText,
-        } = responseProps;
-        if (!headers.has('access-control-allow-origin')) {
-            headers.set('access-control-allow-origin', '*');
-        }
-        const isActualRedirect = isRedirect(responseProps);
-        const isCacheable = isForbidden(responseProps) ||
-            isNotFound(responseProps) || isOk(responseProps) ||
-            isActualRedirect;
-        const willCache = shouldCache && isCacheable;
-        if (willCache) {
-            const cacheAcquireSpan = tracer.startSpan('cache-acquire');
-            const cache = await cachePool?.acquire();
-            cacheAcquireSpan.end();
-            const cacheKey = [url, buildTarget];
-            const cacheWriteSpan = tracer.startSpan('cache-write', {
-                attributes: {
-                    'span.type': 'cache',
-                    'systemjs.cache.key': cacheKey,
-                },
-            });
-            await cache?.set(
-                cacheKey,
-                responseProps,
-                { expireIn: calcExpires(headers, CACHE_REDIRECT) },
-            );
-            if (cache) {
-                await cachePool?.release(cache);
-            }
-            cacheWriteSpan.end();
-        }
-        if (
-            CACHE_CLIENT_REDIRECT && isActualRedirect &&
-            !headers.has('cache-control')
-        ) {
-            headers.set(
-                'cache-control',
-                `public, max-age=${CACHE_CLIENT_REDIRECT}`,
-            );
-        }
-
-        const response = new Response(body, {
-            headers,
-            status,
-            statusText,
-        });
-
-        return response;
-    };
-
     return async function requestHandler(
-        req: Request,
+        request: Request,
     ): Promise<Response> {
-        const createFastPathResponse = async (
-            response: Response,
-        ): Promise<Response> => {
-            const location = response.headers.get('location');
-            if (!location) {
-                return response;
-            }
-            return tracer.startActiveSpan(
-                'redirect-fastpath',
-                async (span) => {
-                    const fastResponse = await requestHandler(
-                        new Request(location, { headers: req.headers }),
-                    );
-                    const headers = new Headers(fastResponse.headers);
-                    headers.set(
-                        'cache-control',
-                        `public, max-age=${CACHE_CLIENT_REDIRECT}`,
-                    );
-                    span.end();
-                    return new Response(fastResponse.body, {
-                        headers,
-                        status: fastResponse.status,
-                        statusText: fastResponse.statusText,
-                    });
-                },
-            );
-        };
-
         // Step: tracing
         const rootSpan = otel.trace.getActiveSpan();
-        const originalUserAgent = req.headers.get('user-agent') ?? '';
+        rootSpan?.addEvent(Deno.env.get('DENO_REGION') ?? '');
+        const originalUserAgent = request.headers.get('user-agent') ?? '';
         const [buildTarget, upstreamUserAgent] = getBuildTarget(
             originalUserAgent,
         );
@@ -141,12 +95,11 @@ export function createMainHandler(
             replaceUrls,
             upstreamUrl,
         } = parseRequestUrl({
-            url: req.url,
+            url: request.url,
             basePath: BASE_PATH,
-            realOrigin: req.headers.get('x-real-origin') ?? undefined,
+            realOrigin: request.headers.get('x-real-origin') ?? undefined,
             upstreamOrigin: UPSTREAM_ORIGIN,
         });
-        const publicUrl = _publicUrl.toString();
 
         if (upstreamUrl.toString() === UPSTREAM_ORIGIN) {
             return new Response(null, {
@@ -155,6 +108,8 @@ export function createMainHandler(
             });
         }
 
+        const publicUrl = _publicUrl.toString();
+        const normalizedRequest = cloneRequest(request, { url: publicUrl });
         const replaceOriginHeaders = (
             pair: [string, string] | null,
         ):
@@ -167,74 +122,48 @@ export function createMainHandler(
             'http.route': BASE_PATH,
             'http.url': publicUrl,
         });
+
         if (isMapRequest && !CACHE) {
             // Sourcemaps are only enabled with CACHE
             // otherwise they are served as inlined data uris
             // thus it is not possible to receive a sourcemap request when !CACHE
             return new Response(null, { status: 404 });
         }
-        if (CACHE) {
-            const cacheAcquireSpan = tracer.startSpan('cache-acquire');
-            const cache = await cachePool?.acquire();
-            cacheAcquireSpan.end();
-            const cacheKey = [
-                isMapRequest ? publicUrl.slice(0, -4) : publicUrl,
-                buildTarget,
-            ];
+
+        if (
+            CACHE &&
+            cache /* && !request.headers.get('cache-control')?.includes('no-cache') */
+        ) {
             const cacheReadSpan = tracer.startSpan('cache-read', {
-                attributes: {
-                    'span.type': 'cache',
-                    'systemjs.cache.key': cacheKey,
-                },
+                attributes: { 'span.type': 'cache' },
             });
-            const cachedValue = await cache?.get(cacheKey);
-            if (cache) {
-                await cachePool?.release(cache);
-            }
-            cacheReadSpan.addEvent(cachedValue ? 'cache-hit' : 'cache-miss');
+            const cachedResponse = await cache.match(normalizedRequest);
+            cacheReadSpan.addEvent(cachedResponse ? 'cache-hit' : 'cache-miss');
             cacheReadSpan.end();
-            if (isMapRequest) {
-                // A sourcemap request always should come after the original JS module
-                // thus, it MUST be already in the cache of the original JS module URL
-                // or we just return an 404
-                if (cachedValue && cachedValue.map) {
-                    return new Response(cachedValue.map, {
-                        headers: {
-                            'access-control-allow-methods': '*',
-                            'access-control-allow-origin': '*',
-                            'cache-control':
-                                'public, max-age=31536000, immutable',
-                            'content-type': 'application/json; charset=utf-8',
-                        },
-                    });
+            if (cachedResponse) {
+                if (isRedirect(cachedResponse)) {
+                    return createFastPathResponse(
+                        config,
+                        cachedResponse,
+                        request,
+                        requestHandler,
+                        tracer,
+                    );
                 }
-                return new Response(null, { status: 404 });
-            }
-            if (cachedValue) {
-                const response = await createFinalResponse(
-                    {
-                        ...cachedValue,
-                        headers: new Headers(cachedValue.headers),
-                    },
-                    buildTarget,
-                    false,
-                );
-                if (REDIRECT_FASTPATH && isRedirect(response)) {
-                    return createFastPathResponse(response);
-                }
-                return response;
+                return cachedResponse;
             }
         }
-        const upstreamUrlString = upstreamUrl.toString();
+
+        const upstreamUrlStr = upstreamUrl.toString();
         const upstreamSpan = tracer.startSpan('upstream', {
             attributes: {
                 'span.type': 'http',
-                'http.url': upstreamUrlString,
+                'http.url': upstreamUrlStr,
             },
         });
-        const upstreamResponse = await fetch(upstreamUrlString, {
+        const upstreamResponse = await fetch(upstreamUrlStr, {
             headers: cloneHeaders(
-                req.headers,
+                request.headers,
                 denyHeaders,
                 filterUpstreamHeaders,
                 (
@@ -244,15 +173,18 @@ export function createMainHandler(
                     : pair),
             ),
             redirect: 'manual',
+            signal: request.signal,
         });
         let body = await upstreamResponse.text();
-        let map: string | undefined = undefined;
+        let mapBody: string | undefined;
         upstreamSpan.end();
+
         if (!isRawRequest && isJsResponse(upstreamResponse)) {
             const sourcemapSpan = tracer.startSpan('sourcemap');
             const sourceModule = await buildSourceModule(
                 body,
-                upstreamUrlString,
+                upstreamUrlStr,
+                request.signal,
             );
             const canGenerateSourcemap =
                 !!(typeof sourceModule === 'object' && sourceModule.map);
@@ -264,38 +196,104 @@ export function createMainHandler(
                 : undefined;
             sourcemapSpan.end();
             const buildSpan = tracer.startSpan('build');
-            const buildResult = await toSystemjs(sourceModule, {
-                banner: OUTPUT_BANNER,
-                sourcemap,
-                sourcemapFileNames,
-            }, workerPool);
+            const buildResult = await toSystemjs(
+                sourceModule,
+                {
+                    banner: OUTPUT_BANNER,
+                    sourcemap,
+                    sourcemapFileNames,
+                },
+                workerPool,
+                request.signal,
+            );
             body = replaceUrls(buildResult.code);
             if (sourcemap === true) {
-                map = buildResult.map;
+                mapBody = buildResult.map;
             }
             buildSpan.end();
         } else {
             body = replaceUrls(body);
         }
-        const response = await createFinalResponse(
+
+        const response = new Response(
+            body,
             {
-                url: publicUrl,
-                body,
                 headers: cloneHeaders(
                     upstreamResponse.headers,
                     denyHeaders,
                     replaceOriginHeaders,
                 ),
-                map,
                 status: upstreamResponse.status,
                 statusText: upstreamResponse.statusText,
             },
-            buildTarget,
-            !!(CACHE && (!isRedirect(upstreamResponse) || CACHE_REDIRECT)),
         );
-        if (REDIRECT_FASTPATH && isRedirect(response)) {
-            return createFastPathResponse(response);
+
+        const isActualRedirect = isRedirect(response);
+        const isCacheable = isForbidden(response) ||
+            isNotFound(response) ||
+            isOk(response) ||
+            isActualRedirect;
+        const shouldCache = !!(CACHE && (!isActualRedirect || CACHE_REDIRECT));
+        const willCache = shouldCache && isCacheable && cache;
+
+        let synthMapRequest: Request | null = null;
+        let mapResponse: Response | null = null;
+        if (mapBody) {
+            synthMapRequest = cloneRequest(request, {
+                url: `${publicUrl}.map`,
+            });
+            mapResponse = new Response(
+                mapBody,
+                {
+                    headers: {
+                        'access-control-allow-methods': '*',
+                        'access-control-allow-headers': '*',
+                        'access-control-allow-origin': '*',
+                        'cache-control': 'public, max-age=31536000, immutable',
+                        'content-type': 'application/json; charset=utf-8',
+                    },
+                },
+            );
         }
+
+        if (!response.headers.has('timing-allow-origin')) {
+            response.headers.set('timing-allow-origin', '*');
+        }
+
+        if (willCache) {
+            const cacheWriteSpan = tracer.startSpan('cache-write', {
+                attributes: { 'span.type': 'cache' },
+            });
+            const promises: Promise<void>[] = [];
+            const clonedResponse = response.clone();
+            if (
+                isActualRedirect && !clonedResponse.headers.has('cache-control')
+            ) {
+                clonedResponse.headers.set(
+                    'cache-control',
+                    `public, max-age=${CACHE_REDIRECT}`,
+                );
+            }
+
+            promises.push(cache.put(normalizedRequest, clonedResponse));
+            if (synthMapRequest && mapResponse) {
+                promises.push(cache.put(synthMapRequest, mapResponse));
+            }
+            Promise.allSettled(promises).then(() => {
+                cacheWriteSpan.end();
+            });
+        }
+
+        if (isActualRedirect) {
+            return createFastPathResponse(
+                config,
+                response,
+                request,
+                requestHandler,
+                tracer,
+            );
+        }
+
         return response;
     };
 }

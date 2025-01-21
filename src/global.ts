@@ -26,7 +26,13 @@ export const config: Config = {
     CACHE_REDIS_PORT: Deno.env.get('CACHE_REDIS_PORT') ?? '6379',
     CACHE_REDIS_PASSWORD: Deno.env.get('CACHE_REDIS_PASSWORD') ?? '',
     CACHE_REDIS_TLS: Deno.env.get('CACHE_REDIS_TLS') === 'true', // default false
-    DD_TRACE_ENABLED: Deno.env.get('DD_TRACE_ENABLED') === 'true', // default false
+    // DD_TRACE_ENABLED: Deno.env.get('DD_TRACE_ENABLED') === 'true', // default false
+    OTEL_EXPORTER_ENABLE: Deno.env.get('OTEL_EXPORTER_ENABLE') === 'true', // default false
+    OTEL_EXPORTER_OTLP_ENDPOINT: Deno.env.get('OTEL_EXPORTER_OTLP_ENDPOINT') ??
+        `http://${Deno.env.get('DD_AGENT_HOST') ?? 'localhost'}:4318/v1/traces`,
+    OTEL_EXPORTER_OTLP_HEADERS: JSON.parse(
+        Deno.env.get('OTEL_EXPORTER_OTLP_HEADERS') ?? '{}',
+    ),
     HOMEPAGE: Deno.env.get('HOMEPAGE') ?? '',
     OUTPUT_BANNER: Deno.env.get('OUTPUT_BANNER') ?? '',
     REDIRECT_FASTPATH: Deno.env.get('REDIRECT_FASTPATH') !== 'false', // default true
@@ -49,11 +55,14 @@ if (isMainProcess) {
 const provider = new CustomTracerProvider({
     resource: new Resource({
         [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]:
-            Deno.env.get('ENV') ??
-                'dev',
+            Deno.env.get('ENV') ?? 'dev',
         [SemanticResourceAttributes.SERVICE_NAME]: 'systemjs',
-        [SemanticResourceAttributes.SERVICE_VERSION]:
-            Deno.env.get('DEPLOYMENT_TAG') ?? undefined,
+        [SemanticResourceAttributes.SERVICE_VERSION]: Deno.env.get(
+            'DEPLOYMENT_TAG',
+        ),
+        [SemanticResourceAttributes.SERVICE_INSTANCE_ID]: Deno.env.get(
+            'SERVICE_INSTANCE_ID',
+        ),
         [SemanticResourceAttributes.TELEMETRY_SDK_LANGUAGE]: 'javascript',
     }),
 });
@@ -65,14 +74,12 @@ provider.register({
 });
 
 // Step: OTLP tracing setup
-if (config.DD_TRACE_ENABLED) {
+if (config.OTEL_EXPORTER_ENABLE) {
     const collectorOptions = {
         // url is optional and can be omitted - default is http://localhost:4318/v1/traces
-        url: `http://${
-            Deno.env.get('DD_AGENT_HOST') ?? 'localhost'
-        }:4318/v1/traces`,
+        url: config.OTEL_EXPORTER_OTLP_ENDPOINT,
         // an optional object containing custom headers to be sent with each request will only work with http
-        headers: {},
+        headers: config.OTEL_EXPORTER_OTLP_HEADERS,
         // an optional limit on pending requests
         concurrencyLimit: 10,
     };

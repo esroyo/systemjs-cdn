@@ -32,29 +32,6 @@ export interface HttpZResponseModel {
     bodySize: number;
 }
 
-export type ResponseProps = {
-    url: string;
-    body: string;
-    map?: string;
-    headers: Headers;
-    status: number;
-    statusText: string;
-};
-
-export type CacheSetOptions = {
-    expireIn?: number;
-};
-
-export interface Cache {
-    get(key: string[]): Promise<ResponseProps | null>;
-    set(
-        key: string[],
-        value: ResponseProps,
-        options?: CacheSetOptions,
-    ): Promise<void>;
-    close(): Promise<void>;
-}
-
 export type Config = {
     BASE_PATH: string;
     CACHE: boolean;
@@ -67,6 +44,10 @@ export type Config = {
     CACHE_REDIS_USERNAME?: string;
     CACHE_REDIS_PASSWORD?: string;
     CACHE_REDIS_TLS?: boolean;
+    OTEL_EXPORTER_OTLP_ENDPOINT?: string;
+    OTEL_EXPORTER_ENABLE?: boolean;
+    OTEL_EXPORTER_OTLP_HEADERS?: Record<string, string>;
+    /** @deprecated */
     DD_TRACE_ENABLED?: boolean;
     HOMEPAGE: string;
     OUTPUT_BANNER?: string;

@@ -3,11 +3,17 @@
   "specifiers": {
     "jsr:@esroyo/otel-batch-traced-span-processor@1.0.0": "1.0.0",
     "jsr:@esroyo/otel-server-timing-span-exporter@2.1.0": "2.1.0",
+    "jsr:@esroyo/web-cache-api-persistence@0.1.5": "0.1.5",
+    "jsr:@jabr/xxhash64@2.0.0": "2.0.0",
     "jsr:@kitsonk/kv-toolbox@0.21.0": "0.21.0",
+    "jsr:@kitsonk/kv-toolbox@0.22.0": "0.22.0",
     "jsr:@std/assert@1.0.6": "1.0.6",
     "jsr:@std/assert@^1.0.6": "1.0.6",
+    "jsr:@std/async@1": "1.0.9",
     "jsr:@std/bytes@1": "1.0.4",
-    "jsr:@std/cli@^1.0.6": "1.0.6",
+    "jsr:@std/bytes@^1.0.2-rc.3": "1.0.4",
+    "jsr:@std/cache@0.1.3": "0.1.3",
+    "jsr:@std/cli@^1.0.6": "1.0.7",
     "jsr:@std/crypto@1": "1.0.3",
     "jsr:@std/dotenv@0.225.2": "0.225.2",
     "jsr:@std/encoding@1": "1.0.5",
@@ -15,6 +21,7 @@
     "jsr:@std/fmt@^1.0.2": "1.0.3",
     "jsr:@std/http@1.0.7": "1.0.7",
     "jsr:@std/internal@^1.0.4": "1.0.5",
+    "jsr:@std/io@0.224.5": "0.224.5",
     "jsr:@std/media-types@1": "1.1.0",
     "jsr:@std/media-types@^1.0.3": "1.1.0",
     "jsr:@std/net@^1.0.4": "1.0.4",
@@ -23,6 +30,7 @@
     "jsr:@std/path@^1.0.6": "1.0.6",
     "jsr:@std/streams@^1.0.6": "1.0.8",
     "jsr:@std/testing@1.0.3": "1.0.3",
+    "jsr:@std/ulid@1.0.0": "1.0.0",
     "jsr:@std/url@0.225.1": "0.225.1",
     "npm:@opentelemetry/api@1.8.0": "1.8.0",
     "npm:@opentelemetry/context-async-hooks@1.24.0": "1.24.0_@opentelemetry+api@1.8.0",
@@ -31,9 +39,12 @@
     "npm:@opentelemetry/resources@1.24.0": "1.24.0_@opentelemetry+api@1.8.0",
     "npm:@opentelemetry/sdk-trace-base@1.24.0": "1.24.0_@opentelemetry+api@1.8.0",
     "npm:@opentelemetry/semantic-conventions@1.24.0": "1.24.0",
+    "npm:@types/msgpack-lite@0.1.11": "0.1.11",
+    "npm:@types/node@*": "22.5.4",
     "npm:commit-and-tag-version@*": "12.5.0",
     "npm:esm-compat@0.2.2": "0.2.2",
     "npm:generic-pool@3.9.0": "3.9.0",
+    "npm:msgpack-lite@0.1.26": "0.1.26",
     "npm:request@2.88.2": "2.88.2",
     "npm:rollup@3.29.5": "3.29.5",
     "npm:rollup@4.24.0": "4.24.0"
@@ -54,10 +65,36 @@
         "npm:@opentelemetry/sdk-trace-base"
       ]
     },
+    "@esroyo/web-cache-api-persistence@0.1.5": {
+      "integrity": "d433256628b99b7d61e1b8957fe72dd641f3718195e022e77b86a7b0017ea974",
+      "dependencies": [
+        "jsr:@jabr/xxhash64",
+        "jsr:@kitsonk/kv-toolbox@0.22.0",
+        "jsr:@std/async",
+        "jsr:@std/bytes@1",
+        "jsr:@std/io",
+        "jsr:@std/ulid",
+        "npm:@types/msgpack-lite",
+        "npm:generic-pool",
+        "npm:msgpack-lite"
+      ]
+    },
+    "@jabr/xxhash64@2.0.0": {
+      "integrity": "a109e902abb6787816112ac71fd9145d39f8fccb45f96d1707c82197bd8fbfbd"
+    },
     "@kitsonk/kv-toolbox@0.21.0": {
       "integrity": "a7e1bee5a5d9837c43bd3266d08e6ead2743793641039821adbd067aee0bff83",
       "dependencies": [
-        "jsr:@std/bytes",
+        "jsr:@std/bytes@1",
+        "jsr:@std/crypto",
+        "jsr:@std/encoding@1",
+        "jsr:@std/media-types@1"
+      ]
+    },
+    "@kitsonk/kv-toolbox@0.22.0": {
+      "integrity": "7cb715760b3397c3c34c94666e1964ba6c62661fe8ceda9dc575a63925c9e731",
+      "dependencies": [
+        "jsr:@std/bytes@1",
         "jsr:@std/crypto",
         "jsr:@std/encoding@1",
         "jsr:@std/media-types@1"
@@ -69,11 +106,23 @@
         "jsr:@std/internal"
       ]
     },
+    "@std/async@1.0.8": {
+      "integrity": "c057c5211a0f1d12e7dcd111ab430091301b8d64b4250052a79d277383bc3ba7"
+    },
+    "@std/async@1.0.9": {
+      "integrity": "c6472fd0623b3f3daae023cdf7ca5535e1b721dfbf376562c0c12b3fb4867f91"
+    },
     "@std/bytes@1.0.4": {
       "integrity": "11a0debe522707c95c7b7ef89b478c13fb1583a7cfb9a85674cd2cc2e3a28abc"
     },
+    "@std/cache@0.1.3": {
+      "integrity": "8d3ab61d994d0915295048999f34a8ce2280f0e4d1f4cccb08c9e3d297c0c6ec"
+    },
     "@std/cli@1.0.6": {
       "integrity": "d22d8b38c66c666d7ad1f2a66c5b122da1704f985d3c47f01129f05abb6c5d3d"
+    },
+    "@std/cli@1.0.7": {
+      "integrity": "98359df9df586a69015ba570305183b0cb9e7d53c05ea2016ef9a3e77e82c7cd"
     },
     "@std/crypto@1.0.3": {
       "integrity": "a2a32f51ddef632d299e3879cd027c630dcd4d1d9a5285d6e6788072f4e51e7f"
@@ -102,6 +151,12 @@
     "@std/internal@1.0.5": {
       "integrity": "54a546004f769c1ac9e025abd15a76b6671ddc9687e2313b67376125650dc7ba"
     },
+    "@std/io@0.224.5": {
+      "integrity": "cb84fe655d1273fca94efcff411465027a8b0b4225203f19d6ee98d9c8920a2d",
+      "dependencies": [
+        "jsr:@std/bytes@^1.0.2-rc.3"
+      ]
+    },
     "@std/media-types@1.1.0": {
       "integrity": "c9d093f0c05c3512932b330e3cc1fe1d627b301db33a4c2c2185c02471d6eaa4"
     },
@@ -119,6 +174,9 @@
       "dependencies": [
         "jsr:@std/assert@^1.0.6"
       ]
+    },
+    "@std/ulid@1.0.0": {
+      "integrity": "d41c3d27a907714413649fee864b7cde8d42ee68437d22b79d5de4f81d808780"
     },
     "@std/url@0.225.1": {
       "integrity": "7961f62f0a3cd2c7aa5b785822874132760b50bbf5ed0ccfded8668f203e7a95",
@@ -285,6 +343,18 @@
     },
     "@types/minimist@1.2.5": {
       "integrity": "sha512-hov8bUuiLiyFPGyFPE1lwWhmzYbirOXQNNo40+y3zow8aFVTeyn3VWL0VFFfdNddA8S4Vf0Tc062rzyNr7Paag=="
+    },
+    "@types/msgpack-lite@0.1.11": {
+      "integrity": "sha512-cdCZS/gw+jIN22I4SUZUFf1ZZfVv5JM1//Br/MuZcI373sxiy3eSSoiyLu0oz+BPatTbGGGBO5jrcvd0siCdTQ==",
+      "dependencies": [
+        "@types/node"
+      ]
+    },
+    "@types/node@22.5.4": {
+      "integrity": "sha512-FDuKUJQm/ju9fT/SeX/6+gBzoPzlVCzfzmGkwKvRHQVxi4BntVbyIwf6a4Xn62mrvndLiml6z/UBXIdEVjQLXg==",
+      "dependencies": [
+        "undici-types"
+      ]
     },
     "@types/normalize-package-data@2.4.4": {
       "integrity": "sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA=="
@@ -688,6 +758,9 @@
         "ua-parser-js"
       ]
     },
+    "event-lite@0.1.3": {
+      "integrity": "sha512-8qz9nOz5VeD2z96elrEKD2U433+L3DWdUdDkOINLGOJvx1GsMBbMn0aCeu28y8/e85A6mCigBiFlYMnTBEGlSw=="
+    },
     "extend@3.0.2": {
       "integrity": "sha512-fjquC59cD7CyW6urNXK0FBufkZcoiGG80wTuPujX590cB5Ttln20E2UB4S/WARVqhXffZl2LNgS+gQdPIIim/g=="
     },
@@ -884,6 +957,9 @@
         "safer-buffer"
       ]
     },
+    "ieee754@1.2.1": {
+      "integrity": "sha512-dcyqhDvX1C46lXZcVqCpK+FtMRQVdIMN6/Df5js2zouUsqG7I6sFxitIC+7KYK29KdXOLHdu9zL4sFnoVQnqaA=="
+    },
     "indent-string@4.0.0": {
       "integrity": "sha512-EdDDZu4A2OyIK7Lr/2zG+w5jmbuk1DVBnEwREQvBzspBJkCEbRa8GxU1lghYcaGJCnRWibjDXlq779X1/y5xwg=="
     },
@@ -892,6 +968,9 @@
     },
     "ini@1.3.8": {
       "integrity": "sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew=="
+    },
+    "int64-buffer@0.1.10": {
+      "integrity": "sha512-v7cSY1J8ydZ0GyjUHqF+1bshJ6cnEVLo9EnjB8p+4HDRPZc9N5jjmvUV7NvEsqQOKyH0pmIBFWXVQbiS0+OBbA=="
     },
     "is-arrayish@0.2.1": {
       "integrity": "sha512-zz06S8t0ozoDXMG+ube26zeCTNXcKIPJZJi8hBrF4idCLms4CG9QtK7qBl1boi5ODzFpjswb5JPmHCbMpjaYzg=="
@@ -1097,6 +1176,15 @@
     },
     "ms@2.1.3": {
       "integrity": "sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA=="
+    },
+    "msgpack-lite@0.1.26": {
+      "integrity": "sha512-SZ2IxeqZ1oRFGo0xFGbvBJWMp3yLIY9rlIJyxy8CGrwZn1f0ZK4r6jV/AM1r0FZMDUkWkglOk/eeKIL9g77Nxw==",
+      "dependencies": [
+        "event-lite",
+        "ieee754",
+        "int64-buffer",
+        "isarray"
+      ]
     },
     "neo-async@2.6.2": {
       "integrity": "sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw=="
@@ -1555,6 +1643,9 @@
     "uglify-js@3.19.3": {
       "integrity": "sha512-v3Xu+yuwBXisp6QYTcH4UbH+xYJXqnq2m/LtQVWKWzYc1iehYnLixoQDN9FH6/j9/oybfd6W9Ghwkl8+UMKTKQ=="
     },
+    "undici-types@6.19.8": {
+      "integrity": "sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw=="
+    },
     "uri-js@4.4.1": {
       "integrity": "sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==",
       "dependencies": [
@@ -1710,8 +1801,10 @@
     "dependencies": [
       "jsr:@esroyo/otel-batch-traced-span-processor@1.0.0",
       "jsr:@esroyo/otel-server-timing-span-exporter@2.1.0",
+      "jsr:@esroyo/web-cache-api-persistence@0.1.5",
       "jsr:@kitsonk/kv-toolbox@0.21.0",
       "jsr:@std/assert@1.0.6",
+      "jsr:@std/cache@0.1.3",
       "jsr:@std/dotenv@0.225.2",
       "jsr:@std/http@1.0.7",
       "jsr:@std/path@1.0.6",
