@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [3.0.1](https://github.com/esroyo/systemjs-cdn/compare/v3.0.0...v3.0.1) (2025-01-21)
+
+
+### Bug Fixes
+
+* health endpoint should work with BASE_PATH ([6a0262f](https://github.com/esroyo/systemjs-cdn/commit/6a0262f48613dc8d920eec296fff8cd4428ca98d))
+
 ## [3.0.0](https://github.com/esroyo/systemjs-cdn/compare/v2.0.4...v3.0.0) (2025-01-21)
 
 
