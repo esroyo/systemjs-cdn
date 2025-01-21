@@ -81,6 +81,10 @@ const routes: Route[] = [
         handler: () => new Response(null, { status: 204 }),
     },
     {
+        pattern: new URLPattern({ pathname: `${basePathWithSlash}_health` }),
+        handler: () => new Response(null, { status: 204 }),
+    },
+    {
         pattern: new URLPattern({ pathname: config.BASE_PATH }),
         handler: homeHandler,
     },
