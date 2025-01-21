@@ -5,6 +5,7 @@ import {
     CachePersistenceDenoKv,
     CachePersistenceFactory,
     CachePersistenceRedis,
+    type CachePersistenceRedisOptions,
     CacheStorage,
 } from '@esroyo/web-cache-api-persistence';
 
@@ -30,21 +31,25 @@ if (config.CACHE) {
     let persistenceFactory: CachePersistenceFactory | undefined;
     if (
         config.CACHE_REDIS_HOSTNAME &&
-        config.CACHE_REDIS_PORT &&
-        config.CACHE_REDIS_PASSWORD &&
-        config.CACHE_REDIS_USERNAME
+        config.CACHE_REDIS_PORT
     ) {
         persistenceFactory = {
-            create: async () =>
-                new CachePersistenceRedis({
+            create: async () => {
+                const redisOptions: CachePersistenceRedisOptions = {
                     hostname: config.CACHE_REDIS_HOSTNAME!,
                     port: config.CACHE_REDIS_PORT,
-                    username: config.CACHE_REDIS_USERNAME,
-                    password: config.CACHE_REDIS_PASSWORD,
                     tls: config.CACHE_REDIS_TLS,
                     max: config.CACHE_CONN_MAX,
                     min: config.CACHE_CONN_MIN,
-                }),
+                };
+                if (config.CACHE_REDIS_USERNAME) {
+                    redisOptions.username = config.CACHE_REDIS_USERNAME;
+                }
+                if (config.CACHE_REDIS_PASSWORD) {
+                    redisOptions.password = config.CACHE_REDIS_PASSWORD;
+                }
+                return new CachePersistenceRedis(redisOptions);
+            },
         };
     } else {
         persistenceFactory = {
