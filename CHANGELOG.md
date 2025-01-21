@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [3.0.0](https://github.com/esroyo/systemjs-cdn/compare/v2.0.4...v3.0.0) (2025-01-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* replace custom cache with Cache API persistence
+
+### Other
+
+* replace custom cache with Cache API persistence ([69bb0e1](https://github.com/esroyo/systemjs-cdn/commit/69bb0e1a09f00be78c4a4ad9fe5c3a71d0bac1f1))
+
 ## [2.0.4](https://github.com/esroyo/systemjs-cdn/compare/v2.0.3...v2.0.4) (2024-11-21)
 
 ## [2.0.3](https://github.com/esroyo/systemjs-cdn/compare/v2.0.2...v2.0.3) (2024-11-21)
