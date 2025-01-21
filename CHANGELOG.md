@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [3.0.2](https://github.com/esroyo/systemjs-cdn/compare/v3.0.1...v3.0.2) (2025-01-21)
+
+
+### Bug Fixes
+
+* allow "build" span to have childs ([d533c36](https://github.com/esroyo/systemjs-cdn/commit/d533c36b8fefe76d32a82edb4edb18c0eff0e456))
+* allow to use Redis without user/pass ([42af58f](https://github.com/esroyo/systemjs-cdn/commit/42af58f2e3f8f87684fdf56035e056f57ce8a78e))
+
 ## [3.0.1](https://github.com/esroyo/systemjs-cdn/compare/v3.0.0...v3.0.1) (2025-01-21)
 
 
