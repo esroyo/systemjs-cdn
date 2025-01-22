@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [3.0.3](https://github.com/esroyo/systemjs-cdn/compare/v3.0.2...v3.0.3) (2025-01-22)
+
+
+### Bug Fixes
+
+* upgrade to @esroyo/web-cache-api-persistence@0.1.7 ([8bc6302](https://github.com/esroyo/systemjs-cdn/commit/8bc63020cbf52bdf7c6f1b02714407d18fd9dc27))
+
 ## [3.0.2](https://github.com/esroyo/systemjs-cdn/compare/v3.0.1...v3.0.2) (2025-01-21)
 
 
