@@ -3,22 +3,22 @@
   "specifiers": {
     "jsr:@esroyo/otel-batch-traced-span-processor@1.0.0": "1.0.0",
     "jsr:@esroyo/otel-server-timing-span-exporter@2.1.0": "2.1.0",
-    "jsr:@esroyo/web-cache-api-persistence@0.1.5": "0.1.5",
+    "jsr:@esroyo/web-cache-api-persistence@0.1.7": "0.1.7",
     "jsr:@jabr/xxhash64@2.0.0": "2.0.0",
     "jsr:@kitsonk/kv-toolbox@0.21.0": "0.21.0",
     "jsr:@kitsonk/kv-toolbox@0.22.0": "0.22.0",
     "jsr:@std/assert@1.0.6": "1.0.6",
     "jsr:@std/assert@^1.0.6": "1.0.6",
-    "jsr:@std/async@1": "1.0.9",
+    "jsr:@std/async@1": "1.0.10",
     "jsr:@std/bytes@1": "1.0.4",
     "jsr:@std/bytes@^1.0.2-rc.3": "1.0.4",
     "jsr:@std/cache@0.1.3": "0.1.3",
-    "jsr:@std/cli@^1.0.6": "1.0.7",
+    "jsr:@std/cli@^1.0.6": "1.0.11",
     "jsr:@std/crypto@1": "1.0.3",
     "jsr:@std/dotenv@0.225.2": "0.225.2",
-    "jsr:@std/encoding@1": "1.0.5",
-    "jsr:@std/encoding@^1.0.5": "1.0.5",
-    "jsr:@std/fmt@^1.0.2": "1.0.3",
+    "jsr:@std/encoding@1": "1.0.6",
+    "jsr:@std/encoding@^1.0.5": "1.0.6",
+    "jsr:@std/fmt@^1.0.2": "1.0.4",
     "jsr:@std/http@1.0.7": "1.0.7",
     "jsr:@std/internal@^1.0.4": "1.0.5",
     "jsr:@std/io@0.224.5": "0.224.5",
@@ -40,7 +40,6 @@
     "npm:@opentelemetry/sdk-trace-base@1.24.0": "1.24.0_@opentelemetry+api@1.8.0",
     "npm:@opentelemetry/semantic-conventions@1.24.0": "1.24.0",
     "npm:@types/msgpack-lite@0.1.11": "0.1.11",
-    "npm:@types/node@*": "22.5.4",
     "npm:commit-and-tag-version@*": "12.5.0",
     "npm:esm-compat@0.2.2": "0.2.2",
     "npm:generic-pool@3.9.0": "3.9.0",
@@ -65,8 +64,8 @@
         "npm:@opentelemetry/sdk-trace-base"
       ]
     },
-    "@esroyo/web-cache-api-persistence@0.1.5": {
-      "integrity": "d433256628b99b7d61e1b8957fe72dd641f3718195e022e77b86a7b0017ea974",
+    "@esroyo/web-cache-api-persistence@0.1.7": {
+      "integrity": "94e1203d32336c317f355eceeb6d92e1f35f17142e5b6ed3fd358eb7801a01aa",
       "dependencies": [
         "jsr:@jabr/xxhash64",
         "jsr:@kitsonk/kv-toolbox@0.22.0",
@@ -109,8 +108,8 @@
     "@std/async@1.0.8": {
       "integrity": "c057c5211a0f1d12e7dcd111ab430091301b8d64b4250052a79d277383bc3ba7"
     },
-    "@std/async@1.0.9": {
-      "integrity": "c6472fd0623b3f3daae023cdf7ca5535e1b721dfbf376562c0c12b3fb4867f91"
+    "@std/async@1.0.10": {
+      "integrity": "2ff1b1c7d33d1416159989b0f69e59ec7ee8cb58510df01e454def2108b3dbec"
     },
     "@std/bytes@1.0.4": {
       "integrity": "11a0debe522707c95c7b7ef89b478c13fb1583a7cfb9a85674cd2cc2e3a28abc"
@@ -124,6 +123,9 @@
     "@std/cli@1.0.7": {
       "integrity": "98359df9df586a69015ba570305183b0cb9e7d53c05ea2016ef9a3e77e82c7cd"
     },
+    "@std/cli@1.0.11": {
+      "integrity": "ec219619fdcd31bcf0d8e53bee1e2706ec9a02f70255365a094f69755dadd340"
+    },
     "@std/crypto@1.0.3": {
       "integrity": "a2a32f51ddef632d299e3879cd027c630dcd4d1d9a5285d6e6788072f4e51e7f"
     },
@@ -133,8 +135,14 @@
     "@std/encoding@1.0.5": {
       "integrity": "ecf363d4fc25bd85bd915ff6733a7e79b67e0e7806334af15f4645c569fefc04"
     },
+    "@std/encoding@1.0.6": {
+      "integrity": "ca87122c196e8831737d9547acf001766618e78cd8c33920776c7f5885546069"
+    },
     "@std/fmt@1.0.3": {
       "integrity": "97765c16aa32245ff4e2204ecf7d8562496a3cb8592340a80e7e554e0bb9149f"
+    },
+    "@std/fmt@1.0.4": {
+      "integrity": "e14fe5bedee26f80877e6705a97a79c7eed599e81bb1669127ef9e8bc1e29a74"
     },
     "@std/http@1.0.7": {
       "integrity": "9b904fc256678a5c9759f1a53a24a3fdcc59d83dc62099bb472683b6f819194c",
@@ -1801,7 +1809,7 @@
     "dependencies": [
       "jsr:@esroyo/otel-batch-traced-span-processor@1.0.0",
       "jsr:@esroyo/otel-server-timing-span-exporter@2.1.0",
-      "jsr:@esroyo/web-cache-api-persistence@0.1.5",
+      "jsr:@esroyo/web-cache-api-persistence@0.1.7",
       "jsr:@kitsonk/kv-toolbox@0.21.0",
       "jsr:@std/assert@1.0.6",
       "jsr:@std/cache@0.1.3",
