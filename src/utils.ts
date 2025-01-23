@@ -74,6 +74,7 @@ const denyHeadersList = [
     'cf-cache-status',
     'cf-ray',
     'content-length',
+    'connection',
     'date',
     'host',
     'last-modified',

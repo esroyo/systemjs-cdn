@@ -261,6 +261,8 @@ export function createMainHandler(
             response.headers.set('timing-allow-origin', '*');
         }
 
+        response.headers.set('x-esm-target', buildTarget);
+
         if (willCache) {
             const cacheWriteSpan = tracer.startSpan('cache-write', {
                 attributes: { 'span.type': 'cache' },
