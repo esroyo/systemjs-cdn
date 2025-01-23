@@ -4,7 +4,6 @@ import {
     cloneHeaders,
     cloneRequest,
     denyHeaders,
-    filterUpstreamHeaders,
     getBuildTarget,
     isForbidden,
     isJsResponse,
@@ -82,9 +81,7 @@ export function createMainHandler(
     return async function requestHandler(
         request: Request,
     ): Promise<Response> {
-        // Step: tracing
         const rootSpan = otel.trace.getActiveSpan();
-        rootSpan?.addEvent(Deno.env.get('DENO_REGION') ?? '');
         const originalUserAgent = request.headers.get('user-agent') ?? '';
         const [buildTarget, upstreamUserAgent] = getBuildTarget(
             originalUserAgent,
@@ -165,7 +162,6 @@ export function createMainHandler(
             headers: cloneHeaders(
                 request.headers,
                 denyHeaders,
-                filterUpstreamHeaders,
                 (
                     pair: [string, string] | null,
                 ) => (pair && pair[0] === 'user-agent'

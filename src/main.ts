@@ -26,6 +26,22 @@ if (config.CACHE) {
         if (headerName === 'origin') {
             return '*';
         }
+        if (headerName === 'accept-encoding') {
+            // Weighted ("Accept-Encoding: deflate, gzip;q=1.0, *;q=0.5"): leave it as-is
+            if (headerValue?.includes('=')) {
+                return headerValue;
+            }
+            if (headerValue?.includes('br')) {
+                return 'br';
+            }
+            if (headerValue?.includes('gzip')) {
+                return 'gzip';
+            }
+            if (headerValue?.includes('deflate')) {
+                return 'deflate';
+            }
+            return '';
+        }
         return headerValue ?? '';
     };
     let persistenceFactory: CachePersistenceFactory | undefined;

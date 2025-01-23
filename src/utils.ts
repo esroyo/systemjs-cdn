@@ -67,16 +67,20 @@ export const cloneHeaders = (
 
 const denyHeadersList = [
     'access-control-expose-headers',
+    'accept-encoding',
+    'accept-ranges',
     'age',
-    'date',
     'alt-svc',
     'cf-cache-status',
     'cf-ray',
     'content-length',
+    'date',
     'host',
+    'last-modified',
     'nel',
     'report-to',
     'server',
+    'server-timing',
     'via',
     'x-amz-cf-id',
     'x-amz-cf-pop',
@@ -92,16 +96,6 @@ const denyHeadersList = [
 export const denyHeaders = (
     pair: [string, string] | null,
 ) => (pair !== null && denyHeadersList.includes(pair[0]) ? null : pair);
-
-export const filterUpstreamHeaders = (
-    pair: [string, string] | null,
-) => (pair !== null && ['accept-encoding'].includes(pair[0])
-    ? [
-        pair[0],
-        pair[1].split(',').map((i) => i.trim()).filter((i) => i !== 'zstd')
-            .join(','),
-    ] as [string, string]
-    : pair);
 
 export const isJsResponse = (response: Response): boolean => {
     return !!(response.headers.get('content-type')?.startsWith(

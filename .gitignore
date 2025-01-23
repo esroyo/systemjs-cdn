@@ -131,3 +131,6 @@ dist
 
 #vim
 .vim
+
+# custom
+src/list.ts
