@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [3.0.5](https://github.com/esroyo/systemjs-cdn/compare/v3.0.4...v3.0.5) (2025-01-23)
+
+
+### Bug Fixes
+
+* remove `connection` header ([91e3f94](https://github.com/esroyo/systemjs-cdn/commit/91e3f94cbf6dbc33b8c63a970e73a0296db1eaf5))
+
 ## [3.0.4](https://github.com/esroyo/systemjs-cdn/compare/v3.0.3...v3.0.4) (2025-01-23)
 
 
