@@ -34,7 +34,7 @@ export interface HttpZResponseModel {
 
 export type Config = {
     BASE_PATH: string;
-    CACHE: boolean;
+    CACHE_ENABLE: boolean;
     CACHE_CONN_MAX?: number;
     CACHE_CONN_MIN?: number;
     CACHE_REDIRECT?: number;
@@ -47,8 +47,6 @@ export type Config = {
     OTEL_EXPORTER_OTLP_ENDPOINT?: string;
     OTEL_EXPORTER_ENABLE?: boolean;
     OTEL_EXPORTER_OTLP_HEADERS?: Record<string, string>;
-    /** @deprecated */
-    DD_TRACE_ENABLED?: boolean;
     HOMEPAGE: string;
     OUTPUT_BANNER?: string;
     REDIRECT_FASTPATH?: boolean;

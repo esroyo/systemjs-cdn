@@ -10,7 +10,7 @@ dotenvLoad({ export: true });
 
 const baseConfig: Config = {
     BASE_PATH: '/',
-    CACHE: false,
+    CACHE_ENABLE: false,
     HOMEPAGE: 'https://home/page',
     UPSTREAM_ORIGIN: 'https://esm.sh/',
     OUTPUT_BANNER: '',
@@ -575,7 +575,7 @@ Deno.test(
         };
         const config = {
             ...baseConfig,
-            CACHE: true,
+            CACHE_ENABLE: true,
         };
         const handler = createMainHandler(
             config,
@@ -617,7 +617,7 @@ Deno.test(
         };
         const config = {
             ...baseConfig,
-            CACHE: true,
+            CACHE_ENABLE: true,
         };
         const handler = createMainHandler(
             config,
@@ -675,7 +675,7 @@ Deno.test(
         };
         const config = {
             ...baseConfig,
-            CACHE: true,
+            CACHE_ENABLE: true,
             REDIRECT_FASTPATH: true,
         };
         const handler = createMainHandler(
@@ -729,7 +729,7 @@ Deno.test(
         };
         const config = {
             ...baseConfig,
-            CACHE: true,
+            CACHE_ENABLE: true,
             CACHE_CLIENT_REDIRECT: 60,
             REDIRECT_FASTPATH: true,
         };
@@ -788,7 +788,7 @@ Deno.test(
         };
         const config = {
             ...baseConfig,
-            CACHE: true,
+            CACHE_ENABLE: true,
             CACHE_CLIENT_REDIRECT: 600,
         };
         const handler = createMainHandler(
@@ -853,7 +853,7 @@ Deno.test(
         };
         const config = {
             ...baseConfig,
-            CACHE: true,
+            CACHE_ENABLE: true,
             CACHE_REDIRECT: 600,
             REDIRECT_FASTPATH: true,
         };

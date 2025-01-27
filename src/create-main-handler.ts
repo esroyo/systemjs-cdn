@@ -70,7 +70,7 @@ export function createMainHandler(
 ): (request: Request) => Promise<Response> {
     const {
         BASE_PATH,
-        CACHE,
+        CACHE_ENABLE,
         CACHE_REDIRECT,
         HOMEPAGE,
         UPSTREAM_ORIGIN,
@@ -120,7 +120,7 @@ export function createMainHandler(
             'http.url': publicUrl,
         });
 
-        if (isMapRequest && !CACHE) {
+        if (isMapRequest && !CACHE_ENABLE) {
             // Sourcemaps are only enabled with CACHE
             // otherwise they are served as inlined data uris
             // thus it is not possible to receive a sourcemap request when !CACHE
@@ -128,7 +128,7 @@ export function createMainHandler(
         }
 
         if (
-            CACHE &&
+            CACHE_ENABLE &&
             cache /* && !request.headers.get('cache-control')?.includes('no-cache') */
         ) {
             const cacheReadSpan = tracer.startSpan('cache-read', {
@@ -185,7 +185,7 @@ export function createMainHandler(
             const canGenerateSourcemap =
                 !!(typeof sourceModule === 'object' && sourceModule.map);
             const sourcemap = canGenerateSourcemap
-                ? (CACHE ? true : 'inline')
+                ? (CACHE_ENABLE ? true : 'inline')
                 : false;
             const sourcemapFileNames = sourcemap === true
                 ? `${basename(publicUrl)}.map`
@@ -234,7 +234,8 @@ export function createMainHandler(
             isNotFound(response) ||
             isOk(response) ||
             isActualRedirect;
-        const shouldCache = !!(CACHE && (!isActualRedirect || CACHE_REDIRECT));
+        const shouldCache =
+            !!(CACHE_ENABLE && (!isActualRedirect || CACHE_REDIRECT));
         const willCache = shouldCache && isCacheable && cache;
 
         let synthMapRequest: Request | null = null;

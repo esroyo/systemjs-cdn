@@ -15,7 +15,7 @@ import { instrumentRequestHandler } from './instrument-request-handler.ts';
 import { getBuildTarget } from './utils.ts';
 
 let cache: CacheLike | undefined;
-if (config.CACHE) {
+if (config.CACHE_ENABLE) {
     const headerNormalizer = (
         headerName: string,
         headerValue: string | null,
