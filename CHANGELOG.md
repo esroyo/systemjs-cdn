@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [4.0.0](https://github.com/esroyo/systemjs-cdn/compare/v3.0.5...v4.0.0) (2025-01-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* rename CACHE option to CACHE_ENABLE
+
+### Other
+
+* rename CACHE option to CACHE_ENABLE ([83db5aa](https://github.com/esroyo/systemjs-cdn/commit/83db5aa153f7100e9c1f5b86ad07bf9ca447e88a))
+
 ## [3.0.5](https://github.com/esroyo/systemjs-cdn/compare/v3.0.4...v3.0.5) (2025-01-23)
 
 
