@@ -17,7 +17,7 @@
   "imports": {
     "@esroyo/otel-server-timing-span-exporter": "jsr:@esroyo/otel-server-timing-span-exporter@2.1.0",
     "@esroyo/otel-batch-traced-span-processor": "jsr:@esroyo/otel-batch-traced-span-processor@1.0.0",
-    "@esroyo/web-cache-api-persistence": "jsr:@esroyo/web-cache-api-persistence@0.1.7",
+    "@esroyo/web-cache-api-persistence": "jsr:@esroyo/web-cache-api-persistence@0.1.10",
     "@kitsonk/kv-toolbox": "jsr:@kitsonk/kv-toolbox@0.21.0",
     "@opentelemetry/api": "npm:@opentelemetry/api@1.8.0",
     "@opentelemetry/context-async-hooks": "npm:@opentelemetry/context-async-hooks@1.24.0",

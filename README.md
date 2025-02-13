@@ -86,3 +86,11 @@ docker build -t systemjs.sh .
 # run the service on localhost:8000
 docker run -p 8000:8000 systemjs.sh
 ```
+
+## Purging cache
+
+Only supports purging specific URLs:
+
+```sh
+curl -v http://localhost:8000/_purge -F "url=http://localhost:8000/vue@3.4.1"
+```

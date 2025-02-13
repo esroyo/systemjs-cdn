@@ -13,6 +13,7 @@ import { createWorkerPool } from './create-worker-pool.ts';
 import { createMainHandler } from './create-main-handler.ts';
 import { instrumentRequestHandler } from './instrument-request-handler.ts';
 import { getBuildTarget } from './utils.ts';
+import { createPurgeHandler } from './create-purge-handler.ts';
 
 let cache: CacheLike | undefined;
 if (config.CACHE_ENABLE) {
@@ -94,6 +95,7 @@ const homeHandler = () =>
         headers: { 'location': config.HOMEPAGE },
     });
 const mainHandler = createMainHandler(config, cache, workerPool);
+const purgeHandler = createPurgeHandler(config, cache);
 
 // Step: define the routes and handlers
 const routes: Route[] = [
@@ -112,6 +114,11 @@ const routes: Route[] = [
     {
         pattern: new URLPattern({ pathname: basePathWithSlash }),
         handler: homeHandler,
+    },
+    {
+        pattern: new URLPattern({ pathname: `${basePathWithSlash}_purge` }),
+        method: 'POST',
+        handler: purgeHandler,
     },
     {
         pattern: new URLPattern({ pathname: `${basePathWithSlash}*` }),

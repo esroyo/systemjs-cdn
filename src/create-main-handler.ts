@@ -55,6 +55,7 @@ const createFastPathResponse = async (
                     signal: originalRequest.signal,
                 }),
             );
+            fastResponse.headers.set('x-location', location);
             span.end();
             return finalizeFastPathResponse(config, fastResponse);
         },

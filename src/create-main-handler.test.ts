@@ -880,6 +880,15 @@ Deno.test(
             },
         );
         await t.step(
+            'should add an "x-location" header with the followed redirection',
+            async () => {
+                assertEquals(
+                    res.headers.get('x-location'),
+                    `${SELF_ORIGIN}foo@2?bundle`,
+                );
+            },
+        );
+        await t.step(
             'should fetch $UPSTREAM_ORIGIN the first time',
             async () => {
                 assertSpyCalls(fetchMock, 1);
