@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [4.1.0](https://github.com/esroyo/systemjs-cdn/compare/v4.0.0...v4.1.0) (2025-02-13)
+
+
+### Features
+
+* add purge endpoint ([cd6bd3e](https://github.com/esroyo/systemjs-cdn/commit/cd6bd3ea4d8d760cc2ea36ab5d58b6276ad1f7c5))
+
 ## [4.0.0](https://github.com/esroyo/systemjs-cdn/compare/v3.0.5...v4.0.0) (2025-01-27)
 
 
