@@ -11,6 +11,9 @@ export function createWorkerPool(
     if (!options.min) {
         options.min = config.WORKER_MIN;
     }
+    if (!options.evictionRunIntervalMillis) {
+        options.evictionRunIntervalMillis = 60 * 1000;
+    }
     const poolFactory = {
         async create(): Promise<Worker> {
             return new Worker(import.meta.resolve('./to-systemjs-worker.ts'), {

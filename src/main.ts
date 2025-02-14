@@ -143,5 +143,9 @@ server.finished.then(() => {
     console.log('Finishing server');
     return cache?.[Symbol.asyncDispose]?.();
 }).then(() => {
+    return workerPool?.drain();
+}).then(() => {
+    return workerPool?.clear();
+}).then(() => {
     console.log('Finished');
 });
