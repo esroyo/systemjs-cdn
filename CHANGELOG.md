@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [4.1.1](https://github.com/esroyo/systemjs-cdn/compare/v4.1.0...v4.1.1) (2025-02-14)
+
+
+### Bug Fixes
+
+* add evictions to pools ([c59fec3](https://github.com/esroyo/systemjs-cdn/commit/c59fec3ed5c378d2777fb83b24dc8d8d0f51f894))
+
 ## [4.1.0](https://github.com/esroyo/systemjs-cdn/compare/v4.0.0...v4.1.0) (2025-02-13)
 
 
