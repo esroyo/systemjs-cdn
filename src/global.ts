@@ -1,9 +1,15 @@
+import otel from '@opentelemetry/api';
 import type { Config } from './types.ts';
 import { BatchTracedSpanProcessor } from '@esroyo/otel-batch-traced-span-processor';
 import { ServerTimingSpanExporter } from '@esroyo/otel-server-timing-span-exporter';
 import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks';
 import { Resource } from '@opentelemetry/resources';
 import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import {
+    MeterProvider,
+    PeriodicExportingMetricReader,
+} from '@opentelemetry/sdk-metrics';
+import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { loadSync as dotenvLoad } from '@std/dotenv';
 import { CustomTracerProvider } from './custom-tracer-provider.ts';
@@ -29,7 +35,7 @@ export const config: Config = {
     // DD_TRACE_ENABLED: Deno.env.get('DD_TRACE_ENABLED') === 'true', // default false
     OTEL_EXPORTER_ENABLE: Deno.env.get('OTEL_EXPORTER_ENABLE') === 'true', // default false
     OTEL_EXPORTER_OTLP_ENDPOINT: Deno.env.get('OTEL_EXPORTER_OTLP_ENDPOINT') ??
-        `http://${Deno.env.get('DD_AGENT_HOST') ?? 'localhost'}:4318/v1/traces`,
+        `http://${Deno.env.get('DD_AGENT_HOST') ?? 'localhost'}:4318`,
     OTEL_EXPORTER_OTLP_HEADERS: JSON.parse(
         Deno.env.get('OTEL_EXPORTER_OTLP_HEADERS') ?? '{}',
     ),
@@ -52,20 +58,19 @@ if (isMainProcess) {
 }
 
 // Step: minimal tracing setup
-const provider = new CustomTracerProvider({
-    resource: new Resource({
-        [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]:
-            Deno.env.get('ENV') ?? 'dev',
-        [SemanticResourceAttributes.SERVICE_NAME]: 'systemjs',
-        [SemanticResourceAttributes.SERVICE_VERSION]: Deno.env.get(
-            'DEPLOYMENT_TAG',
-        ),
-        [SemanticResourceAttributes.SERVICE_INSTANCE_ID]: Deno.env.get(
-            'SERVICE_INSTANCE_ID',
-        ),
-        [SemanticResourceAttributes.TELEMETRY_SDK_LANGUAGE]: 'javascript',
-    }),
+const resource = new Resource({
+    [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]: Deno.env.get('ENV') ??
+        'dev',
+    [SemanticResourceAttributes.SERVICE_NAME]: 'systemjs',
+    [SemanticResourceAttributes.SERVICE_VERSION]: Deno.env.get(
+        'DEPLOYMENT_TAG',
+    ),
+    [SemanticResourceAttributes.SERVICE_INSTANCE_ID]: Deno.env.get(
+        'SERVICE_INSTANCE_ID',
+    ),
+    [SemanticResourceAttributes.TELEMETRY_SDK_LANGUAGE]: 'javascript',
 });
+const provider = new CustomTracerProvider({ resource });
 provider.addSpanProcessor(
     new SimpleSpanProcessor(new ServerTimingSpanExporter()),
 );
@@ -75,18 +80,42 @@ provider.register({
 
 // Step: OTLP tracing setup
 if (config.OTEL_EXPORTER_ENABLE) {
-    const collectorOptions = {
-        // url is optional and can be omitted - default is http://localhost:4318/v1/traces
-        url: config.OTEL_EXPORTER_OTLP_ENDPOINT,
+    const traceCollectorOptions = {
+        // url is optional and can be omitted - default is http://localhost:4318
+        url: `${config.OTEL_EXPORTER_OTLP_ENDPOINT}/v1/traces`,
         // an optional object containing custom headers to be sent with each request will only work with http
         headers: config.OTEL_EXPORTER_OTLP_HEADERS,
         // an optional limit on pending requests
         concurrencyLimit: 10,
     };
-    const otlpExporter = new CustomOTLPTraceExporter(collectorOptions);
+    const otlpExporter = new CustomOTLPTraceExporter(traceCollectorOptions);
     const otelProcessor = new BatchTracedSpanProcessor(otlpExporter);
     provider.addSpanProcessor(otelProcessor);
+    const metricsCollectorOptions = {
+        // url is optional and can be omitted - default is http://localhost:4318
+        url: `${config.OTEL_EXPORTER_OTLP_ENDPOINT}/v1/metrics`,
+        // an optional object containing custom headers to be sent with each request will only work with http
+        headers: config.OTEL_EXPORTER_OTLP_HEADERS,
+        // an optional limit on pending requests
+        concurrencyLimit: 10,
+    };
+    const metricExporter = new OTLPMetricExporter(metricsCollectorOptions);
+    const meterProvider = new MeterProvider({
+        resource,
+        readers: [
+            new PeriodicExportingMetricReader({
+                exporter: metricExporter,
+                exportIntervalMillis: 1000,
+            }),
+        ],
+    });
+    // Registration
+    otel.metrics.setGlobalMeterProvider(meterProvider);
+
     if (isMainProcess) {
-        console.log('OTLP options:', collectorOptions);
+        console.log('OTLP options:', {
+            traceCollectorOptions,
+            metricsCollectorOptions,
+        });
     }
 }

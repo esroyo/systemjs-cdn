@@ -19,12 +19,13 @@ export const instrumentRequestHandler = <T extends Deno.ServeHandler>(
         getServerTimingHeader: () => ['Server-Timing', ''],
     };
     // @ts-ignore private access to MultiSpanProcessor _spanProcessors prop
-    const spanProcessors: SpanProcessor[] = '_spanProcessors' in spanProcessor
-        ? spanProcessor._spanProcessors
-        : [spanProcessor];
+    const spanProcessors: SpanProcessor[] =
+        spanProcessor && '_spanProcessors' in spanProcessor
+            ? spanProcessor._spanProcessors
+            : [spanProcessor];
     for (const processor of spanProcessors) {
         if (
-            '_exporter' in processor &&
+            processor && '_exporter' in processor &&
             // @ts-ignore private access to SimpleSpanProcessor _exporter prop
             'getServerTimingHeader' in processor._exporter
         ) {
