@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [5.0.0](https://github.com/esroyo/systemjs-cdn/compare/v4.1.1...v5.0.0) (2025-02-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* add worker metrics + remove path OTEL_EXPORTER_OTLP_ENDPOINT
+
+### Features
+
+* add worker metrics + remove path OTEL_EXPORTER_OTLP_ENDPOINT ([e095f19](https://github.com/esroyo/systemjs-cdn/commit/e095f19e3864419a8dc8179f8690e2f017f2da1e))
+
 ## [4.1.1](https://github.com/esroyo/systemjs-cdn/compare/v4.1.0...v4.1.1) (2025-02-14)
 
 
