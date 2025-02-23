@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [5.0.1](https://github.com/esroyo/systemjs-cdn/compare/v5.0.0...v5.0.1) (2025-02-23)
+
+
+### Bug Fixes
+
+* do not avg worker metrics ([b01d5a0](https://github.com/esroyo/systemjs-cdn/commit/b01d5a050fefa2ca81cdef2cb16f28b6235faaff))
+
 ## [5.0.0](https://github.com/esroyo/systemjs-cdn/compare/v4.1.1...v5.0.0) (2025-02-22)
 
 
