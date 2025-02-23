@@ -8,6 +8,7 @@ import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import {
     MeterProvider,
     PeriodicExportingMetricReader,
+    View,
 } from '@opentelemetry/sdk-metrics';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
@@ -15,6 +16,7 @@ import { loadSync as dotenvLoad } from '@std/dotenv';
 import { CustomTracerProvider } from './custom-tracer-provider.ts';
 import { CustomOTLPTraceExporter } from './custom-otlp-trace-exporter.ts';
 import { sanitizeBasePath, sanitizeUpstreamOrigin } from './utils.ts';
+import { MaxAggregation, MinAggregation } from './max-min-aggregation.ts';
 
 // Step: resolve config
 dotenvLoad({ export: true });
@@ -106,6 +108,20 @@ if (config.OTEL_EXPORTER_ENABLE) {
             new PeriodicExportingMetricReader({
                 exporter: metricExporter,
                 exportIntervalMillis: 1000,
+            }),
+        ],
+        views: [
+            new View({
+                aggregation: new MinAggregation(),
+                instrumentName: 'app.workers.available',
+            }),
+            new View({
+                aggregation: new MaxAggregation(),
+                instrumentName: 'app.workers.pending',
+            }),
+            new View({
+                aggregation: new MaxAggregation(),
+                instrumentName: 'app.workers.borrowed',
             }),
         ],
     });

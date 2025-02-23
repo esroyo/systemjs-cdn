@@ -31,24 +31,29 @@ export function createWorkerPool(
         const meter = otel.metrics.getMeter('web');
         const keys = ['available', 'borrowed', 'pending'] as const;
         const gauges = Object.fromEntries(
-            keys.map((key) => [key, meter.createGauge(`workers.${key}`)]),
+            keys.map((key) => [key, meter.createGauge(`app.workers.${key}`)]),
         );
-        const record = () => {
+        const recordMetrics = () => {
             for (const key of keys) {
                 gauges[key].record(pool[key]);
             }
         };
-        const timer = setInterval(record, 1000);
-        const _acquire = pool.acquire.bind(pool);
+        const recordMetricsTimer = setInterval(recordMetrics, 1000);
         const _clear = pool.clear.bind(pool);
-        pool.acquire = (priority?: number): Promise<any> => {
-            record();
-            return _acquire(priority);
-        };
         pool.clear = (): Promise<void> => {
-            clearInterval(timer);
+            clearInterval(recordMetricsTimer);
             return _clear();
         };
+        return new Proxy(pool, {
+            get(
+                target: genericPool.Pool<Worker>,
+                p: string | symbol,
+                receiver: any,
+            ): any {
+                recordMetrics();
+                return Reflect.get(target, p, receiver);
+            },
+        });
     }
     return pool;
 }
