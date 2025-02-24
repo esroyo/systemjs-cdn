@@ -117,7 +117,7 @@ export function createMainHandler(
         const isMapRequest = publicUrl.endsWith('.map');
         rootSpan?.setAttributes({
             'esm.build.target': buildTarget,
-            'http.route': BASE_PATH,
+            'http.route': upstreamUrl.toString().replace(UPSTREAM_ORIGIN, ''),
             'http.url': publicUrl,
         });
 
@@ -136,7 +136,9 @@ export function createMainHandler(
                 attributes: { 'span.type': 'cache' },
             });
             const cachedResponse = await cache.match(normalizedRequest);
-            cacheReadSpan.addEvent(cachedResponse ? 'cache-hit' : 'cache-miss');
+            const eventName = cachedResponse ? 'cache-hit' : 'cache-miss';
+            cacheReadSpan.addEvent(eventName);
+            cacheReadSpan.setAttribute(eventName, true);
             cacheReadSpan.end();
             if (cachedResponse) {
                 if (isRedirect(cachedResponse)) {
