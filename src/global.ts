@@ -24,6 +24,7 @@ dotenvLoad({ export: true });
 export const config: Config = {
     BASE_PATH: sanitizeBasePath(Deno.env.get('BASE_PATH') ?? '/'),
     CACHE_ENABLE: Deno.env.get('CACHE_ENABLE') === 'true',
+    CACHE_NAME: Deno.env.get('CACHE_NAME') ?? 'v1',
     CACHE_CONN_MAX: Number(Deno.env.get('CACHE_CONN_MAX')) || 20,
     CACHE_CONN_MIN: Number(Deno.env.get('CACHE_CONN_MIN')) || 2,
     CACHE_REDIRECT: Number(Deno.env.get('CACHE_REDIRECT') as string) || 600,

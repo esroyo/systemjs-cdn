@@ -80,7 +80,7 @@ if (config.CACHE_ENABLE) {
     }
 
     const caches = new CacheStorage(persistenceFactory, headerNormalizer);
-    cache = await caches.open('v1');
+    cache = await caches.open(config.CACHE_NAME);
 }
 
 const workerPool = config.WORKER_ENABLE ? createWorkerPool(config) : undefined;

@@ -34,11 +34,12 @@ export interface HttpZResponseModel {
 
 export type Config = {
     BASE_PATH: string;
-    CACHE_ENABLE: boolean;
     CACHE_CONN_MAX?: number;
     CACHE_CONN_MIN?: number;
-    CACHE_REDIRECT?: number;
+    CACHE_ENABLE: boolean;
     CACHE_CLIENT_REDIRECT?: number;
+    CACHE_NAME: string;
+    CACHE_REDIRECT?: number;
     CACHE_REDIS_HOSTNAME?: string;
     CACHE_REDIS_PORT?: string;
     CACHE_REDIS_USERNAME?: string;
