@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [5.0.2](https://github.com/esroyo/systemjs-cdn/compare/v5.0.1...v5.0.2) (2025-02-24)
+
+
+### Other
+
+* add "hit" "miss" events as span attrs ([6a1283d](https://github.com/esroyo/systemjs-cdn/commit/6a1283d90ba9ab1fa441578afc57802fdb8422cc))
+
 ## [5.0.1](https://github.com/esroyo/systemjs-cdn/compare/v5.0.0...v5.0.1) (2025-02-23)
 
 
