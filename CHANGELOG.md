@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [5.0.3](https://github.com/esroyo/systemjs-cdn/compare/v5.0.2...v5.0.3) (2025-02-24)
+
+
+### Bug Fixes
+
+* add missing leading slash on route ([1daac09](https://github.com/esroyo/systemjs-cdn/commit/1daac09f6e74c0382545826ceddc1cba1b3345d0))
+
 ## [5.0.2](https://github.com/esroyo/systemjs-cdn/compare/v5.0.1...v5.0.2) (2025-02-24)
 
 
