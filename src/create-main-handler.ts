@@ -117,7 +117,7 @@ export function createMainHandler(
         const isMapRequest = publicUrl.endsWith('.map');
         rootSpan?.setAttributes({
             'esm.build.target': buildTarget,
-            'http.route': upstreamUrl.toString().replace(UPSTREAM_ORIGIN, ''),
+            'http.route': upstreamUrl.toString().replace(UPSTREAM_ORIGIN, '/'),
             'http.url': publicUrl,
         });
 
