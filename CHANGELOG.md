@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [5.1.1](https://github.com/esroyo/systemjs-cdn/compare/v5.1.0...v5.1.1) (2025-04-09)
+
+
+### Bug Fixes
+
+* correct tracer events timing ([01fb026](https://github.com/esroyo/systemjs-cdn/commit/01fb026d884e7becac153460570f77b30bf34cd1))
+
 ## [5.1.0](https://github.com/esroyo/systemjs-cdn/compare/v5.0.3...v5.1.0) (2025-02-24)
 
 
