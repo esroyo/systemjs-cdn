@@ -1,5 +1,5 @@
-import { BasicTracerProvider } from '@opentelemetry/sdk-trace-base';
 import { millisToHrTime } from '@opentelemetry/core';
+import { BasicTracerProvider } from '@opentelemetry/sdk-trace-base';
 
 export const getTime = () => millisToHrTime(performance.now());
 
@@ -45,11 +45,11 @@ export class CustomTracerProvider extends BasicTracerProvider {
                 attributesOrStartTime,
                 startTime,
             ) {
-                const missingStartTime = typeof startTime !== 'undefined';
-                typeof attributesOrStartTime === 'number' ||
+                const hasStartTime = typeof startTime !== 'undefined' ||
+                    typeof attributesOrStartTime === 'number' ||
                     Array.isArray(attributesOrStartTime) ||
                     attributesOrStartTime instanceof Date;
-                if (!missingStartTime) {
+                if (hasStartTime) {
                     return _addEvent(name, attributesOrStartTime, startTime);
                 }
                 return _addEvent(name, attributesOrStartTime, getTime());
@@ -76,7 +76,14 @@ export class CustomTracerProvider extends BasicTracerProvider {
                 if (!actualOptions.startTime) {
                     actualOptions.startTime = getTime();
                 }
-                return _startActiveSpan(name, actualOptions, fnOrContext, fn);
+                const args: Parameters<typeof _startActiveSpan> = [
+                    name,
+                    actualOptions,
+                    fnOrContext,
+                    fn,
+                ];
+                while (args[args.length - 1] === undefined) args.pop();
+                return _startActiveSpan.apply(null, args);
             };
         tracer.startSpan = startSpan;
         tracer.startActiveSpan = startActiveSpan;
