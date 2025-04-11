@@ -45,6 +45,7 @@ export const config: Config = {
     HOMEPAGE: Deno.env.get('HOMEPAGE') ?? '',
     OUTPUT_BANNER: Deno.env.get('OUTPUT_BANNER') ?? '',
     REDIRECT_FASTPATH: Deno.env.get('REDIRECT_FASTPATH') !== 'false', // default true
+    ROLLUP_PLUGIN: (Deno.env.get('ROLLUP_PLUGIN') ?? '').split('\\n').filter(Boolean),
     UPSTREAM_ORIGIN: sanitizeUpstreamOrigin(
         Deno.env.get('UPSTREAM_ORIGIN') ?? 'https://esm.sh',
     ),
@@ -135,4 +136,14 @@ if (config.OTEL_EXPORTER_ENABLE) {
             metricsCollectorOptions,
         });
     }
+}
+
+// Initial import of the configured Rollup plugins, if any
+if (config.ROLLUP_PLUGIN?.length) {
+    await Promise.all(config.ROLLUP_PLUGIN.map((plugin) => {
+        const idx = plugin.indexOf('=');
+        const pkgName = idx === -1 ? plugin : plugin.slice(0, idx);
+        // Rollup is nodejs specific (uses require), so we asume plugin is found on NPM
+        return import(`npm:${pkgName}`);
+    }));
 }

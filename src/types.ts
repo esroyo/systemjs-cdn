@@ -1,4 +1,4 @@
-import { type ExistingRawSourceMap } from 'rollup';
+import { type ExistingRawSourceMap, InputOptions, OutputOptions } from 'rollup';
 import opentelemetry from '@opentelemetry/api';
 import { type ServerTimingSpanExporter } from '@esroyo/otel-server-timing-span-exporter';
 
@@ -38,7 +38,7 @@ export type Config = {
     CACHE_CONN_MIN?: number;
     CACHE_ENABLE: boolean;
     CACHE_CLIENT_REDIRECT?: number;
-    CACHE_NAME: string;
+    CACHE_NAME?: string;
     CACHE_REDIRECT?: number;
     CACHE_REDIS_HOSTNAME?: string;
     CACHE_REDIS_PORT?: string;
@@ -51,6 +51,7 @@ export type Config = {
     HOMEPAGE: string;
     OUTPUT_BANNER?: string;
     REDIRECT_FASTPATH?: boolean;
+    ROLLUP_PLUGIN?: string[];
     UPSTREAM_ORIGIN: string;
     WORKER_ENABLE?: boolean;
     WORKER_MAX?: number;
@@ -79,3 +80,9 @@ export type BuildResult = {
     code: string;
     map?: string;
 };
+
+export interface RollupOptions extends InputOptions {
+    // This is included for compatibility with config files but ignored by rollup.rollup
+    output?: OutputOptions;
+    plugin?: string[];
+}

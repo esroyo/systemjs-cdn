@@ -7,12 +7,13 @@ import {
     rollup as _rollup,
     VERSION as _rollupVersion,
 } from 'rollup';
-import type { BuildResult, SourceModule } from './types.ts';
+import type { BuildResult, RollupOptions, SourceModule } from './types.ts';
 import rollupPluginVirtual from './rollup-plugin-virtual.ts';
+import { addCommandPluginsToInputOptions } from 'rollup/dist/shared/loadConfigFile.js';
 
 export const toSystemjsMain = async (
     sourceModule: string | SourceModule,
-    rollupOutputOptions: OutputOptions = {},
+    rollupOptions: RollupOptions = {},
     signal?: AbortSignal,
 ): Promise<BuildResult> => {
     signal?.throwIfAborted();
@@ -37,14 +38,22 @@ export const toSystemjsMain = async (
         ],
         treeshake: false,
     };
+    // "plugin" as in the CLI option
+    if (rollupOptions.plugin) {
+        addCommandPluginsToInputOptions(inputOptions, {
+            plugin: rollupOptions.plugin,
+        });
+    }
 
     const outputOptions: OutputOptions = {
         dir: 'out', // not really used
         format: 'systemjs' as ModuleFormat,
         compact: true,
-        ...rollupOutputOptions,
+        ...rollupOptions.output,
         footer: `/* rollup@${rollupVersion}${
-            rollupOutputOptions.footer ? ` - ${rollupOutputOptions.footer}` : ''
+            rollupOptions.output?.footer
+                ? ` - ${rollupOptions.output.footer}`
+                : ''
         } */\n`,
     };
 
@@ -72,7 +81,7 @@ export const toSystemjsMain = async (
 export const toSystemjsWorker = async (
     workerPool: Pool<Worker>,
     sourceModule: string | SourceModule,
-    rollupOutputOptions: OutputOptions = {},
+    rollupOptions: RollupOptions = {},
     signal?: AbortSignal,
 ): Promise<BuildResult> => {
     const tracer = opentelemetry.trace.getTracer('web');
@@ -101,14 +110,14 @@ export const toSystemjsWorker = async (
             false,
         );
         worker.postMessage({
-            args: [sourceModule, rollupOutputOptions],
+            args: [sourceModule, rollupOptions],
         });
     });
 };
 
 export const toSystemjs = async (
     sourceModule: string | SourceModule,
-    rollupOutputOptions: OutputOptions = {},
+    rollupOptions: RollupOptions = {},
     workerPool?: Pool<Worker>,
     signal?: AbortSignal,
 ): Promise<BuildResult> => {
@@ -117,11 +126,14 @@ export const toSystemjs = async (
             workerPool,
             sourceModule,
             {
-                footer: '(worker)',
-                ...rollupOutputOptions,
+                ...rollupOptions,
+                output: {
+                    footer: '(worker)',
+                    ...rollupOptions.output,
+                },
             },
             signal,
         );
     }
-    return toSystemjsMain(sourceModule, rollupOutputOptions, signal);
+    return toSystemjsMain(sourceModule, rollupOptions, signal);
 };

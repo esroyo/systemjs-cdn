@@ -74,8 +74,9 @@ export function createMainHandler(
         CACHE_ENABLE,
         CACHE_REDIRECT,
         HOMEPAGE,
-        UPSTREAM_ORIGIN,
         OUTPUT_BANNER,
+        ROLLUP_PLUGIN,
+        UPSTREAM_ORIGIN,
     } = config;
     const tracer = otel.trace.getTracer('web');
 
@@ -201,9 +202,12 @@ export function createMainHandler(
                     const buildResult = await toSystemjs(
                         sourceModule,
                         {
-                            banner: OUTPUT_BANNER,
-                            sourcemap,
-                            sourcemapFileNames,
+                            plugin: ROLLUP_PLUGIN,
+                            output: {
+                                banner: OUTPUT_BANNER,
+                                sourcemap,
+                                sourcemapFileNames,
+                            },
                         },
                         workerPool,
                         request.signal,
