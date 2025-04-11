@@ -45,7 +45,9 @@ export const config: Config = {
     HOMEPAGE: Deno.env.get('HOMEPAGE') ?? '',
     OUTPUT_BANNER: Deno.env.get('OUTPUT_BANNER') ?? '',
     REDIRECT_FASTPATH: Deno.env.get('REDIRECT_FASTPATH') !== 'false', // default true
-    ROLLUP_PLUGIN: (Deno.env.get('ROLLUP_PLUGIN') ?? '').split('\\n').filter(Boolean),
+    ROLLUP_PLUGIN: (Deno.env.get('ROLLUP_PLUGIN') ?? '').split('\\n').filter(
+        Boolean,
+    ),
     UPSTREAM_ORIGIN: sanitizeUpstreamOrigin(
         Deno.env.get('UPSTREAM_ORIGIN') ?? 'https://esm.sh',
     ),
