@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [5.2.0](https://github.com/esroyo/systemjs-cdn/compare/v5.1.1...v5.2.0) (2025-04-11)
+
+
+### Features
+
+* support rollup CLI "plugin" arg via env var ([8dd2e79](https://github.com/esroyo/systemjs-cdn/commit/8dd2e7920227040ec5359f30d302be5eed012e5f))
+
 ## [5.1.1](https://github.com/esroyo/systemjs-cdn/compare/v5.1.0...v5.1.1) (2025-04-09)
 
 
