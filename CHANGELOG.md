@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [5.3.0](https://github.com/esroyo/systemjs-cdn/compare/v5.2.1...v5.3.0) (2025-04-15)
+
+
+### Features
+
+* add option to timeout upstream request ([962eec3](https://github.com/esroyo/systemjs-cdn/commit/962eec3e45ae7cdf6d4f3cab8cfba1dc2a26df55))
+
 ## [5.2.1](https://github.com/esroyo/systemjs-cdn/compare/v5.2.0...v5.2.1) (2025-04-11)
 
 ## [5.2.0](https://github.com/esroyo/systemjs-cdn/compare/v5.1.1...v5.2.0) (2025-04-11)
