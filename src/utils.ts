@@ -14,7 +14,7 @@ const keepAliveAgentHttps = new HttpsAgent({
 
 export const nodeRequest = async (
     url: string,
-    init?: RequestInit,
+    init?: RequestInit & { timeout?: number },
 ): Promise<Response> => {
     return new Promise<Response>((resolve, reject) => {
         const headers = Object.fromEntries(
@@ -36,14 +36,23 @@ export const nodeRequest = async (
                 url,
                 followRedirect: !init?.redirect || init.redirect === 'follow',
                 headers,
+                timeout: init?.timeout,
             },
             function (
-                error: Error,
+                error: Error & { code?: string },
                 response: HttpZResponseModel,
                 body: string,
             ) {
                 init?.signal?.removeEventListener('abort', onAbort);
                 if (error) {
+                    if (error.code?.endsWith('TIMEDOUT')) {
+                        return resolve(
+                            new Response(null, {
+                                status: 504,
+                                statusText: 'Gateway Timeout',
+                            }),
+                        );
+                    }
                     return reject(error);
                 }
                 resolve(
