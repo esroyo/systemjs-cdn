@@ -53,6 +53,7 @@ export type Config = {
     REDIRECT_FASTPATH?: boolean;
     ROLLUP_PLUGIN?: string[];
     UPSTREAM_ORIGIN: string;
+    UPSTREAM_TIMEOUT?: number;
     WORKER_ENABLE?: boolean;
     WORKER_MAX?: number;
     WORKER_MIN?: number;

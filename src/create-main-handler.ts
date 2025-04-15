@@ -77,6 +77,7 @@ export function createMainHandler(
         OUTPUT_BANNER,
         ROLLUP_PLUGIN,
         UPSTREAM_ORIGIN,
+        UPSTREAM_TIMEOUT,
     } = config;
     const tracer = otel.trace.getTracer('web');
 
@@ -174,6 +175,7 @@ export function createMainHandler(
             ),
             redirect: 'manual',
             signal: request.signal,
+            timeout: UPSTREAM_TIMEOUT,
         });
         let body = await upstreamResponse.text();
         let mapBody: string | undefined;
