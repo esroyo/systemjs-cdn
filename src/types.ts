@@ -45,6 +45,8 @@ export type Config = {
     CACHE_REDIS_USERNAME?: string;
     CACHE_REDIS_PASSWORD?: string;
     CACHE_REDIS_TLS?: boolean;
+    DEPLOYMENT_TAG?: string;
+    ENV?: string;
     OTEL_EXPORTER_OTLP_ENDPOINT?: string;
     OTEL_EXPORTER_ENABLE?: boolean;
     OTEL_EXPORTER_OTLP_HEADERS?: Record<string, string>;
@@ -52,6 +54,8 @@ export type Config = {
     OUTPUT_BANNER?: string;
     REDIRECT_FASTPATH?: boolean;
     ROLLUP_PLUGIN?: string[];
+    SERVICE_NAME?: string;
+    SERVICE_INSTANCE_ID?: string;
     UPSTREAM_ORIGIN: string;
     WORKER_ENABLE?: boolean;
     WORKER_MAX?: number;

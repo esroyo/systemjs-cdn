@@ -35,7 +35,8 @@ export const config: Config = {
     CACHE_REDIS_PORT: Deno.env.get('CACHE_REDIS_PORT') ?? '6379',
     CACHE_REDIS_PASSWORD: Deno.env.get('CACHE_REDIS_PASSWORD') ?? '',
     CACHE_REDIS_TLS: Deno.env.get('CACHE_REDIS_TLS') === 'true', // default false
-    // DD_TRACE_ENABLED: Deno.env.get('DD_TRACE_ENABLED') === 'true', // default false
+    DEPLOYMENT_TAG: Deno.env.get('DEPLOYMENT_TAG'),
+    ENV: Deno.env.get('ENV') ?? 'dev',
     OTEL_EXPORTER_ENABLE: Deno.env.get('OTEL_EXPORTER_ENABLE') === 'true', // default false
     OTEL_EXPORTER_OTLP_ENDPOINT: Deno.env.get('OTEL_EXPORTER_OTLP_ENDPOINT') ??
         `http://${Deno.env.get('DD_AGENT_HOST') ?? 'localhost'}:4318`,
@@ -48,6 +49,8 @@ export const config: Config = {
     ROLLUP_PLUGIN: (Deno.env.get('ROLLUP_PLUGIN') ?? '').split('\\n').filter(
         Boolean,
     ),
+    SERVICE_NAME: Deno.env.get('SERVICE_NAME') ?? 'systemjs',
+    SERVICE_INSTANCE_ID: Deno.env.get('SERVICE_INSTANCE_ID'),
     UPSTREAM_ORIGIN: sanitizeUpstreamOrigin(
         Deno.env.get('UPSTREAM_ORIGIN') ?? 'https://esm.sh',
     ),
@@ -65,15 +68,11 @@ if (isMainProcess) {
 
 // Step: minimal tracing setup
 const resource = new Resource({
-    [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]: Deno.env.get('ENV') ??
-        'dev',
-    [SemanticResourceAttributes.SERVICE_NAME]: 'systemjs',
-    [SemanticResourceAttributes.SERVICE_VERSION]: Deno.env.get(
-        'DEPLOYMENT_TAG',
-    ),
-    [SemanticResourceAttributes.SERVICE_INSTANCE_ID]: Deno.env.get(
-        'SERVICE_INSTANCE_ID',
-    ),
+    [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]: config.ENV,
+    [SemanticResourceAttributes.SERVICE_NAME]: config.SERVICE_NAME,
+    [SemanticResourceAttributes.SERVICE_VERSION]: config.DEPLOYMENT_TAG,
+    [SemanticResourceAttributes.SERVICE_INSTANCE_ID]:
+        config.SERVICE_INSTANCE_ID,
     [SemanticResourceAttributes.TELEMETRY_SDK_LANGUAGE]: 'javascript',
 });
 const provider = new CustomTracerProvider({ resource });
