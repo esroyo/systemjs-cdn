@@ -51,7 +51,6 @@ export const config: Config = {
     UPSTREAM_ORIGIN: sanitizeUpstreamOrigin(
         Deno.env.get('UPSTREAM_ORIGIN') ?? 'https://esm.sh',
     ),
-    UPSTREAM_TIMEOUT: Number(Deno.env.get('UPSTREAM_TIMEOUT')) || 30_000,
     WORKER_ENABLE: Deno.env.get('WORKER_ENABLE') === 'true' && // default to false
         typeof Worker !== 'undefined',
     WORKER_MAX: Number(Deno.env.get('WORKER_MAX')) || 4,
