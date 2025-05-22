@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [5.4.0](https://github.com/esroyo/systemjs-cdn/compare/v5.3.0...v5.4.0) (2025-05-22)
+
+
+### Other
+
+* make opentelemetry tags configurable ([5b9ca5a](https://github.com/esroyo/systemjs-cdn/commit/5b9ca5a596cc1fa56767b50dac72bee1feb2b228))
+
 ## [5.3.0](https://github.com/esroyo/systemjs-cdn/compare/v5.2.1...v5.3.0) (2025-04-15)
 
 
