@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [5.5.0](https://github.com/esroyo/systemjs-cdn/compare/v5.4.1...v5.5.0) (2025-06-19)
+
+
+### Features
+
+* memoize toSystemjs in the same process ([e07d30c](https://github.com/esroyo/systemjs-cdn/commit/e07d30c99fcc3e2f738182523b133fc3cdf0d915))
+
 ## [5.4.1](https://github.com/esroyo/systemjs-cdn/compare/v5.4.0...v5.4.1) (2025-05-22)
 
 ## [5.4.0](https://github.com/esroyo/systemjs-cdn/compare/v5.3.0...v5.4.0) (2025-05-22)
