@@ -11,11 +11,18 @@ import type { BuildResult, RollupOptions, SourceModule } from './types.ts';
 import rollupPluginVirtual from './rollup-plugin-virtual.ts';
 import { addCommandPluginsToInputOptions } from 'rollup/dist/shared/loadConfigFile.js';
 
+const cachedResults: Record<string, BuildResult> = {};
+
 export const toSystemjsMain = async (
     sourceModule: string | SourceModule,
     rollupOptions: RollupOptions = {},
     signal?: AbortSignal,
 ): Promise<BuildResult> => {
+    const cacheKey = JSON.stringify({ sourceModule, rollupOptions });
+    if (cachedResults[cacheKey]) {
+        return cachedResults[cacheKey];
+    }
+
     signal?.throwIfAborted();
 
     let rollup = _rollup;
@@ -69,13 +76,17 @@ export const toSystemjsMain = async (
 
     await bundle.close();
 
-    return {
+    const result = {
         code: output[0].code,
         map: output[1] && output[1].type === 'asset' &&
                 typeof output[1].source === 'string'
             ? output[1].source
             : undefined,
     };
+
+    cachedResults[cacheKey] = result;
+
+    return result;
 };
 
 export const toSystemjsWorker = async (
