@@ -240,13 +240,13 @@ export const parseRequestUrl = (
     // "/sjs/"
     const basePathWithSlash = basePath === '/' ? basePath : `${basePath}/`;
 
-    // "https://systemjs.sh/"
+    // "https://systemjs.comu.cat/"
     const finalOriginUrl = realOrigin ? new URL(realOrigin) : actualUrl;
 
     // "http://0.0.0.0:8000/sjs/"
     const selfOriginActual = `${actualUrl.origin}${basePathWithSlash}`;
 
-    // "https://systemjs.sh/sjs/"
+    // "https://systemjs.comu.cat/sjs/"
     const selfOriginFinal = `${finalOriginUrl.origin}${basePathWithSlash}`;
 
     // "https://esm.sh/vue"
@@ -255,7 +255,7 @@ export const parseRequestUrl = (
         upstreamOrigin,
     );
 
-    // "https://systemjs.sh/sjs/vue"
+    // "https://systemjs.comu.cat/sjs/vue"
     const publicUrl = new URL(
         url.replace(actualUrl.origin, finalOriginUrl.origin),
     );

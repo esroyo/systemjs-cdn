@@ -213,7 +213,7 @@ Deno.test('should take into account that `X-Real-Origin` and the current request
         fetchMock,
     );
     const req = new Request(`${SELF_ORIGIN}sub-dir/foo?bundle`, {
-        headers: { 'X-Real-Origin': 'https://systemjs.sh/' },
+        headers: { 'X-Real-Origin': 'https://systemjs.comu.cat/' },
     });
     await handler(req);
     assertSpyCallArg(

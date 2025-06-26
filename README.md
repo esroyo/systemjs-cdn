@@ -1,11 +1,11 @@
-# [systemjs.sh](https://systemjs.sh)
+# [systemjs-cdn](https://systemjs.comu.cat)
 
 [![codecov](https://codecov.io/gh/esroyo/systemjs-cdn/graph/badge.svg?token=MRNXPM2JNH)](https://codecov.io/gh/esroyo/systemjs-cdn)
 
 A fast, smart, &amp; global content delivery network (CDN) for modern(es2015+)
 web development.
 
-[systemjs.sh](https://systemjs.sh) provides a fast, global CDN served using the
+[systemjs-cdn](https://systemjs.comu.cat) provides a fast, global CDN served using the
 [SystemJS module format](https://github.com/systemjs/systemjs/blob/main/docs/system-register.md).
 
 Under the hood It is a simple proxy layer on top of the excellent
@@ -20,7 +20,7 @@ targeting SystemJS, specially when providing a third-party service.
 
 This is [a live example case](https://systemjs-cdn-examples.netlify.app/) of code distributed by a third-party domain
 `github.io`, and executed on a first-party domain `netlify.app`. The code
-imports modules from the systemjs.sh CDN without any pollution nor creation of
+imports modules from the systemjs CDN without any pollution nor creation of
 global variables (aside from `System` itself):
 
 ```html
@@ -35,7 +35,7 @@ global variables (aside from `System` itself):
     SystemJS could be loaded from any CDN (for instance "https://unpkg.com/systemjs/dist/s.min.js")
     The only global variable defined will be `System`.
   -->
-  <script src="https://systemjs.sh/systemjs/dist/s.min.js?raw"></script>
+  <script src="https://systemjs.comu.cat/systemjs/dist/s.min.js?raw"></script>
   <!--
     Once `System` is loaded we can add an importmap with maps that are
     scoped/limited to our third-party domain (for example: esroyo.github.io).
@@ -45,12 +45,12 @@ global variables (aside from `System` itself):
     System.addImportMap({
       // The first-party code will use vue@latest
       "imports": {
-        "vue": "https://systemjs.sh/vue",
+        "vue": "https://systemjs.comu.cat/vue",
       },
       "scopes": {
         // The third-party code will use vue@3.3
         "https://esroyo.github.io/systemjs-cdn-examples/": {
-          "vue": "https://systemjs.sh/vue@3.3",
+          "vue": "https://systemjs.comu.cat/vue@3.3",
         }
       },
     });
@@ -60,14 +60,14 @@ global variables (aside from `System` itself):
     It will use `System` and the scoped importmap.
     It will not pollute or collision in any possible way with the netlify.app code.
     Our third-party service format is SystemJS with externals.
-    The "vue" external of that code will resolve to "https://systemjs.sh/vue@3.3"
+    The "vue" external of that code will resolve to "https://systemjs.comu.cat/vue@3.3"
   -->
-  <script src="https://esroyo.github.io/systemjs.sh-examples/dist/assets/index.js"></script>
+  <script src="https://esroyo.github.io/systemjs-cdn-examples/dist/assets/index.js"></script>
 </head>
 <body>
   <div id="app"></div>
   <script>
-// This first-party code will resolve to "https://systemjs.sh/vue"
+// This first-party code will resolve to "https://systemjs.comu.cat/vue"
 System.import('vue').then((m) => {
   // Will print the "latest" vue version
   console.log(`First party code is using vue@${m.version}`);
@@ -81,10 +81,10 @@ System.import('vue').then((m) => {
 
 ```sh
 # build a docker image of this service
-docker build -t systemjs.sh .
+docker build -t systemjs-cdn .
 
 # run the service on localhost:8000
-docker run -p 8000:8000 systemjs.sh
+docker run -p 8000:8000 systemjs-cdn
 ```
 
 ## Purging cache

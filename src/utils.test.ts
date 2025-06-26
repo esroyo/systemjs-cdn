@@ -228,12 +228,12 @@ Deno.test('parseRequestUrl', async (t) => {
             const { publicUrl } = parseRequestUrl({
                 url: 'http://0.0.0.0:8000/sjs/vue',
                 basePath: '/sjs',
-                realOrigin: 'https://systemjs.sh',
+                realOrigin: 'https://systemjs.comu.cat',
                 upstreamOrigin: 'https://esm.sh/',
             });
             assertEquals(
                 publicUrl.toString(),
-                'https://systemjs.sh/sjs/vue',
+                'https://systemjs.comu.cat/sjs/vue',
             );
         });
 
@@ -241,7 +241,7 @@ Deno.test('parseRequestUrl', async (t) => {
             const { publicUrl } = parseRequestUrl({
                 url: 'http://0.0.0.0:8000/sjs/vue',
                 basePath: '/sjs',
-                // realOrigin: 'https://systemjs.sh',
+                // realOrigin: 'https://systemjs.comu.cat',
                 upstreamOrigin: 'https://esm.sh/',
             });
             assertEquals(
@@ -258,14 +258,14 @@ Deno.test('parseRequestUrl', async (t) => {
                 const { replaceUrls } = parseRequestUrl({
                     url: 'http://0.0.0.0:8000/sjs/vue',
                     basePath: '/sjs',
-                    realOrigin: 'https://systemjs.sh',
+                    realOrigin: 'https://systemjs.comu.cat',
                     upstreamOrigin: 'https://esm.sh/',
                 });
                 assertEquals(
                     replaceUrls(
                         'System.register(["https://esm.sh/stable/vue@3.3.2/es2022/vue.mjs","https://esm.sh/stable/vue@3.3.2/es2022/vue.mjs"],(function(exports){}));',
                     ),
-                    'System.register(["https://systemjs.sh/sjs/stable/vue@3.3.2/es2022/vue.mjs","https://systemjs.sh/sjs/stable/vue@3.3.2/es2022/vue.mjs"],(function(exports){}));',
+                    'System.register(["https://systemjs.comu.cat/sjs/stable/vue@3.3.2/es2022/vue.mjs","https://systemjs.comu.cat/sjs/stable/vue@3.3.2/es2022/vue.mjs"],(function(exports){}));',
                 );
             },
         );
@@ -276,7 +276,7 @@ Deno.test('parseRequestUrl', async (t) => {
                 const { replaceUrls } = parseRequestUrl({
                     url: 'http://0.0.0.0:8000/sjs/vue',
                     basePath: '/sjs',
-                    realOrigin: 'https://systemjs.sh',
+                    realOrigin: 'https://systemjs.comu.cat',
                     upstreamOrigin: 'https://esm.sh/',
                 });
 
@@ -318,7 +318,7 @@ System.register(['/sjs/stable/@vue/runtime-dom@3.3.4/es2022/runtime-dom.mjs', '/
                 const { replaceUrls } = parseRequestUrl({
                     url: 'http://0.0.0.0:8000/sjs/vue',
                     basePath: '/',
-                    realOrigin: 'https://systemjs.sh',
+                    realOrigin: 'https://systemjs.comu.cat',
                     upstreamOrigin: 'https://esm.sh/',
                 });
 
