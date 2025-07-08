@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [5.6.0](https://github.com/esroyo/systemjs-cdn/compare/v5.5.0...v5.6.0) (2025-07-08)
+
+
+### Features
+
+* use an http agent to pool connections ([73619b9](https://github.com/esroyo/systemjs-cdn/commit/73619b9149535c15559e3e3567275d16ad41427c))
+
 ## [5.5.0](https://github.com/esroyo/systemjs-cdn/compare/v5.4.1...v5.5.0) (2025-06-19)
 
 
