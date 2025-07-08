@@ -1,8 +1,16 @@
 import request from 'request';
+import { Agent as HttpAgent } from 'node:http';
+import { Agent as HttpsAgent } from 'node:https';
 import { dirname, join } from '@std/url';
 import { memoize } from '@std/cache';
 import { getEsmaVersionFromUA } from 'esm-compat';
 import type { HttpZResponseModel, SourceModule } from './types.ts';
+
+const keepAliveAgentHttp = new HttpAgent({ keepAlive: true, maxSockets: 100 });
+const keepAliveAgentHttps = new HttpsAgent({
+    keepAlive: true,
+    maxSockets: 100,
+});
 
 export const nodeRequest = async (
     url: string,
@@ -20,8 +28,10 @@ export const nodeRequest = async (
                 : new DOMException(reason ?? 'AbortError', 'AbortError');
             reject(error);
         };
+        const isHttps = url.startsWith('https');
         const req = request(
             {
+                agent: isHttps ? keepAliveAgentHttps : keepAliveAgentHttp,
                 method: init?.method || 'GET',
                 url,
                 followRedirect: !init?.redirect || init.redirect === 'follow',

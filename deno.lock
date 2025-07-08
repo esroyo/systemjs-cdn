@@ -41,6 +41,7 @@
     "npm:@opentelemetry/sdk-trace-base@1.30.1": "1.30.1_@opentelemetry+api@1.9.0",
     "npm:@opentelemetry/semantic-conventions@1.30.0": "1.30.0",
     "npm:@types/msgpack-lite@0.1.11": "0.1.11",
+    "npm:@types/node@*": "22.12.0",
     "npm:commit-and-tag-version@*": "12.5.1",
     "npm:esm-compat@0.2.2": "0.2.2",
     "npm:generic-pool@3.9.0": "3.9.0",
