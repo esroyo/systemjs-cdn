@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [5.7.2](https://github.com/esroyo/systemjs-cdn/compare/v5.7.1...v5.7.2) (2025-07-10)
+
+
+### Bug Fixes
+
+* purge urls ignoring search ([8a6ef64](https://github.com/esroyo/systemjs-cdn/commit/8a6ef64f7fd549ca6b785bd3c76a74b8704774e4))
+
 ## [5.7.1](https://github.com/esroyo/systemjs-cdn/compare/v5.7.0...v5.7.1) (2025-07-10)
 
 
