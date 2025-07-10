@@ -36,8 +36,9 @@ export type Config = {
     BASE_PATH: string;
     CACHE_CONN_MAX?: number;
     CACHE_CONN_MIN?: number;
-    CACHE_ENABLE: boolean;
     CACHE_CLIENT_REDIRECT?: number;
+    CACHE_ENABLE: boolean;
+    CACHE_INSTRUMENTATION?: boolean;
     CACHE_NAME?: string;
     CACHE_REDIRECT?: number;
     CACHE_REDIS_HOSTNAME?: string;

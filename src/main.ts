@@ -58,6 +58,7 @@ if (config.CACHE_ENABLE) {
                     tls: config.CACHE_REDIS_TLS,
                     max: config.CACHE_CONN_MAX,
                     min: config.CACHE_CONN_MIN,
+                    instrumentation: config.CACHE_INSTRUMENTATION,
                 };
                 if (config.CACHE_REDIS_USERNAME) {
                     redisOptions.username = config.CACHE_REDIS_USERNAME;

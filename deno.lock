@@ -1,11 +1,12 @@
 {
   "version": "4",
   "specifiers": {
+    "jsr:@db/redis@0.38.0": "0.38.0",
     "jsr:@esroyo/otel-batch-traced-span-processor@2.0.0": "2.0.0",
     "jsr:@esroyo/otel-server-timing-span-exporter@3.0.0": "3.0.0",
-    "jsr:@esroyo/web-cache-api-persistence@0.1.11": "0.1.11",
+    "jsr:@esroyo/web-cache-api-persistence@0.2.0": "0.2.0",
     "jsr:@jabr/xxhash64@2.0.0": "2.0.0",
-    "jsr:@kitsonk/kv-toolbox@0.22.0": "0.22.0",
+    "jsr:@kitsonk/kv-toolbox@0.30.0": "0.30.0",
     "jsr:@std/assert@1.0.6": "1.0.6",
     "jsr:@std/assert@^1.0.6": "1.0.6",
     "jsr:@std/async@1": "1.0.13",
@@ -31,6 +32,7 @@
     "jsr:@std/testing@1.0.3": "1.0.3",
     "jsr:@std/ulid@1.0.0": "1.0.0",
     "jsr:@std/url@0.225.1": "0.225.1",
+    "npm:@opentelemetry/api@1.8.0": "1.8.0",
     "npm:@opentelemetry/api@1.9.0": "1.9.0",
     "npm:@opentelemetry/context-async-hooks@1.30.1": "1.30.1_@opentelemetry+api@1.9.0",
     "npm:@opentelemetry/core@1.30.1": "1.30.1_@opentelemetry+api@1.9.0",
@@ -41,7 +43,6 @@
     "npm:@opentelemetry/sdk-trace-base@1.30.1": "1.30.1_@opentelemetry+api@1.9.0",
     "npm:@opentelemetry/semantic-conventions@1.30.0": "1.30.0",
     "npm:@types/msgpack-lite@0.1.11": "0.1.11",
-    "npm:@types/node@*": "22.12.0",
     "npm:commit-and-tag-version@*": "12.5.1",
     "npm:esm-compat@0.2.2": "0.2.2",
     "npm:generic-pool@3.9.0": "3.9.0",
@@ -52,30 +53,37 @@
     "npm:sorted-array-functions@1.3.0": "1.3.0"
   },
   "jsr": {
+    "@db/redis@0.38.0": {
+      "integrity": "d8a25a603a5c5eb2574d8217072b3a47d83c54de5977b76cce1789def42f14c4",
+      "dependencies": [
+        "jsr:@std/async",
+        "jsr:@std/bytes@1",
+        "jsr:@std/io"
+      ]
+    },
     "@esroyo/otel-batch-traced-span-processor@2.0.0": {
       "integrity": "6a7aeafce903871f9535e9b26fcc4679c5e39c01c9fc9c6fc87aeca109643c3b",
       "dependencies": [
-        "npm:@opentelemetry/api",
+        "npm:@opentelemetry/api@1.9.0",
         "npm:@opentelemetry/sdk-trace-base"
       ]
     },
     "@esroyo/otel-server-timing-span-exporter@3.0.0": {
       "integrity": "bf19d41aff7fbfb89e2bf79fab398808bb13644ba0bb21266b2b0cac867b5706",
       "dependencies": [
-        "npm:@opentelemetry/api",
+        "npm:@opentelemetry/api@1.9.0",
         "npm:@opentelemetry/core",
         "npm:@opentelemetry/sdk-trace-base"
       ]
     },
-    "@esroyo/web-cache-api-persistence@0.1.11": {
-      "integrity": "c8c10a94db2154a854345e60eddbdec498b200d3a4681c50847638e48ecbec09",
+    "@esroyo/web-cache-api-persistence@0.2.0": {
+      "integrity": "9a719ba8ccc5e017afc31ea112b7a8c3fb0d3ae3eb696e23fe11aa84bcfeecb0",
       "dependencies": [
+        "jsr:@db/redis",
         "jsr:@jabr/xxhash64",
         "jsr:@kitsonk/kv-toolbox",
-        "jsr:@std/async",
-        "jsr:@std/bytes@1",
-        "jsr:@std/io",
         "jsr:@std/ulid",
+        "npm:@opentelemetry/api@1.8.0",
         "npm:@types/msgpack-lite",
         "npm:generic-pool",
         "npm:msgpack-lite",
@@ -85,8 +93,8 @@
     "@jabr/xxhash64@2.0.0": {
       "integrity": "a109e902abb6787816112ac71fd9145d39f8fccb45f96d1707c82197bd8fbfbd"
     },
-    "@kitsonk/kv-toolbox@0.22.0": {
-      "integrity": "7cb715760b3397c3c34c94666e1964ba6c62661fe8ceda9dc575a63925c9e731",
+    "@kitsonk/kv-toolbox@0.30.0": {
+      "integrity": "708199acea43cb5a7f57580658c693a8eb2d70ad4e5b1b3074749df5595b0647",
       "dependencies": [
         "jsr:@std/bytes@1",
         "jsr:@std/crypto",
@@ -229,8 +237,11 @@
     "@opentelemetry/api-logs@0.57.2": {
       "integrity": "sha512-uIX52NnTM0iBh84MShlpouI7UKqkZ7MrUszTmaypHBu4r7NofznSnQRfJ+uUeDtQDj6w8eFGg5KBLDAwAPz1+A==",
       "dependencies": [
-        "@opentelemetry/api"
+        "@opentelemetry/api@1.9.0"
       ]
+    },
+    "@opentelemetry/api@1.8.0": {
+      "integrity": "sha512-I/s6F7yKUDdtMsoBWXJe8Qz40Tui5vsuKCWJEWVL+5q9sSWRzzx6v2KeNsOBEwd94j0eWkpWCH4yB6rZg9Mf0w=="
     },
     "@opentelemetry/api@1.9.0": {
       "integrity": "sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg=="
@@ -238,20 +249,20 @@
     "@opentelemetry/context-async-hooks@1.30.1_@opentelemetry+api@1.9.0": {
       "integrity": "sha512-s5vvxXPVdjqS3kTLKMeBMvop9hbWkwzBpu+mUO2M7sZtlkyDJGwFe33wRKnbaYDo8ExRVBIIdwIGrqpxHuKttA==",
       "dependencies": [
-        "@opentelemetry/api"
+        "@opentelemetry/api@1.9.0"
       ]
     },
     "@opentelemetry/core@1.30.1_@opentelemetry+api@1.9.0": {
       "integrity": "sha512-OOCM2C/QIURhJMuKaekP3TRBxBKxG/TWWA0TL2J6nXUtDnuCtccy49LUJF8xPFXMX+0LMcxFpCo8M9cGY1W6rQ==",
       "dependencies": [
-        "@opentelemetry/api",
+        "@opentelemetry/api@1.9.0",
         "@opentelemetry/semantic-conventions@1.28.0"
       ]
     },
     "@opentelemetry/exporter-metrics-otlp-http@0.57.2_@opentelemetry+api@1.9.0": {
       "integrity": "sha512-ttb9+4iKw04IMubjm3t0EZsYRNWr3kg44uUuzfo9CaccYlOh8cDooe4QObDUkvx9d5qQUrbEckhrWKfJnKhemA==",
       "dependencies": [
-        "@opentelemetry/api",
+        "@opentelemetry/api@1.9.0",
         "@opentelemetry/core",
         "@opentelemetry/otlp-exporter-base",
         "@opentelemetry/otlp-transformer",
@@ -262,7 +273,7 @@
     "@opentelemetry/exporter-trace-otlp-http@0.57.2_@opentelemetry+api@1.9.0": {
       "integrity": "sha512-sB/gkSYFu+0w2dVQ0PWY9fAMl172PKMZ/JrHkkW8dmjCL0CYkmXeE+ssqIL/yBUTPOvpLIpenX5T9RwXRBW/3g==",
       "dependencies": [
-        "@opentelemetry/api",
+        "@opentelemetry/api@1.9.0",
         "@opentelemetry/core",
         "@opentelemetry/otlp-exporter-base",
         "@opentelemetry/otlp-transformer",
@@ -273,7 +284,7 @@
     "@opentelemetry/otlp-exporter-base@0.57.2_@opentelemetry+api@1.9.0": {
       "integrity": "sha512-XdxEzL23Urhidyebg5E6jZoaiW5ygP/mRjxLHixogbqwDy2Faduzb5N0o/Oi+XTIJu+iyxXdVORjXax+Qgfxag==",
       "dependencies": [
-        "@opentelemetry/api",
+        "@opentelemetry/api@1.9.0",
         "@opentelemetry/core",
         "@opentelemetry/otlp-transformer"
       ]
@@ -281,7 +292,7 @@
     "@opentelemetry/otlp-transformer@0.57.2_@opentelemetry+api@1.9.0": {
       "integrity": "sha512-48IIRj49gbQVK52jYsw70+Jv+JbahT8BqT2Th7C4H7RCM9d0gZ5sgNPoMpWldmfjvIsSgiGJtjfk9MeZvjhoig==",
       "dependencies": [
-        "@opentelemetry/api",
+        "@opentelemetry/api@1.9.0",
         "@opentelemetry/api-logs",
         "@opentelemetry/core",
         "@opentelemetry/resources",
@@ -294,7 +305,7 @@
     "@opentelemetry/resources@1.30.1_@opentelemetry+api@1.9.0": {
       "integrity": "sha512-5UxZqiAgLYGFjS4s9qm5mBVo433u+dSPUFWVWXmLAD4wB65oMCoXaJP1KJa9DIYYMeHu3z4BZcStG3LC593cWA==",
       "dependencies": [
-        "@opentelemetry/api",
+        "@opentelemetry/api@1.9.0",
         "@opentelemetry/core",
         "@opentelemetry/semantic-conventions@1.28.0"
       ]
@@ -302,7 +313,7 @@
     "@opentelemetry/sdk-logs@0.57.2_@opentelemetry+api@1.9.0": {
       "integrity": "sha512-TXFHJ5c+BKggWbdEQ/inpgIzEmS2BGQowLE9UhsMd7YYlUfBQJ4uax0VF/B5NYigdM/75OoJGhAV3upEhK+3gg==",
       "dependencies": [
-        "@opentelemetry/api",
+        "@opentelemetry/api@1.9.0",
         "@opentelemetry/api-logs",
         "@opentelemetry/core",
         "@opentelemetry/resources"
@@ -311,7 +322,7 @@
     "@opentelemetry/sdk-metrics@1.30.1_@opentelemetry+api@1.9.0": {
       "integrity": "sha512-q9zcZ0Okl8jRgmy7eNW3Ku1XSgg3sDLa5evHZpCwjspw7E8Is4K/haRPDJrBcX3YSn/Y7gUvFnByNYEKQNbNog==",
       "dependencies": [
-        "@opentelemetry/api",
+        "@opentelemetry/api@1.9.0",
         "@opentelemetry/core",
         "@opentelemetry/resources"
       ]
@@ -319,7 +330,7 @@
     "@opentelemetry/sdk-trace-base@1.30.1_@opentelemetry+api@1.9.0": {
       "integrity": "sha512-jVPgBbH1gCy2Lb7X0AVQ8XAfgg0pJ4nvl8/IiQA6nxOsPvS+0zMJaFSs2ltXe0J6C8dqjcnpyqINDJmU30+uOg==",
       "dependencies": [
-        "@opentelemetry/api",
+        "@opentelemetry/api@1.9.0",
         "@opentelemetry/core",
         "@opentelemetry/resources",
         "@opentelemetry/semantic-conventions@1.28.0"
@@ -1966,8 +1977,7 @@
     "dependencies": [
       "jsr:@esroyo/otel-batch-traced-span-processor@2.0.0",
       "jsr:@esroyo/otel-server-timing-span-exporter@3.0.0",
-      "jsr:@esroyo/web-cache-api-persistence@0.1.11",
-      "jsr:@kitsonk/kv-toolbox@0.21.0",
+      "jsr:@esroyo/web-cache-api-persistence@0.2.0",
       "jsr:@std/assert@1.0.6",
       "jsr:@std/cache@0.1.3",
       "jsr:@std/dotenv@0.225.2",
