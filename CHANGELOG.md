@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [5.7.1](https://github.com/esroyo/systemjs-cdn/compare/v5.7.0...v5.7.1) (2025-07-10)
+
+
+### Bug Fixes
+
+* wrap cache read operations in async context ([a9749d1](https://github.com/esroyo/systemjs-cdn/commit/a9749d1019503ef6da705d05a409d704c450b494))
+
 ## [5.7.0](https://github.com/esroyo/systemjs-cdn/compare/v5.6.0...v5.7.0) (2025-07-10)
 
 
