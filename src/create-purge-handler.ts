@@ -18,6 +18,7 @@ export function createPurgeHandler(
                 const cachedRequest of await cache.keys(url, {
                     ignoreMethod: true,
                     ignoreVary: true,
+                    ignoreSearch: true,
                 })
             ) {
                 await cache.delete(cachedRequest);
