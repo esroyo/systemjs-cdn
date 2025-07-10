@@ -133,14 +133,16 @@ export function createMainHandler(
             CACHE_ENABLE &&
             cache /* && !request.headers.get('cache-control')?.includes('no-cache') */
         ) {
-            const cacheReadSpan = tracer.startSpan('cache-read', {
+            const cachedResponse = await tracer.startActiveSpan('cache-read', {
                 attributes: { 'span.type': 'cache' },
+            }, async (cacheReadSpan) => {
+                const cachedResponse = await cache.match(normalizedRequest);
+                const eventName = cachedResponse ? 'cache-hit' : 'cache-miss';
+                cacheReadSpan.addEvent(eventName);
+                cacheReadSpan.setAttribute(eventName, true);
+                cacheReadSpan.end();
+                return cachedResponse;
             });
-            const cachedResponse = await cache.match(normalizedRequest);
-            const eventName = cachedResponse ? 'cache-hit' : 'cache-miss';
-            cacheReadSpan.addEvent(eventName);
-            cacheReadSpan.setAttribute(eventName, true);
-            cacheReadSpan.end();
             if (cachedResponse) {
                 if (isRedirect(cachedResponse)) {
                     return createFastPathResponse(
@@ -272,26 +274,28 @@ export function createMainHandler(
         response.headers.set('x-esm-target', buildTarget);
 
         if (willCache) {
-            const cacheWriteSpan = tracer.startSpan('cache-write', {
+            tracer.startActiveSpan('cache-write', {
                 attributes: { 'span.type': 'cache' },
-            });
-            const promises: Promise<void>[] = [];
-            const clonedResponse = response.clone();
-            if (
-                isActualRedirect && !clonedResponse.headers.has('cache-control')
-            ) {
-                clonedResponse.headers.set(
-                    'cache-control',
-                    `public, max-age=${CACHE_REDIRECT}`,
-                );
-            }
+            }, async (cacheWriteSpan) => {
+                const promises: Promise<void>[] = [];
+                const clonedResponse = response.clone();
+                if (
+                    isActualRedirect &&
+                    !clonedResponse.headers.has('cache-control')
+                ) {
+                    clonedResponse.headers.set(
+                        'cache-control',
+                        `public, max-age=${CACHE_REDIRECT}`,
+                    );
+                }
 
-            promises.push(cache.put(normalizedRequest, clonedResponse));
-            if (synthMapRequest && mapResponse) {
-                promises.push(cache.put(synthMapRequest, mapResponse));
-            }
-            Promise.allSettled(promises).then(() => {
-                cacheWriteSpan.end();
+                promises.push(cache.put(normalizedRequest, clonedResponse));
+                if (synthMapRequest && mapResponse) {
+                    promises.push(cache.put(synthMapRequest, mapResponse));
+                }
+                return Promise.allSettled(promises).then(() => {
+                    cacheWriteSpan.end();
+                });
             });
         }
 
