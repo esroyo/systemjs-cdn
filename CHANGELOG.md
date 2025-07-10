@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [5.7.0](https://github.com/esroyo/systemjs-cdn/compare/v5.6.0...v5.7.0) (2025-07-10)
+
+
+### Features
+
+* add redis instrumentation (with possible opt-out) ([1c3dfb6](https://github.com/esroyo/systemjs-cdn/commit/1c3dfb6cfcc7403c4d66394ba77493479a9bd1d3))
+
 ## [5.6.0](https://github.com/esroyo/systemjs-cdn/compare/v5.5.0...v5.6.0) (2025-07-08)
 
 
