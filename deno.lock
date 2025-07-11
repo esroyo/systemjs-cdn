@@ -1,11 +1,11 @@
 {
   "version": "4",
   "specifiers": {
-    "jsr:@db/redis@0.38.0": "0.38.0",
+    "jsr:@db/redis@0.35.0": "0.35.0",
     "jsr:@deno/kv-utils@~0.1.4": "0.1.4",
     "jsr:@esroyo/otel-batch-traced-span-processor@2.0.0": "2.0.0",
     "jsr:@esroyo/otel-server-timing-span-exporter@3.0.0": "3.0.0",
-    "jsr:@esroyo/web-cache-api-persistence@0.2.0": "0.2.0",
+    "jsr:@esroyo/web-cache-api-persistence@0.2.1": "0.2.1",
     "jsr:@jabr/xxhash64@2.0.0": "2.0.0",
     "jsr:@kitsonk/kv-toolbox@0.30.0": "0.30.0",
     "jsr:@std/assert@1": "1.0.6",
@@ -22,7 +22,7 @@
     "jsr:@std/encoding@^1.0.5": "1.0.10",
     "jsr:@std/fmt@^1.0.2": "1.0.8",
     "jsr:@std/http@1.0.7": "1.0.7",
-    "jsr:@std/internal@^1.0.4": "1.0.7",
+    "jsr:@std/internal@^1.0.4": "1.0.9",
     "jsr:@std/io@0.224.5": "0.224.5",
     "jsr:@std/media-types@1": "1.1.0",
     "jsr:@std/media-types@^1.0.3": "1.1.0",
@@ -56,8 +56,8 @@
     "npm:sorted-array-functions@1.3.0": "1.3.0"
   },
   "jsr": {
-    "@db/redis@0.38.0": {
-      "integrity": "d8a25a603a5c5eb2574d8217072b3a47d83c54de5977b76cce1789def42f14c4",
+    "@db/redis@0.35.0": {
+      "integrity": "863a06af47afd5ea67eab33de9bbcffb31e332a9639675bbbc1eb27918f94f78",
       "dependencies": [
         "jsr:@std/async",
         "jsr:@std/bytes@1",
@@ -85,8 +85,8 @@
         "npm:@opentelemetry/sdk-trace-base"
       ]
     },
-    "@esroyo/web-cache-api-persistence@0.2.0": {
-      "integrity": "9a719ba8ccc5e017afc31ea112b7a8c3fb0d3ae3eb696e23fe11aa84bcfeecb0",
+    "@esroyo/web-cache-api-persistence@0.2.1": {
+      "integrity": "f29b6e47512e07f3a7b8b7afdf46b62dfc58604c9dd3e0fb25479dffbc05be6d",
       "dependencies": [
         "jsr:@db/redis",
         "jsr:@jabr/xxhash64",
@@ -157,6 +157,9 @@
     },
     "@std/internal@1.0.7": {
       "integrity": "39eeb5265190a7bc5d5591c9ff019490bd1f2c3907c044a11b0d545796158a0f"
+    },
+    "@std/internal@1.0.9": {
+      "integrity": "bdfb97f83e4db7a13e8faab26fb1958d1b80cc64366501af78a0aee151696eb8"
     },
     "@std/io@0.224.5": {
       "integrity": "cb84fe655d1273fca94efcff411465027a8b0b4225203f19d6ee98d9c8920a2d",
@@ -1988,7 +1991,7 @@
     "dependencies": [
       "jsr:@esroyo/otel-batch-traced-span-processor@2.0.0",
       "jsr:@esroyo/otel-server-timing-span-exporter@3.0.0",
-      "jsr:@esroyo/web-cache-api-persistence@0.2.0",
+      "jsr:@esroyo/web-cache-api-persistence@0.2.1",
       "jsr:@std/assert@1.0.6",
       "jsr:@std/cache@0.1.3",
       "jsr:@std/dotenv@0.225.2",
