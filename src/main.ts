@@ -135,18 +135,28 @@ function defaultHandler(_req: Request) {
 const handler = route(routes, defaultHandler);
 const instrumentedHandler = instrumentRequestHandler(handler);
 
-const server = Deno.serve({
-    port: 8000,
-    handler: instrumentedHandler,
+let server: Deno.HttpServer;
+
+Deno.addSignalListener('SIGTERM', async () => {
+    console.log('Received SIGTERM...');
+    await server?.shutdown();
+    await cache?.[Symbol.asyncDispose]?.();
+    await workerPool?.drain();
+    await workerPool?.clear();
+    console.log('Server shutdown completed');
+    Deno.exit(0);
 });
 
-server.finished.then(() => {
-    console.log('Finishing server');
-    return cache?.[Symbol.asyncDispose]?.();
-}).then(() => {
-    return workerPool?.drain();
-}).then(() => {
-    return workerPool?.clear();
-}).then(() => {
-    console.log('Finished');
+server = Deno.serve({
+    handler: instrumentedHandler,
+    onError(error) {
+        if (Error.isError(error) && error.name === 'AbortError') {
+            // Client request cancellation handled gracefully with no further response required
+            return new Response(null, { status: 204 });
+        }
+        // Someother unhandled error
+        console.error(error);
+        return new Response(null, { status: 503 });
+    },
+    port: 8000,
 });
