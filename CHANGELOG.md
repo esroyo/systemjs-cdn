@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [5.9.2](https://github.com/esroyo/systemjs-cdn/compare/v5.9.1...v5.9.2) (2025-07-14)
+
+
+### Bug Fixes
+
+* do not log request client cancels ([ee11825](https://github.com/esroyo/systemjs-cdn/commit/ee11825910ed480323a534a7f8b473365622ba3a))
+
 ## [5.9.1](https://github.com/esroyo/systemjs-cdn/compare/v5.9.0...v5.9.1) (2025-07-14)
 
 
