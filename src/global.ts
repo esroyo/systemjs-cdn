@@ -33,7 +33,7 @@ export const config: Config = {
     CACHE_CLIENT_REDIRECT:
         Number(Deno.env.get('CACHE_CLIENT_REDIRECT') as string) || 600,
     CACHE_ENABLE: Deno.env.get('CACHE_ENABLE') === 'true',
-    CACHE_IGNORE_SEARCH: Deno.env.get('CACHE_IGNORE_SEARCH') !== 'false', // default true
+    CACHE_IGNORE_SEARCH: Deno.env.get('CACHE_IGNORE_SEARCH') === 'true', // default false
     CACHE_INSTRUMENTATION: Deno.env.get('CACHE_INSTRUMENTATION') !== 'false', // default true
     CACHE_CONN_MAX: Number(Deno.env.get('CACHE_CONN_MAX')) || 20,
     CACHE_CONN_MIN: Number(Deno.env.get('CACHE_CONN_MIN')) || 2,
