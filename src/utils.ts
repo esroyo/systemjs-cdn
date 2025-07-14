@@ -6,11 +6,8 @@ import { memoize } from '@std/cache';
 import { getEsmaVersionFromUA } from 'esm-compat';
 import type { HttpZResponseModel, SourceModule } from './types.ts';
 
-const keepAliveAgentHttp = new HttpAgent({ keepAlive: true, maxSockets: 100 });
-const keepAliveAgentHttps = new HttpsAgent({
-    keepAlive: true,
-    maxSockets: 100,
-});
+const keepAliveAgentHttp = new HttpAgent({ keepAlive: true });
+const keepAliveAgentHttps = new HttpsAgent({ keepAlive: true });
 
 export const nodeRequest = async (
     url: string,
