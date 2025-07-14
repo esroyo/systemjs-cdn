@@ -39,6 +39,7 @@ export type Config = {
     CACHE_CLIENT_REDIRECT?: number;
     CACHE_ENABLE: boolean;
     CACHE_INSTRUMENTATION?: boolean;
+    CACHE_IGNORE_SEARCH?: boolean;
     CACHE_NAME?: string;
     CACHE_REDIRECT?: number;
     CACHE_REDIS_HOSTNAME?: string;

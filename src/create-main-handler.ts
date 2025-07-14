@@ -72,6 +72,7 @@ export function createMainHandler(
     const {
         BASE_PATH,
         CACHE_ENABLE,
+        CACHE_IGNORE_SEARCH,
         CACHE_REDIRECT,
         HOMEPAGE,
         OUTPUT_BANNER,
@@ -137,7 +138,9 @@ export function createMainHandler(
             const cachedResponse = await tracer.startActiveSpan('cache-read', {
                 attributes: { 'span.type': 'cache' },
             }, async (cacheReadSpan) => {
-                const cachedResponse = await cache.match(normalizedRequest);
+                const cachedResponse = await cache.match(normalizedRequest, {
+                    ignoreSearch: CACHE_IGNORE_SEARCH,
+                });
                 const eventName = cachedResponse ? 'cache-hit' : 'cache-miss';
                 cacheReadSpan.addEvent(eventName);
                 cacheReadSpan.setAttribute(eventName, true);
