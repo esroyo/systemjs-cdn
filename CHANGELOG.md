@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [5.8.0](https://github.com/esroyo/systemjs-cdn/compare/v5.7.4...v5.8.0) (2025-07-14)
+
+
+### Features
+
+* add option to timeout upstream request ([750c840](https://github.com/esroyo/systemjs-cdn/commit/750c8403cdaa01bdac23b8d8ba744f740428b2a9))
+
+
+### Bug Fixes
+
+* handle unhandled rejections ([0916885](https://github.com/esroyo/systemjs-cdn/commit/0916885edcd7bd86b980e3748251274b1585262e))
+* remove maxSockets per host ([c4f409b](https://github.com/esroyo/systemjs-cdn/commit/c4f409b06c59b8280648eea2aff5d7679236f00e))
+
 ## [5.7.4](https://github.com/esroyo/systemjs-cdn/compare/v5.7.3...v5.7.4) (2025-07-11)
 
 
