@@ -18,6 +18,13 @@ import { CustomOTLPTraceExporter } from './custom-otlp-trace-exporter.ts';
 import { sanitizeBasePath, sanitizeUpstreamOrigin } from './utils.ts';
 import { MaxAggregation, MinAggregation } from './max-min-aggregation.ts';
 
+globalThis.addEventListener('unhandledrejection', (event) => {
+    console.error(
+        new AggregateError([event.reason], 'Unhandled promise rejection'),
+    );
+    event.preventDefault();
+});
+
 // Step: resolve config
 dotenvLoad({ export: true });
 
