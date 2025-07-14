@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [5.9.0](https://github.com/esroyo/systemjs-cdn/compare/v5.8.0...v5.9.0) (2025-07-14)
+
+
+### Features
+
+* add an option to match cache entries with ignoreSearch ([a51b344](https://github.com/esroyo/systemjs-cdn/commit/a51b344bfd4df07709ce086c74f887d0a554868b))
+
 ## [5.8.0](https://github.com/esroyo/systemjs-cdn/compare/v5.7.4...v5.8.0) (2025-07-14)
 
 
