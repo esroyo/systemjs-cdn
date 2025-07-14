@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [5.9.1](https://github.com/esroyo/systemjs-cdn/compare/v5.9.0...v5.9.1) (2025-07-14)
+
+
+### Bug Fixes
+
+* make ignoreSearch default to false ([91d8486](https://github.com/esroyo/systemjs-cdn/commit/91d8486f59ec1127c19c9e2321ba1701a1343862))
+
 ## [5.9.0](https://github.com/esroyo/systemjs-cdn/compare/v5.8.0...v5.9.0) (2025-07-14)
 
 
