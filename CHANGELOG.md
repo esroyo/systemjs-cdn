@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.1.0](https://github.com/esroyo/systemjs-cdn/compare/v6.0.0...v6.1.0) (2025-07-15)
+
+
+### Features
+
+* add HTTP trace context ([6e8dcdd](https://github.com/esroyo/systemjs-cdn/commit/6e8dcdde594f9ff26d013fb1d3d5311a383b8087))
+
 ## [6.0.0](https://github.com/esroyo/systemjs-cdn/compare/v5.9.2...v6.0.0) (2025-07-15)
 
 
