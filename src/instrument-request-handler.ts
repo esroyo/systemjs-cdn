@@ -42,36 +42,38 @@ export const instrumentRequestHandler = <T extends Deno.ServeHandler>(
         req: Request,
         info: Deno.ServeHandlerInfo,
     ): Promise<Response> => {
-        // Create a new root span for this request
-        const requestSpan = tracer.startSpan('total', {
-            attributes: {
-                'http.client_ip':
-                    (req.headers.get('x-forwarded-for') ?? '').split(',')
-                        .shift() ??
-                        // @ts-ignore
-                        info.remoteAddr?.hostname ?? '',
-                'http.method': req.method,
-                'http.useragent': req.headers.get('user-agent') ?? '',
-                'http.url': req.url,
-                'operation.name': 'web.request',
-                'span.type': 'web',
-            },
-            kind: SpanKind.SERVER,
-        });
+        const plainHeaders: Record<string, string> = {};
+        const attributes: Record<string, string> = {
+            'http.client_ip':
+                (req.headers.get('x-forwarded-for') ?? '').split(',')
+                    .shift() ??
+                    // @ts-ignore
+                    info.remoteAddr?.hostname ?? '',
+            'http.method': req.method,
+            'http.useragent': req.headers.get('user-agent') ?? '',
+            'http.url': req.url,
+            'operation.name': 'web.request',
+            'span.type': 'web',
+        };
         for (const [key, value] of req.headers.entries()) {
-            requestSpan.setAttribute(`http.request.headers.${key}`, value);
+            plainHeaders[key] = value;
+            attributes[`http.request.headers.${key}`] = value;
         }
-
         // Extract context from incoming HTTP headers
         const activeContext = otel.context.active();
         const extractedContext = otel.propagation.extract(
             activeContext,
-            Object.fromEntries(req.headers.entries()),
+            plainHeaders,
         );
+        // Create a new root span for this request
+        const requestSpan = tracer.startSpan('total', {
+            attributes,
+            kind: SpanKind.SERVER,
+        }, extractedContext);
 
         // Create a new context from the current context which has the span "active"
         const requestContext = otel.trace.setSpan(
-            extractedContext,
+            activeContext,
             requestSpan,
         );
 
