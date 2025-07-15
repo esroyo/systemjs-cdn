@@ -4,7 +4,7 @@
     "coverage": "rm -rf coverage && deno task test --reporter=dot --coverage=coverage && deno coverage --lcov --output=coverage.lcov coverage && genhtml -o coverage/report coverage.lcov",
     "deploy:prod": "deployctl deploy --prod --project=systemjs --entrypoint src/main.ts --exclude=coverage",
     "deploy": "deployctl deploy --project=systemjs --entrypoint src/main.ts --exclude=coverage",
-    "dev": "deno run --inspect --watch --allow-env --allow-read --allow-net --allow-sys --allow-ffi --unstable-kv src/main.ts",
+    "dev": "deno run --watch --allow-env --allow-read --allow-net --allow-sys --allow-ffi --unstable-kv src/main.ts",
     "fmt": "deno fmt src",
     "release": "deno run -A npm:commit-and-tag-version && git push --follow-tags origin main",
     "release:dry-run": "deno run -A npm:commit-and-tag-version --dry-run",

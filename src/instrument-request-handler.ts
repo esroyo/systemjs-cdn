@@ -66,7 +66,7 @@ export const instrumentRequestHandler = <T extends Deno.ServeHandler>(
         const activeContext = otel.context.active();
         const extractedContext = otel.propagation.extract(
             activeContext,
-            req.headers,
+            Object.fromEntries(req.headers.entries()),
         );
 
         // Create a new context from the current context which has the span "active"
