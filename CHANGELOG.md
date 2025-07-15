@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.0.0](https://github.com/esroyo/systemjs-cdn/compare/v5.9.2...v6.0.0) (2025-07-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* add option to control redis cache bulk get limit
+
+### Features
+
+* add option to control redis cache bulk get limit ([0e1d4ae](https://github.com/esroyo/systemjs-cdn/commit/0e1d4aea71d8e8316d71ce7be0139b19fabdb82e))
+
 ## [5.9.2](https://github.com/esroyo/systemjs-cdn/compare/v5.9.1...v5.9.2) (2025-07-14)
 
 
