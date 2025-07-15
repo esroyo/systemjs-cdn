@@ -1,11 +1,14 @@
+import { default as opentelemetry, SpanKind } from '@opentelemetry/api';
+
+import {
+    BasicTracerProvider,
+    type SpanProcessor,
+} from '@opentelemetry/sdk-trace-base';
+
 import type {
     OpenTelemetry,
     PartialServerTimingSpanExporter,
 } from './types.ts';
-import opentelemetry from '@opentelemetry/api';
-import { SpanKind } from '@opentelemetry/api';
-import { type BasicTracerProvider } from '@opentelemetry/sdk-trace-base';
-import { type SpanProcessor } from '@opentelemetry/sdk-trace-base';
 
 export const instrumentRequestHandler = <T extends Deno.ServeHandler>(
     requestHandler: T,
@@ -59,9 +62,16 @@ export const instrumentRequestHandler = <T extends Deno.ServeHandler>(
             requestSpan.setAttribute(`http.request.headers.${key}`, value);
         }
 
+        // Extract context from incoming HTTP headers
+        const activeContext = otel.context.active();
+        const extractedContext = otel.propagation.extract(
+            activeContext,
+            req.headers,
+        );
+
         // Create a new context from the current context which has the span "active"
         const requestContext = otel.trace.setSpan(
-            otel.context.active(),
+            extractedContext,
             requestSpan,
         );
 
