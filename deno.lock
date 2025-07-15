@@ -4,7 +4,7 @@
     "jsr:@deno/kv-utils@~0.1.4": "0.1.4",
     "jsr:@esroyo/otel-batch-traced-span-processor@2.0.0": "2.0.0",
     "jsr:@esroyo/otel-server-timing-span-exporter@3.0.0": "3.0.0",
-    "jsr:@esroyo/web-cache-api-persistence@0.2.2": "0.2.2",
+    "jsr:@esroyo/web-cache-api-persistence@0.3.1": "0.3.1",
     "jsr:@jabr/xxhash64@2.0.0": "2.0.0",
     "jsr:@kitsonk/kv-toolbox@0.30.0": "0.30.0",
     "jsr:@std/assert@1": "1.0.6",
@@ -76,8 +76,8 @@
         "npm:@opentelemetry/sdk-trace-base"
       ]
     },
-    "@esroyo/web-cache-api-persistence@0.2.2": {
-      "integrity": "3505ea9d1f504c424a00d22c1459750f9b326c7ee91dee379f98fa9c1e676055",
+    "@esroyo/web-cache-api-persistence@0.3.1": {
+      "integrity": "041f6fc9c392c10e121b36fbff7d11aa6fe79c6f926cdd8faa6d2a83d964848c",
       "dependencies": [
         "jsr:@jabr/xxhash64",
         "jsr:@kitsonk/kv-toolbox",
@@ -1982,7 +1982,7 @@
     "dependencies": [
       "jsr:@esroyo/otel-batch-traced-span-processor@2.0.0",
       "jsr:@esroyo/otel-server-timing-span-exporter@3.0.0",
-      "jsr:@esroyo/web-cache-api-persistence@0.2.2",
+      "jsr:@esroyo/web-cache-api-persistence@0.3.1",
       "jsr:@std/assert@1.0.6",
       "jsr:@std/cache@0.1.3",
       "jsr:@std/dotenv@0.225.2",

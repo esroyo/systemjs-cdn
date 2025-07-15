@@ -58,6 +58,7 @@ if (config.CACHE_ENABLE) {
                     tls: config.CACHE_REDIS_TLS,
                     max: config.CACHE_CONN_MAX,
                     min: config.CACHE_CONN_MIN,
+                    bulkLimit: config.CACHE_BULK_LIMIT,
                     instrumentation: config.CACHE_INSTRUMENTATION,
                 };
                 if (config.CACHE_REDIS_USERNAME) {

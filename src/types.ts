@@ -34,6 +34,7 @@ export interface HttpZResponseModel {
 
 export type Config = {
     BASE_PATH: string;
+    CACHE_BULK_LIMIT?: number;
     CACHE_CONN_MAX?: number;
     CACHE_CONN_MIN?: number;
     CACHE_CLIENT_REDIRECT?: number;
