@@ -1,5 +1,5 @@
 {
-  "version": "6.1.5",
+  "version": "6.1.6",
   "tasks": {
     "coverage": "rm -rf coverage && deno task test --reporter=dot --coverage=coverage && deno coverage --lcov --output=coverage.lcov coverage && genhtml -o coverage/report coverage.lcov",
     "deploy:prod": "deployctl deploy --prod --project=systemjs --entrypoint src/main.ts --exclude=coverage",

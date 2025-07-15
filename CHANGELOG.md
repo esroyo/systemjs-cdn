@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.1.6](https://github.com/esroyo/systemjs-cdn/compare/v6.1.5...v6.1.6) (2025-07-15)
+
+
+### Bug Fixes
+
+* create root span using the extracted context ([0e56c6e](https://github.com/esroyo/systemjs-cdn/commit/0e56c6ec67be23718f9a8fd1bcf5003faa877cb7))
+
 ## [6.1.5](https://github.com/esroyo/systemjs-cdn/compare/v6.1.4...v6.1.5) (2025-07-15)
 
 
