@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.1.1](https://github.com/esroyo/systemjs-cdn/compare/v6.1.0...v6.1.1) (2025-07-15)
+
+
+### Bug Fixes
+
+* extract context from plain headers ([b7b8d1c](https://github.com/esroyo/systemjs-cdn/commit/b7b8d1c60d8f16516a514200ca27c029a39ae8da))
+
 ## [6.1.0](https://github.com/esroyo/systemjs-cdn/compare/v6.0.0...v6.1.0) (2025-07-15)
 
 
