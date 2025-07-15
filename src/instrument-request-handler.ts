@@ -69,11 +69,11 @@ export const instrumentRequestHandler = <T extends Deno.ServeHandler>(
         const requestSpan = tracer.startSpan('total', {
             attributes,
             kind: SpanKind.SERVER,
-        }, extractedContext);
+        });
 
-        // Create a new context from the current context which has the span "active"
+        // Create a new context which has the span "active"
         const requestContext = otel.trace.setSpan(
-            activeContext,
+            extractedContext,
             requestSpan,
         );
 
