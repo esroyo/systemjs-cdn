@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.1.7](https://github.com/esroyo/systemjs-cdn/compare/v6.1.6...v6.1.7) (2025-07-16)
+
+
+### Other
+
+* remove http keepalive agent ([e99ce37](https://github.com/esroyo/systemjs-cdn/commit/e99ce379bfa485d28ec34bea4c9fb5dcee07cbdc))
+
 ## [6.1.6](https://github.com/esroyo/systemjs-cdn/compare/v6.1.5...v6.1.6) (2025-07-15)
 
 
