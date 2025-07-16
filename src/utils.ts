@@ -1,21 +1,17 @@
 import request from 'request';
-import { Agent as HttpAgent } from 'node:http';
-import { Agent as HttpsAgent } from 'node:https';
 import { dirname, join } from '@std/url';
 import { memoize } from '@std/cache';
 import { getEsmaVersionFromUA } from 'esm-compat';
 import type { HttpZResponseModel, SourceModule } from './types.ts';
 
-const keepAliveAgentHttp = new HttpAgent({ keepAlive: true });
-const keepAliveAgentHttps = new HttpsAgent({ keepAlive: true });
-
 export const nodeRequest = async (
     url: string,
-    init?: RequestInit & { timeout?: number },
+    init: RequestInit & { timeout?: number } = {},
 ): Promise<Response> => {
     return new Promise<Response>((resolve, reject) => {
+        init.headers = init.headers ?? {};
         const headers = Object.fromEntries(
-            new Headers(init?.headers ?? {}).entries(),
+            new Headers(init.headers).entries(),
         );
         const onAbort = (ev: Event) => {
             req.abort();
@@ -25,10 +21,8 @@ export const nodeRequest = async (
                 : new DOMException(reason ?? 'AbortError', 'AbortError');
             reject(error);
         };
-        const isHttps = url.startsWith('https');
         const req = request(
             {
-                agent: isHttps ? keepAliveAgentHttps : keepAliveAgentHttp,
                 method: init?.method || 'GET',
                 url,
                 followRedirect: !init?.redirect || init.redirect === 'follow',
