@@ -15,7 +15,7 @@
         "singleQuote": true
     },
     "imports": {
-        "@esroyo/deno-simple-fetch": "jsr:@esroyo/deno-simple-fetch@0.1.3",
+        "@esroyo/deno-simple-fetch": "jsr:@esroyo/deno-simple-fetch@0.1.5",
         "@esroyo/otel-server-timing-span-exporter": "jsr:@esroyo/otel-server-timing-span-exporter@3.0.0",
         "@esroyo/otel-batch-traced-span-processor": "jsr:@esroyo/otel-batch-traced-span-processor@2.0.0",
         "@esroyo/web-cache-api-persistence": "jsr:@esroyo/web-cache-api-persistence@0.3.1",
