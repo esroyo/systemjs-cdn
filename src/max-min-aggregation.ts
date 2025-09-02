@@ -195,7 +195,7 @@ export class MaxMinAggregator implements Aggregator<MaxMinAccumulation> {
                     };
                 },
             ),
-        };
+        } as const;
         return value;
     }
 }

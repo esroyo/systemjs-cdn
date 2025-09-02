@@ -254,7 +254,7 @@ Deno.test('parseRequestUrl', async (t) => {
     await t.step('should return a replaceOrigin fn that', async (t) => {
         await t.step(
             'should replace the upstream origin with the public url',
-            async (t) => {
+            async (_t) => {
                 const { replaceUrls } = parseRequestUrl({
                     url: 'http://0.0.0.0:8000/sjs/vue',
                     basePath: '/sjs',
@@ -272,7 +272,7 @@ Deno.test('parseRequestUrl', async (t) => {
 
         await t.step(
             'should add the basePath to the absolute paths',
-            async (t) => {
+            async (_t) => {
                 const { replaceUrls } = parseRequestUrl({
                     url: 'http://0.0.0.0:8000/sjs/vue',
                     basePath: '/sjs',
@@ -314,7 +314,7 @@ System.register(['/sjs/stable/@vue/runtime-dom@3.3.4/es2022/runtime-dom.mjs', '/
 
         await t.step(
             'should do nothing to absolute paths if basePath is "empty"',
-            async (t) => {
+            async (_t) => {
                 const { replaceUrls } = parseRequestUrl({
                     url: 'http://0.0.0.0:8000/sjs/vue',
                     basePath: '/',

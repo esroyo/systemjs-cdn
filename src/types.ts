@@ -1,36 +1,6 @@
-import { type ExistingRawSourceMap, InputOptions, OutputOptions } from 'rollup';
+import type { ExistingRawSourceMap, InputOptions, OutputOptions } from 'rollup';
 import opentelemetry from '@opentelemetry/api';
-import { type ServerTimingSpanExporter } from '@esroyo/otel-server-timing-span-exporter';
-
-export interface HttpZParam {
-    name: string;
-    value?: string;
-}
-
-export interface HttpZBodyParam {
-    type?: 'inline' | 'attachment';
-    contentType?: string;
-    name: string;
-    fileName?: string;
-}
-
-export interface HttpZBody {
-    contentType: string;
-    boundary: string;
-    params: HttpZParam[] | HttpZBodyParam[];
-    text: string;
-}
-
-export interface HttpZResponseModel {
-    protocolVersion: string;
-    statusCode: number;
-    statusMessage?: string;
-    headers?: Record<string, string>;
-    cookies?: HttpZParam[];
-    body: HttpZBody;
-    headersSize: number;
-    bodySize: number;
-}
+import type { ServerTimingSpanExporter } from '@esroyo/otel-server-timing-span-exporter';
 
 export type Config = {
     BASE_PATH: string;
@@ -41,7 +11,7 @@ export type Config = {
     CACHE_ENABLE: boolean;
     CACHE_INSTRUMENTATION?: boolean;
     CACHE_IGNORE_SEARCH?: boolean;
-    CACHE_NAME?: string;
+    CACHE_NAME: string;
     CACHE_REDIRECT?: number;
     CACHE_REDIS_HOSTNAME?: string;
     CACHE_REDIS_PORT?: string;
@@ -94,3 +64,8 @@ export interface RollupOptions extends InputOptions {
     output?: OutputOptions;
     plugin?: string[];
 }
+
+export type Fetch = (
+    input: RequestInfo | URL,
+    init?: RequestInit,
+) => Promise<Response>;

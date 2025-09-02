@@ -1,4 +1,5 @@
 import opentelemetry from '@opentelemetry/api';
+import { createFetch } from '@esroyo/deno-simple-fetch';
 import {
     buildSourceModule,
     cloneHeaders,
@@ -10,13 +11,12 @@ import {
     isNotFound,
     isOk,
     isRedirect,
-    nodeRequest,
     parseRequestUrl,
 } from './utils.ts';
 import { toSystemjs } from './to-systemjs.ts';
 import { type Pool } from 'generic-pool';
 import { basename } from '@std/url';
-import type { Config, OpenTelemetry } from './types.ts';
+import type { Config, Fetch, OpenTelemetry } from './types.ts';
 
 const finalizeFastPathResponse = (
     config: Config,
@@ -66,7 +66,7 @@ export function createMainHandler(
     config: Config,
     cache?: Cache,
     workerPool?: Pool<Worker>,
-    fetch = nodeRequest,
+    fetch: Fetch = createFetch(),
     otel: OpenTelemetry = opentelemetry,
 ): (request: Request) => Promise<Response> {
     const {
@@ -168,6 +168,15 @@ export function createMainHandler(
                 'http.url': upstreamUrlStr,
             },
         });
+        let signal: AbortSignal = request.signal;
+        if (UPSTREAM_TIMEOUT) {
+            try {
+                signal = AbortSignal.any([
+                    signal,
+                    AbortSignal.timeout(UPSTREAM_TIMEOUT),
+                ]);
+            } catch { /* empty */ }
+        }
         const upstreamResponse = await fetch(upstreamUrlStr, {
             headers: cloneHeaders(
                 request.headers,
@@ -178,9 +187,8 @@ export function createMainHandler(
                     ? [pair[0], upstreamUserAgent]
                     : pair),
             ),
-            redirect: 'manual',
-            signal: request.signal,
-            timeout: UPSTREAM_TIMEOUT,
+            // redirect: 'manual',
+            signal,
         });
         let body = await upstreamResponse.text();
         let mapBody: string | undefined;
@@ -192,6 +200,7 @@ export function createMainHandler(
                 body,
                 upstreamUrlStr,
                 request.signal,
+                fetch,
             );
             const canGenerateSourcemap =
                 !!(typeof sourceModule === 'object' && sourceModule.map);

@@ -1,63 +1,8 @@
-import request from 'request';
+import { createFetch } from '@esroyo/deno-simple-fetch';
 import { dirname, join } from '@std/url';
 import { memoize } from '@std/cache';
-import { getEsmaVersionFromUA } from 'esm-compat';
-import type { HttpZResponseModel, SourceModule } from './types.ts';
-
-export const nodeRequest = async (
-    url: string,
-    init: RequestInit & { timeout?: number } = {},
-): Promise<Response> => {
-    return new Promise<Response>((resolve, reject) => {
-        init.headers = init.headers ?? {};
-        const headers = Object.fromEntries(
-            new Headers(init.headers).entries(),
-        );
-        const onAbort = (ev: Event) => {
-            req.abort();
-            const reason = (ev.target as AbortSignal).reason;
-            const error = reason instanceof Error
-                ? reason
-                : new DOMException(reason ?? 'AbortError', 'AbortError');
-            reject(error);
-        };
-        const req = request(
-            {
-                method: init?.method || 'GET',
-                url,
-                followRedirect: !init?.redirect || init.redirect === 'follow',
-                headers,
-                timeout: init?.timeout,
-            },
-            function (
-                error: Error & { code?: string },
-                response: HttpZResponseModel,
-                body: string,
-            ) {
-                init?.signal?.removeEventListener('abort', onAbort);
-                if (error) {
-                    if (error.code?.endsWith('TIMEDOUT')) {
-                        return resolve(
-                            new Response(null, {
-                                status: 504,
-                                statusText: 'Gateway Timeout',
-                            }),
-                        );
-                    }
-                    return reject(error);
-                }
-                resolve(
-                    new Response(body, {
-                        headers: response.headers,
-                        status: response.statusCode,
-                        statusText: response.statusMessage,
-                    }),
-                );
-            },
-        );
-        init?.signal?.addEventListener('abort', onAbort);
-    });
-};
+import { getEsmaVersionFromUA } from 'esm-compat/dist/compat.js';
+import type { Fetch, SourceModule } from './types.ts';
 
 export const cloneHeaders = (
     headers: Headers,
@@ -179,7 +124,7 @@ export const buildSourceModule = async (
     input: string,
     baseUrl: string,
     signal?: AbortSignal,
-    fetch = nodeRequest,
+    fetch: Fetch = createFetch(),
 ): Promise<string | SourceModule> => {
     try {
         const sourceMapUrl = parseSourceMapUrl(input, baseUrl);
@@ -187,7 +132,7 @@ export const buildSourceModule = async (
             console.log('parsing sourcemap url failed for', baseUrl);
             return input;
         }
-        let sourceMapResponse = await fetch(sourceMapUrl, { signal });
+        const sourceMapResponse = await fetch(sourceMapUrl, { signal });
         if (!sourceMapResponse.ok) {
             console.log('fetching sourcemap failed', { baseUrl, sourceMapUrl });
             console.log('fetching sourcemap response', sourceMapResponse);

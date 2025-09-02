@@ -11,6 +11,7 @@ dotenvLoad({ export: true });
 const baseConfig: Config = {
     BASE_PATH: '/',
     CACHE_ENABLE: false,
+    CACHE_NAME: 'v1',
     HOMEPAGE: 'https://home/page',
     UPSTREAM_ORIGIN: 'https://esm.sh/',
     OUTPUT_BANNER: '',
@@ -89,7 +90,7 @@ Deno.test('should forward the request to $UPSTREAM_ORIGIN keeping the parameters
 
 Deno.test('should abort the upstream fetch when the request is aborted', async () => {
     // This fetch will never resolve, will reject when the input signal is aborted
-    const fetchMock = spy((_url: string, init?: RequestInit) => {
+    const fetchMock = spy((_url: RequestInfo | URL, init?: RequestInit) => {
         const deferred = Promise.withResolvers<Response>();
         init?.signal?.addEventListener('abort', async (ev: Event) => {
             deferred.reject((ev.target as AbortSignal).reason);
@@ -134,7 +135,6 @@ Deno.test('should replace the user-agent when requesting to $UPSTREAM_ORIGIN if 
     });
     await handler(req);
     assertEquals(
-        // @ts-ignore
         (fetchMock.calls?.[0]?.args?.[1]?.headers as Headers).get('user-agent'),
         'HeadlessChrome/51',
     );
@@ -155,7 +155,6 @@ Deno.test('should NOT replace the user-agent when requesting to $UPSTREAM_ORIGIN
     });
     await handler(req);
     assertEquals(
-        // @ts-ignore
         (fetchMock.calls?.[0]?.args?.[1]?.headers as Headers).get('user-agent'),
         chromeUserAgent,
     );

@@ -1,5 +1,5 @@
 import opentelemetry from '@opentelemetry/api';
-import genericPool, { type Options } from 'generic-pool';
+import { createPool, type Options, type Pool } from 'generic-pool';
 import type { Config, OpenTelemetry } from './types.ts';
 
 export function createWorkerPool(
@@ -26,7 +26,7 @@ export function createWorkerPool(
             worker.terminate();
         },
     };
-    const pool = genericPool.createPool(poolFactory, options);
+    const pool = createPool(poolFactory, options);
     if (config.OTEL_EXPORTER_ENABLE) {
         const meter = otel.metrics.getMeter('web');
         const keys = ['available', 'borrowed', 'pending'] as const;
@@ -46,7 +46,7 @@ export function createWorkerPool(
         };
         return new Proxy(pool, {
             get(
-                target: genericPool.Pool<Worker>,
+                target: Pool<Worker>,
                 p: string | symbol,
                 receiver: any,
             ): any {

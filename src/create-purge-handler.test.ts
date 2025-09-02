@@ -10,6 +10,7 @@ dotenvLoad({ export: true });
 const baseConfig: Config = {
     BASE_PATH: '/',
     CACHE_ENABLE: false,
+    CACHE_NAME: 'v1',
     HOMEPAGE: 'https://home/page',
     UPSTREAM_ORIGIN: 'https://esm.sh/',
     OUTPUT_BANNER: '',
