@@ -136,19 +136,7 @@ function defaultHandler(_req: Request) {
 const handler = route(routes, defaultHandler);
 const instrumentedHandler = instrumentRequestHandler(handler);
 
-let server: Deno.HttpServer;
-
-Deno.addSignalListener('SIGTERM', async () => {
-    console.log('Received SIGTERM...');
-    await server?.shutdown();
-    await cache?.[Symbol.asyncDispose]?.();
-    await workerPool?.drain();
-    await workerPool?.clear();
-    console.log('Server shutdown completed');
-    Deno.exit(0);
-});
-
-server = Deno.serve({
+const server: Deno.HttpServer = Deno.serve({
     handler: instrumentedHandler,
     onError(error) {
         if (Error.isError(error) && error.name === 'AbortError') {
@@ -160,4 +148,14 @@ server = Deno.serve({
         return new Response(null, { status: 503 });
     },
     port: 8000,
+});
+
+Deno.addSignalListener('SIGTERM', async () => {
+    console.log('Received SIGTERM...');
+    await server?.shutdown();
+    await cache?.[Symbol.asyncDispose]?.();
+    await workerPool?.drain();
+    await workerPool?.clear();
+    console.log('Server shutdown completed');
+    Deno.exit(0);
 });

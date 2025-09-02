@@ -148,15 +148,15 @@ Deno.test('should NOT replace the user-agent when requesting to $UPSTREAM_ORIGIN
         undefined,
         fetchMock,
     );
-    const chromeUserAgent =
-        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.0.0 Safari/537.36';
+    const knownUserAgent =
+        'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Mobile Safari/537.36';
     const req = new Request(`${SELF_ORIGIN}foo?bundle`, {
-        headers: { 'user-agent': chromeUserAgent },
+        headers: { 'user-agent': knownUserAgent },
     });
     await handler(req);
     assertEquals(
         (fetchMock.calls?.[0]?.args?.[1]?.headers as Headers).get('user-agent'),
-        chromeUserAgent,
+        knownUserAgent,
     );
 });
 

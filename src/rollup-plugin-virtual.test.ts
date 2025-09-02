@@ -2,7 +2,7 @@ import { resolve } from '@std/path';
 import { assertEquals } from '@std/assert';
 import virtual from './rollup-plugin-virtual.ts';
 
-Deno.test('loads a bare module ID from memory', (t) => {
+Deno.test('loads a bare module ID from memory', (_t) => {
     const plugin = virtual({
         foo: 'export default 42',
     });
@@ -13,7 +13,7 @@ Deno.test('loads a bare module ID from memory', (t) => {
     assertEquals(resolved && plugin.load(resolved), 'export default 42');
 });
 
-Deno.test('loads an absolute path from memory', (t) => {
+Deno.test('loads an absolute path from memory', (_t) => {
     const plugin = virtual({
         'src/foo.js': 'export default 42',
     });
@@ -24,7 +24,7 @@ Deno.test('loads an absolute path from memory', (t) => {
     assertEquals(resolved && plugin.load(resolved), 'export default 42');
 });
 
-Deno.test('can load code+map objects', (t) => {
+Deno.test('can load code+map objects', (_t) => {
     const sourceDescription = {
         code: 'export function increment(e){return e+=1,e}',
         map: {
