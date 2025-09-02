@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.2.0](https://github.com/esroyo/systemjs-cdn/compare/v6.1.7...v6.2.0) (2025-09-02)
+
+
+### Features
+
+* serve ES2015 build for any Mac OS device ([22a1759](https://github.com/esroyo/systemjs-cdn/commit/22a1759234cea02f5c04dbf7f1de6088322c741e))
+
+
+### Bug Fixes
+
+* enable eviction of idle workers ([8f33f16](https://github.com/esroyo/systemjs-cdn/commit/8f33f165d4aee52044f38d6f67f807adf670a797))
+* update deno-simple-fetch to solve chunked encoding flush ([31fc293](https://github.com/esroyo/systemjs-cdn/commit/31fc293e6ca27671c19c332da609ea1f3346dd48))
+
+
+### Other
+
+* use fetch and generic-pool libs from jsr ([cf1f0f2](https://github.com/esroyo/systemjs-cdn/commit/cf1f0f27660845ab731db4e9a78e1a7e44dbc38a))
+
 ## [6.1.7](https://github.com/esroyo/systemjs-cdn/compare/v6.1.6...v6.1.7) (2025-07-16)
 
 
