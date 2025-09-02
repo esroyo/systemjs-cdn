@@ -150,14 +150,20 @@ export const buildSourceModule = async (
     }
 };
 
-export const getBuildTarget = memoize((userAgent: string): [string, string] => {
-    const esmBuildTarget = getEsmaVersionFromUA(userAgent);
-    if (esmBuildTarget === 'esnext') {
-        // this is the default for unknown browsers
-        return ['es2015', 'HeadlessChrome/51'];
-    }
-    return [esmBuildTarget, userAgent];
-});
+/* The default target for unknown browsers */
+const defaultTarget = ['es2015', 'HeadlessChrome/51'] as const;
+export const getBuildTarget = memoize(
+    (userAgent: string): readonly [string, string] => {
+        if (userAgent.includes('Mac OS')) {
+            return defaultTarget;
+        }
+        const esmBuildTarget = getEsmaVersionFromUA(userAgent);
+        if (esmBuildTarget === 'esnext') {
+            return defaultTarget;
+        }
+        return [esmBuildTarget, userAgent] as const;
+    },
+);
 
 const registerRegExp =
     /(?:register|import)\(\[?(?:['"][^'"]+['"](?:,\s*)?)*\]?/gm;

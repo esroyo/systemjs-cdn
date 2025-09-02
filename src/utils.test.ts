@@ -355,3 +355,31 @@ System.register(['/stable/@vue/runtime-dom@3.3.4/es2022/runtime-dom.mjs', '/stab
         );
     });
 });
+
+Deno.test('getBuildTarget', async (t) => {
+    const { getBuildTarget } = await import('./utils.ts');
+
+    await t.step('should return "es2015" instead of "esnext"', async () => {
+        const userAgents: string[] = ['curl/8.10.1'];
+        for (const userAgent of userAgents) {
+            assertEquals(getBuildTarget(userAgent)[0], 'es2015');
+        }
+    });
+
+    await t.step(
+        'should return "es2015" for multiple Apple devices',
+        async () => {
+            const userAgents: string[] = [
+                'Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1',
+                'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Mobile/15E148 Safari/604.1',
+                'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0.0 Mobile/15E148 Safari/604.1',
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.0 Safari/605.1.15',
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36',
+                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6.1 Safari/605.1.15',
+            ];
+            for (const userAgent of userAgents) {
+                assertEquals(getBuildTarget(userAgent)[0], 'es2015');
+            }
+        },
+    );
+});
