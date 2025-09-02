@@ -14,7 +14,10 @@ export function createWorkerPool(
         options.min = config.WORKER_MIN;
     }
     if (!options.evictionRunIntervalMillis) {
-        options.evictionRunIntervalMillis = 60 * 1000;
+        options.evictionRunIntervalMillis = 60_000;
+    }
+    if (!options.softIdleTimeoutMillis) {
+        options.softIdleTimeoutMillis = 20_000;
     }
     const poolFactory = {
         async create(): Promise<Worker> {
