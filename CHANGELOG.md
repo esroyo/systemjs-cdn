@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [6.2.1](https://github.com/esroyo/systemjs-cdn/compare/v6.2.0...v6.2.1) (2025-09-03)
+
+
+### Bug Fixes
+
+* use HeadlessChrome/52 to achieve es2015 target ([f90029c](https://github.com/esroyo/systemjs-cdn/commit/f90029c957f3ef30e8d8c8863e47b2c94b019f47))
+
 ## [6.2.0](https://github.com/esroyo/systemjs-cdn/compare/v6.1.7...v6.2.0) (2025-09-02)
 
 
