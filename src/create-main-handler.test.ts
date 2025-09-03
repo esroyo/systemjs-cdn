@@ -136,7 +136,7 @@ Deno.test('should replace the user-agent when requesting to $UPSTREAM_ORIGIN if 
     await handler(req);
     assertEquals(
         (fetchMock.calls?.[0]?.args?.[1]?.headers as Headers).get('user-agent'),
-        'HeadlessChrome/51',
+        'HeadlessChrome/52',
     );
 });
 

@@ -1,6 +1,7 @@
 {
   "version": "5",
   "specifiers": {
+    "jsr:@deno/kv-utils@~0.1.4": "0.1.4",
     "jsr:@esroyo/deno-simple-fetch@0.1.5": "0.1.5",
     "jsr:@esroyo/generic-pool@3.10.4": "3.10.4",
     "jsr:@esroyo/otel-batch-traced-span-processor@2.0.0": "2.0.0",
@@ -8,6 +9,9 @@
     "jsr:@esroyo/web-cache-api-persistence@0.3.1": "0.3.1",
     "jsr:@jabr/xxhash64@2.0.0": "2.0.0",
     "jsr:@kitsonk/kv-toolbox@0.30.0": "0.30.0",
+    "jsr:@std/assert@1": "1.0.6",
+    "jsr:@std/assert@1.0.6": "1.0.6",
+    "jsr:@std/assert@^1.0.6": "1.0.6",
     "jsr:@std/async@1": "1.0.14",
     "jsr:@std/bytes@1": "1.0.6",
     "jsr:@std/bytes@^1.0.2-rc.3": "1.0.6",
@@ -19,6 +23,7 @@
     "jsr:@std/encoding@^1.0.5": "1.0.10",
     "jsr:@std/fmt@^1.0.2": "1.0.8",
     "jsr:@std/http@1.0.7": "1.0.7",
+    "jsr:@std/internal@^1.0.4": "1.0.10",
     "jsr:@std/io@0.224.5": "0.224.5",
     "jsr:@std/media-types@1": "1.1.0",
     "jsr:@std/media-types@^1.0.3": "1.1.0",
@@ -27,6 +32,7 @@
     "jsr:@std/path@^1.0.4": "1.0.6",
     "jsr:@std/path@^1.0.6": "1.0.6",
     "jsr:@std/streams@^1.0.6": "1.0.11",
+    "jsr:@std/testing@1.0.3": "1.0.3",
     "jsr:@std/ulid@1.0.0": "1.0.0",
     "jsr:@std/url@0.225.1": "0.225.1",
     "npm:@opentelemetry/api@1.8.0": "1.8.0",
@@ -40,6 +46,7 @@
     "npm:@opentelemetry/sdk-trace-base@1.30.1": "1.30.1_@opentelemetry+api@1.9.0",
     "npm:@opentelemetry/semantic-conventions@1.30.0": "1.30.0",
     "npm:@types/msgpack-lite@0.1.11": "0.1.11",
+    "npm:@types/node@*": "24.2.0",
     "npm:commit-and-tag-version@*": "12.5.2",
     "npm:esm-compat@0.2.2": "0.2.2",
     "npm:generic-pool@3.9.0": "3.9.0",
@@ -49,6 +56,12 @@
     "npm:sorted-array-functions@1.3.0": "1.3.0"
   },
   "jsr": {
+    "@deno/kv-utils@0.1.4": {
+      "integrity": "119a768c8a9b1af76552b48e78457cd2fb38cc97c10b3a57cf65efe47ff9ca1a",
+      "dependencies": [
+        "jsr:@std/encoding@^1.0.5"
+      ]
+    },
     "@esroyo/deno-simple-fetch@0.1.5": {
       "integrity": "fc0939f48df551ab968ff1568d5e44e1a5f2c9d7f6cd7fa942083ee3890f43ba",
       "dependencies": [
@@ -68,7 +81,9 @@
     "@esroyo/otel-server-timing-span-exporter@3.0.0": {
       "integrity": "bf19d41aff7fbfb89e2bf79fab398808bb13644ba0bb21266b2b0cac867b5706",
       "dependencies": [
-        "npm:@opentelemetry/core"
+        "npm:@opentelemetry/api@1.9.0",
+        "npm:@opentelemetry/core",
+        "npm:@opentelemetry/sdk-trace-base"
       ]
     },
     "@esroyo/web-cache-api-persistence@0.3.1": {
@@ -93,10 +108,18 @@
     "@kitsonk/kv-toolbox@0.30.0": {
       "integrity": "708199acea43cb5a7f57580658c693a8eb2d70ad4e5b1b3074749df5595b0647",
       "dependencies": [
+        "jsr:@deno/kv-utils",
+        "jsr:@std/assert@1",
         "jsr:@std/bytes@1",
         "jsr:@std/crypto",
         "jsr:@std/encoding@1",
         "jsr:@std/media-types@1"
+      ]
+    },
+    "@std/assert@1.0.6": {
+      "integrity": "1904c05806a25d94fe791d6d883b685c9e2dcd60e4f9fc30f4fc5cf010c72207",
+      "dependencies": [
+        "jsr:@std/internal"
       ]
     },
     "@std/async@1.0.14": {
@@ -135,6 +158,9 @@
         "jsr:@std/streams"
       ]
     },
+    "@std/internal@1.0.10": {
+      "integrity": "e3be62ce42cab0e177c27698e5d9800122f67b766a0bea6ca4867886cbde8cf7"
+    },
     "@std/io@0.224.5": {
       "integrity": "cb84fe655d1273fca94efcff411465027a8b0b4225203f19d6ee98d9c8920a2d",
       "dependencies": [
@@ -152,6 +178,12 @@
     },
     "@std/streams@1.0.11": {
       "integrity": "db583d27e28d133f389f1eec318cffdf4998305e5134c1d4b1c56b361cee6018"
+    },
+    "@std/testing@1.0.3": {
+      "integrity": "f98c2bee53860a5916727d7e7d3abe920dd6f9edace022e2d059f00d05c2cf42",
+      "dependencies": [
+        "jsr:@std/assert@^1.0.6"
+      ]
     },
     "@std/ulid@1.0.0": {
       "integrity": "d41c3d27a907714413649fee864b7cde8d42ee68437d22b79d5de4f81d808780"

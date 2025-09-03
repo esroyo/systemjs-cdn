@@ -151,7 +151,7 @@ export const buildSourceModule = async (
 };
 
 /* The default target for unknown browsers */
-const defaultTarget = ['es2015', 'HeadlessChrome/51'] as const;
+const defaultTarget = ['es2015', 'HeadlessChrome/52'] as const;
 export const getBuildTarget = memoize(
     (userAgent: string): readonly [string, string] => {
         if (userAgent.includes('Mac OS')) {
