@@ -48,12 +48,12 @@
     "npm:@types/msgpack-lite@0.1.11": "0.1.11",
     "npm:@types/node@*": "24.2.0",
     "npm:commit-and-tag-version@*": "12.5.2",
-    "npm:esm-compat@0.2.2": "0.2.2",
     "npm:generic-pool@3.9.0": "3.9.0",
     "npm:msgpack-lite@0.1.26": "0.1.26",
     "npm:rollup@3.29.5": "3.29.5",
     "npm:rollup@4.50.0": "4.50.0",
-    "npm:sorted-array-functions@1.3.0": "1.3.0"
+    "npm:sorted-array-functions@1.3.0": "1.3.0",
+    "npm:ua-parser-js@legacy": "1.0.41"
   },
   "jsr": {
     "@deno/kv-utils@0.1.4": {
@@ -908,12 +908,6 @@
     },
     "escape-string-regexp@1.0.5": {
       "integrity": "sha512-vbRorB5FUQWvla16U8R/qgaFIya2qGzwDrNmCZuYKrbdSUMG6I1ZCGQRefkRVhuOkIGVne7BQ35DSfo1qvJqFg=="
-    },
-    "esm-compat@0.2.2": {
-      "integrity": "sha512-Uj3ShDFQgoEHT1gZFlRdBt6NKmjrsobio5Q20BvSDGy5uUtITN7p9bw9Fs5T5tMSz7AsIKj8F5pWf2SXG9u+kg==",
-      "dependencies": [
-        "ua-parser-js"
-      ]
     },
     "event-lite@0.1.3": {
       "integrity": "sha512-8qz9nOz5VeD2z96elrEKD2U433+L3DWdUdDkOINLGOJvx1GsMBbMn0aCeu28y8/e85A6mCigBiFlYMnTBEGlSw=="
@@ -1877,7 +1871,6 @@
       "npm:@opentelemetry/sdk-metrics@1.30.1",
       "npm:@opentelemetry/sdk-trace-base@1.30.1",
       "npm:@opentelemetry/semantic-conventions@1.30.0",
-      "npm:esm-compat@0.2.2",
       "npm:rollup@3.29.5"
     ]
   }

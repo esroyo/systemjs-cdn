@@ -1,7 +1,7 @@
 import { createFetch } from '@esroyo/deno-simple-fetch';
 import { dirname, join } from '@std/url';
 import { memoize } from '@std/cache';
-import { getEsmaVersionFromUA } from 'esm-compat/dist/compat.js';
+import { getEsmaVersionFromUA } from 'esm-compat';
 import type { Fetch, SourceModule } from './types.ts';
 
 export const cloneHeaders = (
@@ -157,7 +157,7 @@ export const getBuildTarget = memoize(
         if (userAgent.includes('Mac OS')) {
             return defaultTarget;
         }
-        const esmBuildTarget = getEsmaVersionFromUA(userAgent);
+        const esmBuildTarget = getEsmaVersionFromUA(userAgent) as string;
         if (esmBuildTarget === 'esnext') {
             return defaultTarget;
         }

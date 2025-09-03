@@ -1,7 +1,7 @@
 {
     "version": "6.2.1",
     "tasks": {
-        "coverage": "rm -rf coverage && deno task test --reporter=dot --coverage=coverage && deno coverage --lcov --output=coverage.lcov coverage && genhtml -o coverage/report coverage.lcov",
+        "coverage": "rm -rf coverage && deno task test --reporter=dot --coverage=coverage && deno coverage --lcov --output=coverage.lcov --exclude='src/test-utils.ts|vendor' coverage && genhtml -o coverage/report coverage.lcov",
         "deploy:prod": "deployctl deploy --prod --project=systemjs --entrypoint src/main.ts --exclude=coverage",
         "deploy": "deployctl deploy --project=systemjs --entrypoint src/main.ts --exclude=coverage",
         "dev": "deno run --watch --allow-env --allow-read --allow-net --allow-sys --allow-ffi --unstable-kv src/main.ts",
@@ -12,7 +12,10 @@
     },
     "fmt": {
         "indentWidth": 4,
-        "singleQuote": true
+        "singleQuote": true,
+        "exclude": [
+            "vendor"
+        ]
     },
     "imports": {
         "@esroyo/deno-simple-fetch": "jsr:@esroyo/deno-simple-fetch@0.1.5",
@@ -35,7 +38,7 @@
         "@std/path": "jsr:@std/path@1.0.6",
         "@std/testing": "jsr:@std/testing@1.0.3",
         "@std/url": "jsr:@std/url@0.225.1",
-        "esm-compat": "npm:esm-compat@0.2.2",
+        "esm-compat": "./vendor/npm/esm-compat@0.2.2/compat.js",
         "generic-pool": "jsr:@esroyo/generic-pool@3.10.4",
         "redis": "https://deno.land/x/redis@v0.32.4/mod.ts",
         "rollup": "npm:rollup@3.29.5"
@@ -47,6 +50,9 @@
                 "no-explicit-any",
                 "require-await"
             ]
-        }
+        },
+        "exclude": [
+            "vendor"
+        ]
     }
 }
