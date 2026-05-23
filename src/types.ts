@@ -18,6 +18,7 @@ export type Config = {
     CACHE_REDIS_USERNAME?: string;
     CACHE_REDIS_PASSWORD?: string;
     CACHE_REDIS_TLS?: boolean;
+    CACHE_SQL_DSN?: string;
     DEPLOYMENT_TAG?: string;
     ENV?: string;
     OTEL_EXPORTER_OTLP_ENDPOINT?: string;

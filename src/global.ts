@@ -45,6 +45,7 @@ export const config: Config = {
     CACHE_REDIS_PORT: Deno.env.get('CACHE_REDIS_PORT') ?? '6379',
     CACHE_REDIS_PASSWORD: Deno.env.get('CACHE_REDIS_PASSWORD') ?? '',
     CACHE_REDIS_TLS: Deno.env.get('CACHE_REDIS_TLS') === 'true', // default false
+    CACHE_SQL_DSN: Deno.env.get('CACHE_SQL_DSN') ?? '',
     DEPLOYMENT_TAG: Deno.env.get('DEPLOYMENT_TAG'),
     ENV: Deno.env.get('ENV') ?? 'dev',
     OTEL_EXPORTER_ENABLE: Deno.env.get('OTEL_EXPORTER_ENABLE') === 'true', // default false

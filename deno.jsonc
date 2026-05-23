@@ -21,7 +21,7 @@
         "@esroyo/deno-simple-fetch": "jsr:@esroyo/deno-simple-fetch@0.1.5",
         "@esroyo/otel-server-timing-span-exporter": "jsr:@esroyo/otel-server-timing-span-exporter@3.0.0",
         "@esroyo/otel-batch-traced-span-processor": "jsr:@esroyo/otel-batch-traced-span-processor@2.0.0",
-        "@esroyo/web-cache-api-persistence": "jsr:@esroyo/web-cache-api-persistence@0.3.1",
+        "@esroyo/web-cache-api-persistence": "jsr:@esroyo/web-cache-api-persistence@0.4.3",
         "@opentelemetry/api": "npm:@opentelemetry/api@1.9.0",
         "@opentelemetry/context-async-hooks": "npm:@opentelemetry/context-async-hooks@1.30.1",
         "@opentelemetry/core": "npm:@opentelemetry/core@1.30.1",
@@ -41,7 +41,10 @@
         "esm-compat": "./vendor/npm/esm-compat@0.2.2/compat.js",
         "generic-pool": "jsr:@esroyo/generic-pool@3.10.4",
         "redis": "https://deno.land/x/redis@v0.32.4/mod.ts",
-        "rollup": "npm:rollup@3.29.5"
+        "rollup": "npm:rollup@3.29.5",
+        "unstorage": "npm:unstorage@1.17.5",
+        "db0": "npm:db0@0.3.4",
+        "pg": "npm:pg@8.21.0"
     },
     "lint": {
         "rules": {
@@ -54,5 +57,11 @@
         "exclude": [
             "vendor"
         ]
+    },
+    "deploy": {
+        "org": "comu",
+        "app": "systemjs"
     }
 }
+
+

@@ -1,14 +1,20 @@
 import { config } from './global.ts'; // First always, and only once per process
 import { type Route, route } from '@std/http';
+import { createDatabase } from 'db0';
+import { createStorage } from 'unstorage';
+import dbDriver from 'unstorage/drivers/db0';
+import postgresql from 'db0/connectors/postgresql';
 import {
     type CacheLike,
-    CachePersistenceDenoKv,
-    CachePersistenceFactory,
-    CachePersistenceRedis,
-    type CachePersistenceRedisOptions,
+    type CachePersistenceFactory,
     CacheStorage,
 } from '@esroyo/web-cache-api-persistence';
-
+import {
+    type CachePersistenceRedisOptions,
+    denoRedis,
+} from '@esroyo/web-cache-api-persistence/deno-redis';
+import { denoKv } from '@esroyo/web-cache-api-persistence/deno-kv';
+import { unstorage } from '@esroyo/web-cache-api-persistence/unstorage';
 import { createWorkerPool } from './create-worker-pool.ts';
 import { createMainHandler } from './create-main-handler.ts';
 import { instrumentRequestHandler } from './instrument-request-handler.ts';
@@ -50,35 +56,38 @@ if (config.CACHE_ENABLE) {
         config.CACHE_REDIS_HOSTNAME &&
         config.CACHE_REDIS_PORT
     ) {
-        persistenceFactory = {
-            create: async () => {
-                const redisOptions: CachePersistenceRedisOptions = {
-                    hostname: config.CACHE_REDIS_HOSTNAME!,
-                    port: config.CACHE_REDIS_PORT,
-                    tls: config.CACHE_REDIS_TLS,
-                    max: config.CACHE_CONN_MAX,
-                    min: config.CACHE_CONN_MIN,
-                    bulkLimit: config.CACHE_BULK_LIMIT,
-                    instrumentation: config.CACHE_INSTRUMENTATION,
-                };
-                if (config.CACHE_REDIS_USERNAME) {
-                    redisOptions.username = config.CACHE_REDIS_USERNAME;
-                }
-                if (config.CACHE_REDIS_PASSWORD) {
-                    redisOptions.password = config.CACHE_REDIS_PASSWORD;
-                }
-                return new CachePersistenceRedis(redisOptions);
-            },
+        const redisOptions: CachePersistenceRedisOptions = {
+            hostname: config.CACHE_REDIS_HOSTNAME!,
+            port: config.CACHE_REDIS_PORT,
+            tls: config.CACHE_REDIS_TLS,
+            max: config.CACHE_CONN_MAX,
+            min: config.CACHE_CONN_MIN,
+            bulkLimit: config.CACHE_BULK_LIMIT,
+            instrumentation: config.CACHE_INSTRUMENTATION,
         };
-    } else {
-        persistenceFactory = {
-            create: async () =>
-                new CachePersistenceDenoKv({
-                    consistency: 'eventual',
-                    max: 4,
-                    min: 2,
+        if (config.CACHE_REDIS_USERNAME) {
+            redisOptions.username = config.CACHE_REDIS_USERNAME;
+        }
+        if (config.CACHE_REDIS_PASSWORD) {
+            redisOptions.password = config.CACHE_REDIS_PASSWORD;
+        }
+        persistenceFactory = denoRedis(redisOptions);
+    } else if (config.CACHE_SQL_DSN) {
+        persistenceFactory = unstorage({
+            storage: createStorage({
+                driver: dbDriver({
+                    database: createDatabase(
+                        postgresql({ url: config.CACHE_SQL_DSN }),
+                    ),
                 }),
-        };
+            }),
+        });
+    } else {
+        persistenceFactory = denoKv({
+            consistency: 'eventual',
+            max: 4,
+            min: 2,
+        });
     }
 
     const caches = new CacheStorage(persistenceFactory, headerNormalizer);
